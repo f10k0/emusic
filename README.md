@@ -1,435 +1,345 @@
-# ТАЙГА — Охотничий арсенал
+# 🎵 eMusic — музыкальный стриминговый сервис
 
-> Интернет-магазин охотничьего оружия и снаряжения с системой лицензирования и поддержки
-
-[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-512BD4)](https://dotnet.microsoft.com)
-[![Blazor Server](https://img.shields.io/badge/Blazor-Server-7B2D8B)](https://blazor.net)
-[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-13+-336791)](https://postgresql.org)
-[![Font Awesome](https://img.shields.io/badge/Font%20Awesome-6.5-528DD7)](https://fontawesome.com)
+**eMusic** — полноценная веб-платформа для прослушивания и распространения музыки, разработанная как аналог Spotify. Пользователи могут искать треки, создавать плейлисты, добавлять музыку в избранное, а артисты — загружать свои композиции. Администраторы управляют контентом через удобную панель с консолью команд.
 
 ---
 
-## Содержание
+## 📋 Оглавление
 
-- [О проекте](#о-проекте)
-- [Архитектура](#архитектура)
-- [Схема базы данных](#схема-базы-данных)
-- [Требования](#требования)
-- [Установка и запуск](#установка-и-запуск)
-- [Запуск через Docker](#запуск-через-docker)
-- [Перенос на другой компьютер](#перенос-на-другой-компьютер)
-- [Аккаунты по умолчанию](#аккаунты-по-умолчанию)
-- [Структура проекта](#структура-проекта)
-- [Страницы приложения](#страницы-приложения)
-
----
-
-## О проекте
-
-**ТАЙГА** — полнофункциональный интернет-магазин охотничьего оружия и снаряжения. Система учитывает специфику продажи оружия: обязательное лицензирование, ролевое разграничение доступа, административный документооборот.
-
-**Ключевые возможности:**
-- 🔫 Каталог товаров с поиском, фильтрацией по категории и сортировкой
-- 🛒 Корзина и оформление заказов со снимком цен на момент покупки
-- 📋 Система лицензирования — заявки на приобретение оружия с проверкой
-- 🎫 Тикет-система поддержки с историей переписки
-- 🖼 Загрузка фотографий товаров (drag & drop, до 5 МБ)
-- ⚙ Административная панель с полным CRUD и дашбордом статистики
-- 👥 Многоуровневая система ролей (Admin, Consultant, Support, User)
+1. [Возможности](#-возможности)
+2. [Технологический стек](#-технологический-стек)
+3. [Требования к системе](#-требования-к-системе)
+4. [Установка и запуск](#-установка-и-запуск)
+   - [Клонирование репозитория](#1-клонирование-репозитория)
+   - [Настройка базы данных](#2-настройка-базы-данных-postgresql)
+   - [Настройка бэкенда (FastAPI)](#3-настройка-бэкенда-fastapi)
+   - [Настройка фронтенда (Next.js)](#4-настройка-фронтенда-nextjs)
+5. [Создание администратора](#-создание-администратора)
+6. [Структура проекта](#-структура-проекта)
+7. [API документация](#-api-документация)
+8. [Функциональность по ролям](#-функциональность-по-ролям)
+9. [Возможные проблемы и их решение](#-возможные-проблемы-и-их-решение)
+10. [Развёртывание (деплой)](#-развёртывание-деплой)
+11. [Лицензия](#-лицензия)
 
 ---
 
-## Архитектура
+## ✨ Возможности
 
-Проект построен по принципам **Clean Architecture** и разделён на четыре независимых слоя:
+| Роль | Возможности |
+|------|-------------|
+| **Гость** | Просмотр главной страницы, поиск треков/альбомов/артистов, прослушивание музыки (без скачивания) |
+| **Зарегистрированный пользователь** | Всё, что у гостя, плюс: скачивание треков, добавление в избранное (треки, альбомы, артисты), создание/редактирование/удаление плейлистов, просмотр собственного профиля, смена аватара, редактирование данных |
+| **Артист** | Всё, что у пользователя, плюс: создание профиля артиста, загрузка треков (с модерацией), создание/редактирование/удаление альбомов, загрузка обложек для треков и альбомов, управление своими треками (редактирование, удаление) |
+| **Администратор** | Модерация заявок на публикацию треков, управление всеми треками (удаление), управление пользователями (бан/разбан), просмотр расширенной статистики, выполнение команд через админ-консоль, просмотр логов действий |
 
-```
-TaigaArsenal/
-├── src/
-│   ├── TaigaArsenal.Domain/          # Доменный слой
-│   │   └── Entities/                 # Сущности (Product, Order, License, ...)
-│   │
-│   ├── TaigaArsenal.Data/            # Инфраструктурный слой
-│   │   ├── Context/
-│   │   │   └── AppDbContext.cs       # EF Core DbContext
-│   │   ├── Repositories/
-│   │   │   └── Repository.cs         # Универсальный Repository<T>
-│   │   └── DbSeeder.cs               # Инициализация БД при запуске
-│   │
-│   ├── TaigaArsenal.Services/        # Слой бизнес-логики
-│   │   ├── Interfaces/IServices.cs   # Контракты сервисов
-│   │   └── Implementations/          # ProductService, CartService, OrderService, ...
-│   │
-│   └── TaigaArsenal.Web/             # Слой представления (Blazor Server)
-│       ├── Components/
-│       │   ├── Layout/               # MainLayout, NavDropdown
-│       │   ├── Pages/                # Страницы приложения
-│       │   └── Shared/               # ProductCard, ProductIcon, AdminNav, ...
-│       ├── Controllers/
-│       │   └── AccountController.cs  # MVC: login / register / logout
-│       ├── wwwroot/
-│       │   ├── css/taiga.css         # Глобальные стили
-│       │   ├── js/taiga.js           # Particles, scroll
-│       │   └── uploads/products/     # Загружаемые фото товаров
-│       ├── IconHelper.cs             # Маппинг slug → иконка FA
-│       └── Program.cs                # Точка входа, DI-регистрация
-```
-
-### Диаграмма слоёв
-
-```
-┌──────────────────────────────────────────┐
-│           TaigaArsenal.Web               │
-│   (Blazor Server + MVC Controller)       │
-└─────────────────┬────────────────────────┘
-                  │ зависит от
-┌─────────────────▼────────────────────────┐
-│        TaigaArsenal.Services             │
-│   (IProductService, ICartService, ...)   │
-└─────────────────┬────────────────────────┘
-                  │ зависит от
-┌─────────────────▼────────────────────────┐
-│          TaigaArsenal.Data               │
-│   (AppDbContext, Repository<T>, Seeder)  │
-└─────────────────┬────────────────────────┘
-                  │ зависит от
-┌─────────────────▼────────────────────────┐
-│         TaigaArsenal.Domain              │
-│      (Entities — без зависимостей)       │
-└──────────────────────────────────────────┘
-```
-
-### Технологический стек
-
-| Компонент       | Технология                         |
-|-----------------|------------------------------------|
-| Бэкенд          | ASP.NET Core 8.0                   |
-| UI              | Blazor Server                      |
-| ORM             | Entity Framework Core 8 (Npgsql)   |
-| База данных     | PostgreSQL 13+                     |
-| Аутентификация  | ASP.NET Identity + Cookie Auth     |
-| Иконки          | Font Awesome 6.5 (CDN)             |
-| Уведомления     | Blazored.Toast 4.2.1               |
-| Шрифты          | Playfair Display, Montserrat       |
-| Контейнеры      | Docker / docker-compose            |
+**Общие возможности:**
+- Кастомный аудиоплеер с ползунками прогресса и громкости (с кружками-регуляторами), кнопками повтора (один трек / весь плейлист) и случайного порядка.
+- Глобальный поиск по названиям треков, альбомов, имён артистов.
+- Адаптивный дизайн (тёмная тема).
+- Загрузка аватаров пользователей и артистов, обложек треков и альбомов.
 
 ---
 
-## Схема базы данных
+## 🛠 Технологический стек
 
-```
-AspNetUsers ─────────────────── Orders
-  │ Id (PK)                       │ Id (PK)
-  │ Email                         │ UserId (FK → AspNetUsers)
-  │ PasswordHash                  │ TotalAmount
-  │ FirstName / LastName          │ Status (Pending/Paid/Shipped/Delivered)
-  └───────────────────────────────┤ CreatedAt
-                                  └── OrderItems
-                                        │ Id (PK)
-                                        │ OrderId (FK → Orders)
-                                        │ ProductId (FK → Products)
-                                        │ Quantity
-                                        └── Price (снимок цены)
+### Backend (FastAPI)
+- **Python 3.9+**
+- **FastAPI** – веб-фреймворк
+- **SQLAlchemy** – ORM
+- **PostgreSQL** – реляционная база данных
+- **Pydantic** – валидация данных и схемы
+- **JWT (python-jose)** – аутентификация
+- **bcrypt** – хеширование паролей
+- **python-multipart** – работа с файлами (multipart/form-data)
+- **uvicorn** – ASGI-сервер
 
-Categories ──────────────────── Products
-  │ Id (PK)                       │ Id (PK)
-  │ Name                          │ Name / Brand
-  │ Slug (URL-ключ)               │ Price / OldPrice
-  └───────────────────────────────┤ CategoryId (FK → Categories)
-                                  │ ImageUrl
-                                  │ RequiresLicense
-                                  └── Stock / IsActive
+### Frontend (Next.js)
+- **React / Next.js (Pages Router)**
+- **Zustand** – управление глобальным состоянием (пользователь, плеер)
+- **Axios** – HTTP-клиент
+- **CSS** – кастомные стили (CSS-переменные, анимации, адаптивность)
+- **Font Awesome** – иконки (через CDN)
 
-CartItems                       Licenses
-  │ Id (PK)                       │ Id (PK)
-  │ UserId (FK → AspNetUsers)     │ UserId (FK → AspNetUsers)
-  │ ProductId (FK → Products)     │ ProductId (FK → Products)
-  └── Quantity                    │ Status (Pending/Approved/Rejected)
-                                  └── Comment
-
-SupportTickets ─────────────── SupportMessages
-  │ Id (PK)                       │ Id (PK)
-  │ UserId (FK → AspNetUsers)     │ TicketId (FK → SupportTickets)
-  │ Subject                       │ AuthorId (FK → AspNetUsers)
-  │ Status (Open/InProgress/Closed)│ Body
-  └──────────────────────────────  └── CreatedAt
-```
+### Инструменты разработки
+- **Git** – контроль версий
+- **Postman / Swagger** – тестирование API
+- **pgAdmin / psql** – управление базой данных
 
 ---
 
-## Требования
+## 📋 Требования к системе
 
-### Обязательные
-- [.NET 8 SDK](https://dotnet.microsoft.com/download/dotnet/8.0)
-- [PostgreSQL 13 или новее](https://www.postgresql.org/download/)
-
-### Опциональные
-- Docker + docker-compose (для запуска через контейнеры)
-- Git
+- **Python** 3.9 или выше
+- **Node.js** 18 или выше
+- **PostgreSQL** 14 или выше
+- **Git** (опционально)
+- **Windows / macOS / Linux** (проект кроссплатформенный)
 
 ---
 
-## Установка и запуск
+## 🚀 Установка и запуск
 
-### 1. Клонирование / копирование проекта
+### 1. Клонирование репозитория
 
 ```bash
-git clone https://github.com/yourname/taiga-arsenal.git
-cd taiga-arsenal
-```
+1 (❗НЕОБЯЗАТЕЛЬНО, МОЖЕТЕ ПРОСТО СКАЧАТЬ И ПЕРЕЙТИ
+ДАЛЬШЕ ПО ШАГАМ❗, клонировать репозиторий необязательно).
 
-Или распакуй архив проекта в удобную папку.
+git clone https://github.com/your-username/emusic.git
+cd emusic
 
-### 2. Настройка базы данных
+2. Настройка базы данных (PostgreSQL)
+(❗НО, тут даны мои данные ruslankorshikov, пароль: 1234, чтобы не
+менять и не париться, можете зайти под ними, упростите себе жизнь❗, чтобы код не менять)
 
-Открой **PowerShell** и выполни (замени путь на свою версию PostgreSQL):
+Убедитесь, что PostgreSQL запущен.
 
-```powershell
-# создать базу данных
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -c "CREATE DATABASE taiga_db;"
-```
+Подключитесь к серверу (например, через psql или pgAdmin).
 
-### 3. Строка подключения
+Создайте базу данных и пользователя (замените your_username, your_password на свои):
 
-Отредактируй `src/TaigaArsenal.Web/appsettings.json`:
+sql
+CREATE DATABASE app_music;
+CREATE USER your_username WITH PASSWORD 'your_password';
+GRANT ALL PRIVILEGES ON DATABASE app_music TO your_username;
+В файле backend/database.py укажите строку подключения:
 
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=5432;Database=taiga_db;Username=postgres;Password=ВАШ_ПАРОЛЬ"
-  }
-}
-```
+python
+SQLALCHEMY_DATABASE_URL = "postgresql://your_username:your_password@localhost/app_music"
 
-### 4. Восстановление зависимостей
+3. Настройка бэкенда (FastAPI)
+bash
+cd backend
+python -m venv venv
+# Активация окружения:
+# Windows (cmd):
+venv\Scripts\activate
+# Windows (PowerShell):
+.\venv\Scripts\Activate
+# Linux/macOS:
+source venv/bin/activate
 
-```bash
-dotnet restore src/TaigaArsenal.Web/TaigaArsenal.Web.csproj
-```
+# Установка зависимостей
+# Если есть файл requirements.txt:
+pip install -r requirements.txt
 
-### 5. Запуск приложения
+# Если нет, установите вручную:
+pip install fastapi uvicorn sqlalchemy psycopg2-binary python-jose[cryptography] bcrypt python-multipart "pydantic[email]" email-validator
 
-```bash
-cd src/TaigaArsenal.Web
-dotnet run
-```
+# Создание таблиц в базе данных
+python init_db.py
 
-Приложение будет доступно по адресу: **http://localhost:5000**
+# Запуск сервера
+uvicorn main:app --reload
+Бэкенд будет доступен по адресу http://127.0.0.1:8000.
 
-> **Примечание:** База данных создаётся автоматически при первом запуске через `DbSeeder`. Таблицы создаются SQL-скриптами (`CREATE TABLE IF NOT EXISTS`), миграции EF не используются. Тестовые аккаунты и начальные данные заполняются автоматически.
+4. Настройка фронтенда (Next.js)
+В новом терминале (не закрывая бэкенд):
 
----
+bash
+cd ../emusic-frontend
+npm install
 
-## Запуск через Docker
+# Создайте файл .env.local и укажите адрес бэкенда:
+echo "NEXT_PUBLIC_API_URL=http://localhost:8000" > .env.local
 
-### docker-compose.yml
+# Запуск сервера разработки
+npm run dev
+Фронтенд будет доступен по адресу http://localhost:3000.
 
-```yaml
-version: '3.9'
+👑 Создание администратора
+После первого запуска вы можете создать администратора двумя способами:
 
-services:
-  db:
-    image: postgres:16-alpine
-    container_name: taiga_postgres
-    environment:
-      POSTGRES_DB:       taiga_db
-      POSTGRES_USER:     taiga
-      POSTGRES_PASSWORD: taiga_pass
-    ports:
-      - "5432:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
+Способ 1: Через регистрацию и изменение роли в БД
 
-  app:
-    build: .
-    container_name: taiga_app
-    depends_on:
-      db:
-        condition: service_healthy
-    environment:
-      ConnectionStrings__Default: "Host=db;Port=5432;Database=taiga_db;Username=taiga;Password=taiga_pass"
-      ASPNETCORE_URLS: "http://+:80"
-    ports:
-      - "8080:80"
-    volumes:
-      - uploads_data:/app/wwwroot/uploads
+Зарегистрируйте пользователя на сайте.
 
-volumes:
-  postgres_data:
-  uploads_data:
-```
+В psql выполните:
 
-### Dockerfile
+sql
+UPDATE users SET role = 'admin' WHERE username = 'ваш_логин';
+Способ 2: Вставить прямо в базу данных (логин adminrule01, пароль 3270125)
 
-```dockerfile
-FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-WORKDIR /app
-EXPOSE 80
+sql
+INSERT INTO users (username, email, hashed_password, role, is_active)
+VALUES (
+    'adminrule01',
+    'admin@emusic.com',
+    '$2b$12$EixZaYVK1fsbw1ZfbX3OXePaWxn96p36JBQGhxiK6I7q5QyI9ZwZy', -- это хеш пароля "3270125"
+    'admin',
+    true
+);
+Важно: если вы не используете этот конкретный хеш, сгенерируйте свой через Python:
 
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-WORKDIR /src
-COPY ["src/TaigaArsenal.Domain/TaigaArsenal.Domain.csproj",    "src/TaigaArsenal.Domain/"]
-COPY ["src/TaigaArsenal.Data/TaigaArsenal.Data.csproj",        "src/TaigaArsenal.Data/"]
-COPY ["src/TaigaArsenal.Services/TaigaArsenal.Services.csproj", "src/TaigaArsenal.Services/"]
-COPY ["src/TaigaArsenal.Web/TaigaArsenal.Web.csproj",          "src/TaigaArsenal.Web/"]
-RUN dotnet restore "src/TaigaArsenal.Web/TaigaArsenal.Web.csproj"
-COPY . .
-RUN dotnet publish "src/TaigaArsenal.Web/TaigaArsenal.Web.csproj" -c Release -o /app/publish
+python
+import bcrypt
+password = "3270125"
+hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+print(hashed.decode('utf-8'))
 
-FROM base AS final
-WORKDIR /app
-COPY --from=build /app/publish .
-ENTRYPOINT ["dotnet", "TaigaArsenal.Web.dll"]
-```
+СПОСОБ 3: (❗САМЫЙ ЛУЧШИЙ❗)
 
-```bash
-# Сборка и запуск
-docker compose build
-docker compose up -d
+cd backend
+python create_admin.py
 
-# Просмотр логов
-docker compose logs -f app
+(данные есть в файле create_admin.py)
 
-# Остановка
-docker compose down
-```
+📁 Структура проекта:
 
-Приложение будет доступно по адресу: **http://localhost:8080**
+emusic/
+├── backend/
+│   ├── routers/
+│   │   ├── admin.py
+│   │   ├── albums.py
+│   │   ├── artists.py
+│   │   ├── favorites.py
+│   │   ├── music.py
+│   │   ├── playlists.py
+│   │   ├── submissions.py
+│   │   └── users.py
+│   ├── __init__.py
+│   ├── auth.py
+│   ├── database.py
+│   ├── dependencies.py
+│   ├── init_db.py
+│   ├── main.py
+│   ├── models.py
+│   ├── schemas.py
+│   ├── requirements.txt
+│   └── uploads/
+│       ├── artist_avatars/
+│       ├── album_covers/
+│       ├── track_covers/
+│       ├── playlist_covers/
+│       └── .gitkeep
+├── emusic-frontend/
+│   ├── components/
+│   │   ├── AddToPlaylistButton.js
+│   │   ├── DownloadButton.js
+│   │   ├── Header.js
+│   │   ├── Layout.js
+│   │   ├── LikeButton.js
+│   │   ├── Modal.js
+│   │   ├── PlayerBar.js
+│   │   ├── ProtectedRoute.js
+│   │   └── Sidebar.js
+│   ├── pages/
+│   │   ├── admin/
+│   │   │   ├── console.js
+│   │   │   ├── submissions.js
+│   │   │   └── tracks.js
+│   │   ├── artist/
+│   │   │   ├── [id].js
+│   │   │   ├── albums.js
+│   │   │   ├── create.js
+│   │   │   ├── edit-album/
+│   │   │   │   └── [id].js
+│   │   │   ├── edit-track/
+│   │   │   │   └── [id].js
+│   │   │   ├── my-tracks.js
+│   │   │   ├── settings.js
+│   │   │   ├── submissions.js
+│   │   │   └── upload.js
+│   │   ├── playlists/
+│   │   │   ├── [id].js
+│   │   │   └── index.js
+│   │   ├── profile/
+│   │   │   ├── favorites.js
+│   │   │   └── index.js
+│   │   ├── album/
+│   │   │   └── [id].js
+│   │   ├── _app.js
+│   │   ├── _document.js
+│   │   ├── index.js
+│   │   ├── login.js
+│   │   ├── register.js
+│   │   └── search.js
+│   ├── store/
+│   │   ├── authStore.js
+│   │   └── playerStore.js
+│   ├── lib/
+│   │   ├── api.js
+│   │   └── utils.js
+│   ├── styles/
+│   │   └── globals.css
+│   ├── public/
+│   │   ├── default-avatar.png
+│   │   ├── default-cover.png
+│   │   └── default-playlist.png
+│   ├── .env.local
+│   ├── .gitignore
+│   ├── next.config.js
+│   ├── package.json
+│   └── package-lock.json
+└── README.md
 
----
 
-## Перенос на другой компьютер
+📚 API документация
+После запуска бэкенда интерактивная документация доступна по адресу:
 
-### Резервная копия базы данных
+text
+http://localhost:8000/docs (❗ИНОГДА БЫВАЕТ ЗАНЯТ,
+НО ЕСЛИ НЕ ЗАПУСТИЛСЯ, ЗНАЧИТ ВЫ НЕ УСТАНОВИЛИ ЗАВИСИМОСТИ❗)
+Основные группы эндпоинтов:
 
-```powershell
-# создать дамп (старый компьютер)
-& "C:\Program Files\PostgreSQL\18\bin\pg_dump.exe" `
-  -U postgres -d taiga_db `
-  -f "C:\путь\до\TaigaArsenal\taiga_backup.sql"
-```
+Эндпоинт	Описание
+/users	Регистрация, логин, профиль, смена аватара
+/artists	Создание профиля артиста, управление, получение информации
+/music	Топ треков, поиск, прослушивание, скачивание
+/favorites	Добавление/удаление из избранного, получение списков
+/submissions	Загрузка треков, получение/редактирование/удаление
+/admin	Статистика, команды, управление пользователями и треками
+/albums	CRUD альбомов, загрузка обложек
+/playlists	CRUD плейлистов, добавление/удаление треков
+Все защищённые эндпоинты требуют заголовок Authorization: Bearer <JWT_TOKEN>.
 
-### Восстановление на новом компьютере
+👥 Функциональность по ролям
+Гость
+-Просмотр главной страницы, поиск.
 
-```powershell
-# 1. создать базу
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -c "CREATE DATABASE taiga_db;"
+-Прослушивание треков (без скачивания).
 
-# 2. восстановить дамп
-& "C:\Program Files\PostgreSQL\18\bin\psql.exe" -U postgres -d taiga_db `
-  -f "C:\путь\до\taiga_backup.sql"
+-Кнопки лайка, скачивания, добавления в плейлист ведут на страницу логина.
 
-# 3. запустить проект
-cd C:\путь\до\TaigaArsenal\src\TaigaArsenal.Web
-dotnet run
-```
+😀 Зарегистрированный пользователь
+-Всё, что у гостя.
 
-> **Важно:** Дополнительно скопируй папку `wwwroot/uploads/products/` — загруженные фотографии товаров хранятся там, в базу данных попадает только путь к файлу.
+-Скачивание треков.
 
----
+-Добавление/удаление из избранного (треки, альбомы, артисты).
 
-## Аккаунты по умолчанию
+-Создание, редактирование, удаление плейлистов.
 
-| Роль        | Email                    | Пароль           |
-|-------------|--------------------------|------------------|
-| Admin       | `admin@taiga.ru`         | `Admin123!`      |
-| Consultant  | `consultant@taiga.ru`    | `Consultant123!` |
-| Support     | `support@taiga.ru`       | `Support123!`    |
-| User        | `user@taiga.ru`          | `User123!`       |
+-Просмотр своего профиля, смена аватара, редактирование данных.
 
----
+🎵 Артист
+-Всё, что у пользователя.
 
-## Структура проекта
+-Создание профиля артиста (кнопка "Стать артистом").
 
-```
-src/
-├── TaigaArsenal.Domain/
-│   └── Entities/
-│       └── Entities.cs          # Product, Order, CartItem, License, SupportTicket, ...
-│
-├── TaigaArsenal.Data/
-│   ├── Context/
-│   │   └── AppDbContext.cs      # EF Core контекст, все DbSet'ы
-│   ├── Repositories/
-│   │   └── Repository.cs        # Repository<T> — базовый CRUD
-│   └── DbSeeder.cs              # CREATE TABLE IF NOT EXISTS + seed-данные
-│
-├── TaigaArsenal.Services/
-│   ├── Interfaces/
-│   │   └── IServices.cs         # IProductService, ICartService, IOrderService, ...
-│   └── Implementations/
-│       └── Services.cs          # Реализации всех сервисов
-│
-└── TaigaArsenal.Web/
-    ├── Components/
-    │   ├── Layout/
-    │   │   └── MainLayout.razor          # Навбар + футер
-    │   ├── Shared/
-    │   │   ├── NavDropdown.razor         # Дропдаун меню пользователя
-    │   │   ├── ProductCard.razor         # Карточка товара в сетке
-    │   │   ├── ProductIcon.razor         # Font Awesome иконки категорий
-    │   │   ├── AccountNav.razor          # Навигация личного кабинета
-    │   │   └── AdminNav.razor            # Навигация панели администратора
-    │   └── Pages/
-    │       ├── Home.razor                # Главная страница
-    │       ├── Catalog.razor             # Каталог с поиском и фильтрами
-    │       ├── ProductDetail.razor       # Страница товара
-    │       ├── Cart.razor                # Корзина
-    │       ├── Checkout.razor            # Оформление заказа
-    │       ├── Account/
-    │       │   ├── Login.razor
-    │       │   ├── Register.razor
-    │       │   ├── Orders.razor          # Мои заказы
-    │       │   ├── Licenses.razor        # Мои лицензии
-    │       │   ├── Tickets.razor         # Обращения в поддержку
-    │       │   └── Profile.razor
-    │       └── Admin/
-    │           ├── AdminDashboard.razor  # Дашборд со статистикой
-    │           ├── AdminProducts.razor   # Управление товарами + загрузка фото
-    │           ├── AdminOrders.razor     # Управление заказами
-    │           ├── AdminLicenses.razor   # Заявки на лицензии
-    │           ├── AdminTickets.razor    # Тикеты поддержки
-    │           └── AdminUsers.razor      # Список пользователей
-    ├── Controllers/
-    │   └── AccountController.cs          # POST /auth/login, /auth/register, GET /auth/logout
-    ├── wwwroot/
-    │   ├── css/taiga.css                 # Все стили проекта
-    │   ├── js/taiga.js                   # Particles на главной, закрытие dropdown
-    │   ├── images/products/              # Иконки-заглушки категорий (PNG)
-    │   └── uploads/products/             # Загруженные фото товаров
-    ├── IconHelper.cs                     # Маппинг slug категории → ключ иконки FA
-    ├── appsettings.json
-    └── Program.cs                        # Точка входа, регистрация DI, запуск DbSeeder
-```
+-Загрузка треков (через форму с выбором альбома и обложкой). Трек уходит на модерацию.
 
----
+-Управление своими треками (редактирование, удаление).
 
-## Страницы приложения
+-Создание, редактирование, удаление альбомов (загрузка обложек).
 
-| URL                      | Описание                                    | Доступ              |
-|--------------------------|---------------------------------------------|---------------------|
-| `/`                      | Главная: hero-секция, категории, рекомендации | Все               |
-| `/catalog`               | Каталог товаров (поиск, фильтры, сортировка) | Все               |
-| `/catalog?slug=XXX`      | Каталог с предвыбранной категорией           | Все                 |
-| `/product/{id}`          | Детальная страница товара                   | Все                 |
-| `/cart`                  | Корзина покупателя                          | Авторизованные      |
-| `/checkout`              | Оформление заказа                           | Авторизованные      |
-| `/account/orders`        | История заказов                             | Авторизованные      |
-| `/account/licenses`      | Мои заявки на лицензию                      | Авторизованные      |
-| `/account/tickets`       | Обращения в поддержку                       | Авторизованные      |
-| `/account/profile`       | Профиль пользователя                        | Авторизованные      |
-| `/admin`                 | Дашборд: статистика заказов и выручки       | Admin, Consultant   |
-| `/admin/products`        | CRUD товаров, загрузка фото                 | Admin, Consultant   |
-| `/admin/orders`          | Управление заказами                         | Admin               |
-| `/admin/licenses`        | Одобрение заявок на лицензию               | Admin, Consultant   |
-| `/admin/tickets`         | Обработка тикетов поддержки                 | Admin, Support      |
-| `/admin/users`           | Список пользователей системы                | Admin               |
-| `POST /auth/login`       | Вход (MVC-контроллер)                       | Все                 |
-| `POST /auth/register`    | Регистрация (MVC-контроллер)                | Все                 |
-| `GET /auth/logout`       | Выход из системы                            | Авторизованные      |
+-Просмотр статуса заявок на публикацию.
 
----
+⚠️ Администратор
+-Модерация заявок (одобрение/отклонение).
 
-## Лицензия
+-Управление треками (просмотр всех, удаление любых).
 
-Проект разработан в учебных целях в рамках курсового проекта по дисциплине «Веб-разработка».
+-Управление пользователями (бан/разбан).
+
+-Админ-консоль:
+
+-Расширенная статистика (количество пользователей, артистов, треков, прослушиваний, активность за 24 часа, топ треков).
+
+-Команды: help, stats, users, artists, tracks, top [N], user [id/name], toggle-ban [id], delete-track [id], delete-user [id], clear-logs.
+
+-Логи действий администратора.
+
+-История выполненных команд.
+
