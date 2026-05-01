@@ -143,6 +143,18 @@ class Playlist(Base):
     user = relationship('User', back_populates='playlists')
     tracks = relationship('Track', secondary=playlist_tracks, backref='playlists')
 
+# после класса Playlist добавить:
+
+class News(Base):
+    __tablename__ = 'news'
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    content = Column(Text, nullable=False)
+    image = Column(String, nullable=True)  # путь к картинке
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    is_published = Column(Boolean, default=True)
 
 class Genre(Base):
     __tablename__ = 'genres'

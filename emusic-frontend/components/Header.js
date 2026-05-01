@@ -3,6 +3,7 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import useAuthStore from '../store/authStore';
+import NewsButton from './NewsButton';
 
 export default function Header() {
   const router = useRouter();
@@ -70,9 +71,13 @@ export default function Header() {
           {router.pathname === '/profile/favorites' && 'Избранное'}
           {router.pathname === '/playlists' && 'Мои плейлисты'}
           {router.pathname.startsWith('/playlists/') && router.pathname !== '/playlists' && 'Плейлист'}
+          {router.pathname === '/genres' && 'Все жанры'}
+          {router.pathname.startsWith('/genre/') && 'Жанр'}
+          {router.pathname === '/chart' && 'Чарт'}
           {router.pathname === '/admin/submissions' && 'Модерация'}
           {router.pathname === '/admin/tracks' && 'Управление треками'}
           {router.pathname === '/admin/console' && 'Админ-консоль'}
+          {router.pathname === '/admin/news' && 'Управление новостями'}
         </h1>
         <div className="header-date">
           {new Date().toLocaleDateString('ru-RU', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
@@ -84,11 +89,13 @@ export default function Header() {
           <i className="fas fa-search"></i>
           <input
             type="text"
-            placeholder="Поиск треков, альбомов, артистов..."
+            placeholder="Поиск треков, альбомов, артистов, жанров..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
         </form>
+
+        <NewsButton />
 
         {!user ? (
           <div className="auth-buttons">
@@ -134,6 +141,12 @@ export default function Header() {
           <Link href="/playlists" onClick={() => setDropdownOpen(false)}>
             <i className="fas fa-list"></i> Мои плейлисты
           </Link>
+          <Link href="/genres" onClick={() => setDropdownOpen(false)}>
+            <i className="fas fa-tags"></i> Жанры
+          </Link>
+          <Link href="/chart" onClick={() => setDropdownOpen(false)}>
+            <i className="fas fa-chart-line"></i> Чарт
+          </Link>
           
           {user.role === 'user' && (
             <Link href="/artist/create" onClick={() => setDropdownOpen(false)}>
@@ -171,6 +184,9 @@ export default function Header() {
               </Link>
               <Link href="/admin/console" onClick={() => setDropdownOpen(false)}>
                 <i className="fas fa-chart-line"></i> Админ-консоль
+              </Link>
+              <Link href="/admin/news" onClick={() => setDropdownOpen(false)}>
+                <i className="fas fa-newspaper"></i> Новости
               </Link>
             </>
           )}

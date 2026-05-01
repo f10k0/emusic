@@ -64,15 +64,39 @@ def search(
 
 
 @router.get("/listen/{track_id}")
-def listen_track(track_id: int, db: Session = Depends(get_db)):
-    track = db.query(models.Track).filter(models.Track.id == track_id, models.Track.is_published == True).first()
+def listen_track(
+    track_id: int,
+    db: Session = Depends(get_db),
+    current_user: Optional[models.User] = Depends(dependencies.optional_current_user)
+):
+    print(f"=== Запрос на прослушивание трека {track_id} ===")
+    print(f"Пользователь: {current_user.username if current_user else 'не авторизован'}, роль: {current_user.role if current_user else 'None'}")
+    
+    # Админ может слушать неопубликованные треки
+    if current_user and current_user.role == "admin":
+        track = db.query(models.Track).filter(models.Track.id == track_id).first()
+        print(f"Админ запрашивает трек {track_id}, найден: {track is not None}")
+    else:
+        track = db.query(models.Track).filter(models.Track.id == track_id, models.Track.is_published == True).first()
+        print(f"Обычный пользователь запрашивает трек {track_id}, найден: {track is not None}")
+    
     if not track:
+        print(f"Трек {track_id} не найден в базе!")
         raise HTTPException(status_code=404, detail="Track not found")
+    
+    # Увеличиваем счётчик прослушиваний
     track.play_count += 1
     db.commit()
+    print(f"Счётчик прослушиваний обновлён: {track.play_count}")
+    
     file_path = track.file_path
+    print(f"Путь к файлу: {file_path}")
+    
     if not os.path.exists(file_path):
+        print(f"Файл не найден по пути: {file_path}")
         raise HTTPException(status_code=404, detail="File not found")
+    
+    print(f"Файл найден, отправляем: {file_path}")
     return FileResponse(file_path, media_type="audio/mpeg", filename=f"{track.title}.mp3")
 
 

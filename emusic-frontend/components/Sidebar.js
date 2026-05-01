@@ -75,6 +75,14 @@ export default function Sidebar() {
               <i className="fas fa-tags"></i> Жанры
             </Link>
           </li>
+          <li>
+            <Link
+              href="/chart"
+              className={isActive('/chart') ? 'active' : ''}
+            >
+              <i className="fas fa-chart-line"></i> Чарт
+            </Link>
+          </li>
         </ul>
       </div>
 
@@ -152,6 +160,11 @@ export default function Sidebar() {
               <li>
                 <Link href="/admin/console" className={isActive('/admin/console') ? 'active' : ''}>
                   <i className="fas fa-chart-line"></i> Админ-консоль
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin/news" className={isActive('/admin/news') ? 'active' : ''}>
+                  <i className="fas fa-newspaper"></i> Новости
                 </Link>
               </li>
             </ul>

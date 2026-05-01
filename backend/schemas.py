@@ -210,6 +210,32 @@ class SearchResult(BaseModel):
     genres: List[GenreOut] = []
 
 
+# после SearchResult добавить:
+
+class NewsBase(BaseModel):
+    title: str
+    content: str
+    image: Optional[str] = None
+    is_published: bool = True
+
+
+class NewsCreate(NewsBase):
+    pass
+
+
+class NewsUpdate(BaseModel):
+    title: Optional[str] = None
+    content: Optional[str] = None
+    image: Optional[str] = None
+    is_published: Optional[bool] = None
+
+
+class NewsOut(NewsBase):
+    id: int
+    created_at: datetime
+    updated_at: Optional[datetime] = None
+    model_config = ConfigDict(from_attributes=True)
+
 # Chart schemas
 class ChartTrackOut(BaseModel):
     id: int
@@ -225,3 +251,16 @@ class ChartTrackOut(BaseModel):
 class ChartResponse(BaseModel):
     tracks: List[ChartTrackOut]
     total: int
+
+# ... в конце файла, после всех существующих классов ...
+
+class SubmissionOut(BaseModel):
+    id: int
+    artist_id: int
+    track_id: int
+    status: str
+    submitted_at: datetime
+    reviewed_at: Optional[datetime]
+    artist: Optional[ArtistOut] = None  # добавляем
+    track: Optional[TrackOut] = None    # добавляем
+    model_config = ConfigDict(from_attributes=True)

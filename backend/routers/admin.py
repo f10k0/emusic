@@ -1,16 +1,17 @@
 import datetime
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import func
 from typing import List, Optional
 import os
 from datetime import datetime, timedelta
-from sqlalchemy import func
 
 from database import get_db
 import models, schemas, dependencies
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
+# Логгирование в памяти
 admin_logs = []
 command_logs = []
 
@@ -43,7 +44,12 @@ def get_pending_submissions(
     current_admin: models.User = Depends(dependencies.require_role("admin")),
     db: Session = Depends(get_db)
 ):
-    submissions = db.query(models.Submission).filter(models.Submission.status == "pending").all()
+    submissions = db.query(models.Submission).options(
+        joinedload(models.Submission.artist),
+        joinedload(models.Submission.track).joinedload(models.Track.artist),
+        joinedload(models.Submission.track).joinedload(models.Track.genres)
+    ).filter(models.Submission.status == "pending").all()
+    
     add_admin_log(current_admin.username, "Просмотр", f"Просмотр ожидающих заявок ({len(submissions)} шт.)")
     return submissions
 
@@ -104,12 +110,15 @@ def get_all_tracks(
     current_admin: models.User = Depends(dependencies.require_role("admin")),
     db: Session = Depends(get_db)
 ):
-    tracks = db.query(models.Track).all()
+    tracks = db.query(models.Track).options(
+        joinedload(models.Track.artist),
+        joinedload(models.Track.genres)
+    ).all()
     add_admin_log(current_admin.username, "Просмотр", f"Просмотр всех треков ({len(tracks)} шт.)")
     return tracks
 
 
-@router.put("/tracks/{track_id}")
+@router.put("/tracks/{track_id}", response_model=schemas.TrackOut)
 def admin_update_track(
     track_id: int,
     track_data: schemas.TrackUpdate,

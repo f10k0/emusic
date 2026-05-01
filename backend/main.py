@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
-from routers import users, artists, music, favorites, submissions, admin, albums, playlists, genres
+from routers import users, artists, music, favorites, submissions, admin, albums, playlists, genres, news
 
 app = FastAPI(title="Music App API")
 
@@ -25,6 +25,7 @@ app.include_router(admin.router)
 app.include_router(albums.router)
 app.include_router(playlists.router)
 app.include_router(genres.router)
+app.include_router(news.router)
 
 @app.get("/")
 def root():
