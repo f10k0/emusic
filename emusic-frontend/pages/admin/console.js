@@ -10,7 +10,7 @@ export default function AdminConsole() {
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState('stats');
   const [stats, setStats] = useState(null);
-  const [logs, setLogs] = useState([]);
+  conыt [logs, setLogs] = useState([]);
   const [commandLogs, setCommandLogs] = useState([]);
   const [loading, setLoading] = useState(true);
   
