@@ -264,3 +264,58 @@ def delete_comment(
     db.delete(c)
     db.commit()
     return {"ok": True}
+
+
+# ── Редактирование клипа артистом ────────────────────────────────────────────
+@router.patch("/{video_id}/edit")
+async def edit_video(
+    video_id: int,
+    title: str = Form(...),
+    description: str = Form(""),
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(dependencies.get_current_user)
+):
+    v = db.query(models.Video).filter(models.Video.id == video_id).first()
+    if not v:
+        raise HTTPException(404, "Видео не найдено")
+    artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
+    if current_user.role != "admin" and (not artist or artist.id != v.artist_id):
+        raise HTTPException(403, "Нет доступа")
+    v.title = title
+    v.description = description
+    db.commit()
+    db.refresh(v)
+    return _video_out(v, current_user)
+
+
+@router.patch("/{video_id}/publish")
+def publish_video(
+    video_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(dependencies.get_current_user)
+):
+    v = db.query(models.Video).filter(models.Video.id == video_id).first()
+    if not v:
+        raise HTTPException(404)
+    artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
+    if current_user.role != "admin" and (not artist or artist.id != v.artist_id):
+        raise HTTPException(403)
+    v.is_published = True
+    db.commit()
+    return {"ok": True}
+
+
+@router.get("/artist/{artist_id}")
+def get_artist_videos(
+    artist_id: int,
+    skip: int = 0,
+    limit: int = 20,
+    db: Session = Depends(get_db),
+    current_user: Optional[models.User] = Depends(dependencies.optional_current_user)
+):
+    """Публичные клипы артиста — для отображения в профиле."""
+    q = db.query(models.Video).filter(
+        models.Video.artist_id == artist_id,
+        models.Video.is_published == True
+    ).order_by(models.Video.created_at.desc()).offset(skip).limit(limit)
+    return [_video_out(v, current_user) for v in q.all()]

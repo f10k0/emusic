@@ -113,6 +113,11 @@ export default function Sidebar() {
                 </Link>
               </li>
               <li>
+                <Link href="/artist/my-clips" className={isActive('/artist/my-clips') ? 'active' : ''}>
+                  <i className="fas fa-film"></i> Мои клипы
+                </Link>
+              </li>
+              <li>
                 <Link href="/artist/my-tracks" className={isActive('/artist/my-tracks') ? 'active' : ''}>
                   <i className="fas fa-music"></i> Мои треки
                 </Link>

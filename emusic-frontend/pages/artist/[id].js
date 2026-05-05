@@ -15,7 +15,16 @@ export default function ArtistPage() {
   const [albums, setAlbums] = useState([]);
   const [tracks, setTracks] = useState([]);
   const [events, setEvents] = useState([]);
+  const [videos, setVideos] = useState([]);
+  const [activeTab, setActiveTab] = useState('tracks');
   const { setTrack, updateQueue } = usePlayerStore();
+
+  const fetchVideos = async (artistId) => {
+    try {
+      const r = await api.get(`/videos/artist/${artistId}`);
+      setVideos(r.data || []);
+    } catch {}
+  };
 
   const fetchEvents = async (artistId) => {
     try {
@@ -33,6 +42,7 @@ export default function ArtistPage() {
           setTracks(res.data.tracks || []);
           updateQueue(res.data.tracks || []);
           fetchEvents(id);
+          fetchVideos(id);
         })
         .catch(err => console.error('Ошибка загрузки артиста:', err));
     }
@@ -112,7 +122,24 @@ export default function ArtistPage() {
         )}
 
         <div className="section">
-          <h2>Треки</h2>
+          {/* Вкладки: Треки / Клипы */}
+          <div style={{ display: 'flex', gap: 4, background: 'var(--bg-elevated)', borderRadius: 12, padding: 4, marginBottom: 20, border: '1px solid var(--border)', width: 'fit-content' }}>
+            <button
+              onClick={() => setActiveTab('tracks')}
+              style={{ padding: '8px 20px', borderRadius: 9, border: 'none', background: activeTab === 'tracks' ? 'var(--accent)' : 'none', color: activeTab === 'tracks' ? 'white' : 'var(--text-muted)', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', transition: 'all 0.2s' }}
+            >
+              <i className="fas fa-music" style={{ marginRight: 6 }}></i>Треки ({tracks.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('clips')}
+              style={{ padding: '8px 20px', borderRadius: 9, border: 'none', background: activeTab === 'clips' ? 'var(--accent)' : 'none', color: activeTab === 'clips' ? 'white' : 'var(--text-muted)', cursor: 'pointer', fontWeight: 600, fontSize: '0.88rem', transition: 'all 0.2s' }}
+            >
+              <i className="fas fa-film" style={{ marginRight: 6 }}></i>Клипы ({videos.length})
+            </button>
+          </div>
+
+          {/* Вкладка Треки */}
+          {activeTab === 'tracks' && (
           <div className="track-list">
             {tracks.map(track => (
               <div key={track.id} className="track-item">
@@ -142,6 +169,49 @@ export default function ArtistPage() {
               </div>
             ))}
           </div>
+          )}
+
+          {/* Вкладка Клипы */}
+          {activeTab === 'clips' && (
+            <div>
+              {videos.length === 0 ? (
+                <div style={{ textAlign: 'center', padding: '40px', color: 'var(--text-muted)' }}>
+                  <i className="fas fa-film" style={{ fontSize: '2.5rem', marginBottom: 12, display: 'block', opacity: 0.3 }}></i>
+                  <p>У этого артиста нет клипов</p>
+                </div>
+              ) : (
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
+                  {videos.map(v => (
+                    <a key={v.id} href="/clips" style={{ textDecoration: 'none', display: 'block' }}>
+                      <div style={{ background: 'var(--bg-elevated)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)', transition: 'transform 0.2s, box-shadow 0.2s' }}
+                        onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = 'var(--card-hover)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
+                      >
+                        <div style={{ position: 'relative', background: '#000' }}>
+                          <video
+                            src={`${process.env.NEXT_PUBLIC_API_URL}/${v.file_path}`}
+                            style={{ width: '100%', height: 160, objectFit: 'cover', display: 'block' }}
+                            muted
+                            preload="metadata"
+                          />
+                          <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'rgba(0,0,0,0.25)' }}>
+                            <i className="fas fa-play-circle" style={{ fontSize: '2.2rem', color: 'rgba(255,255,255,0.85)' }}></i>
+                          </div>
+                        </div>
+                        <div style={{ padding: '10px 12px' }}>
+                          <div style={{ fontWeight: 700, fontSize: '0.88rem', marginBottom: 4, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{v.title}</div>
+                          <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', display: 'flex', gap: 10 }}>
+                            <span><i className="fas fa-eye" style={{ marginRight: 3 }}></i>{v.play_count || 0}</span>
+                            <span><i className="fas fa-heart" style={{ marginRight: 3 }}></i>{v.likes || 0}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </a>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           {events.length > 0 && (
             <div style={{ marginTop: '32px' }}>
