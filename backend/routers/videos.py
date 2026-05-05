@@ -57,6 +57,7 @@ def _video_out(v: models.Video, current_user=None, db: Session = None) -> dict:
         "likes": v.likes,
         "dislikes": v.dislikes,
         "is_published": v.is_published,
+        "hidden_by_admin": v.hidden_by_admin if hasattr(v, 'hidden_by_admin') else False,
         "created_at": v.created_at,
         "liked": liked,
         "disliked": disliked,
@@ -431,6 +432,9 @@ def hide_video(
     if current_user.role != "admin" and (not artist or artist.id != v.artist_id):
         raise HTTPException(403)
     v.is_published = False
+    # Отмечаем кто скрыл — если admin, артист не сможет разскрыть
+    if current_user.role == "admin":
+        v.hidden_by_admin = True
     db.commit()
     return {"ok": True}
 
@@ -468,7 +472,14 @@ def publish_video(
     artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
     if current_user.role != "admin" and (not artist or artist.id != v.artist_id):
         raise HTTPException(403)
+    # Артист не может опубликовать видео скрытое администратором
+    is_admin = current_user.role == "admin"
+    hidden_by_admin = getattr(v, 'hidden_by_admin', False)
+    if not is_admin and hidden_by_admin:
+        raise HTTPException(403, "Это видео скрыто администратором. Обратитесь в поддержку.")
     v.is_published = True
+    if is_admin:
+        v.hidden_by_admin = False  # Админ снимает свой запрет
     db.commit()
     return {"ok": True}
 

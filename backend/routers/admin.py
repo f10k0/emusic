@@ -487,9 +487,10 @@ def execute_command(
                     result["message"] = f"Видео ID {args.strip()} не найдено"
                 else:
                     v.is_published = False
+                    v.hidden_by_admin = True
                     db.commit()
-                    result["message"] = f"Видео '{v.title}' скрыто"
-                    add_admin_log(current_admin.username, "Скрытие", f"Видео '{v.title}' (ID: {v.id}) скрыто")
+                    result["message"] = f"Видео '{v.title}' скрыто администратором (артист не может разскрыть)"
+                    add_admin_log(current_admin.username, "Скрытие", f"Видео '{v.title}' (ID: {v.id}) скрыто администратором")
         elif cmd == "show-video":
             if not args or not args.strip().isdigit():
                 result["message"] = "Укажите ID видео"
@@ -499,6 +500,7 @@ def execute_command(
                     result["message"] = f"Видео ID {args.strip()} не найдено"
                 else:
                     v.is_published = True
+                    v.hidden_by_admin = False
                     db.commit()
                     result["message"] = f"Видео '{v.title}' опубликовано"
                     add_admin_log(current_admin.username, "Публикация", f"Видео '{v.title}' (ID: {v.id}) опубликовано")

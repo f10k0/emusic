@@ -128,7 +128,14 @@ export default function MyClips() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
               {clips.map(clip => (
-                <div key={clip.id} style={{ background: 'var(--bg-elevated)', borderRadius: 14, border: '1px solid var(--border)', overflow: 'hidden' }}>
+                <div key={clip.id} style={{
+                  background: 'var(--bg-elevated)',
+                  borderRadius: 14,
+                  border: `1px solid ${clip.is_published ? 'var(--border)' : 'rgba(255,100,100,0.3)'}`,
+                  overflow: 'hidden',
+                  opacity: clip.is_published ? 1 : 0.75,
+                  transition: 'border-color 0.2s, opacity 0.2s',
+                }}>
                   <div style={{ display: 'flex', gap: 0 }}>
                     {/* Превью видео */}
                     <div style={{ width: 120, flexShrink: 0, background: '#000', position: 'relative' }}>
@@ -138,12 +145,16 @@ export default function MyClips() {
                         muted
                         preload="metadata"
                       />
-                      <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        <i className="fas fa-play-circle" style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.7)' }}></i>
-                      </div>
+                      {/* Оверлей с иконкой паузы — только если не скрыт */}
+                      {clip.is_published && (
+                        <div style={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                          <i className="fas fa-play-circle" style={{ fontSize: '2rem', color: 'rgba(255,255,255,0.7)' }}></i>
+                        </div>
+                      )}
+                      {/* Оверлей скрытого клипа — как у админа */}
                       {!clip.is_published && (
-                        <div style={{ position: 'absolute', top: 4, left: 4, background: 'rgba(0,0,0,0.7)', borderRadius: 4, padding: '2px 6px', fontSize: '0.68rem', color: '#aaa' }}>
-                          Скрыт
+                        <div style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.55)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 4 }}>
+                          <i className="fas fa-eye-slash" style={{ color: '#ff9090', fontSize: '1.3rem' }}></i>
                         </div>
                       )}
                     </div>
@@ -178,7 +189,14 @@ export default function MyClips() {
                         </div>
                       ) : (
                         <>
-                          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 4 }}>{clip.title}</div>
+                          <div style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: 4, display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap' }}>
+                            {clip.title}
+                            {!clip.is_published && (
+                              <span style={{ background: 'rgba(255,100,100,0.15)', color: '#ff9090', fontSize: '0.7rem', padding: '2px 8px', borderRadius: 8, fontWeight: 600 }}>
+                                Скрыт
+                              </span>
+                            )}
+                          </div>
                           {clip.description && (
                             <div style={{ fontSize: '0.82rem', color: 'var(--text-muted)', marginBottom: 8, lineHeight: 1.3 }}>{clip.description}</div>
                           )}
@@ -202,15 +220,31 @@ export default function MyClips() {
                         >
                           <i className="fas fa-edit"></i> Изменить
                         </button>
-                        <button
-                          onClick={() => toggleVisibility(clip)}
-                          className="btn-secondary"
-                          style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 5 }}
-                          title={clip.is_published ? 'Скрыть' : 'Опубликовать'}
-                        >
-                          <i className={`fas ${clip.is_published ? 'fa-eye-slash' : 'fa-eye'}`}></i>
-                          {clip.is_published ? 'Скрыть' : 'Показать'}
-                        </button>
+                        {/* Кнопка скрыть/показать — заблокирована если скрыто администратором */}
+                        {clip.hidden_by_admin ? (
+                          <div style={{
+                            padding: '6px 12px', fontSize: '0.78rem',
+                            display: 'flex', alignItems: 'center', gap: 5,
+                            background: 'rgba(255,100,100,0.08)',
+                            border: '1px solid rgba(255,100,100,0.25)',
+                            borderRadius: 20,
+                            color: '#ff9090',
+                            cursor: 'not-allowed',
+                          }} title="Скрыто администратором — вы не можете опубликовать это видео">
+                            <i className="fas fa-shield-alt"></i>
+                            Скрыто админом
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => toggleVisibility(clip)}
+                            className="btn-secondary"
+                            style={{ padding: '6px 12px', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 5 }}
+                            title={clip.is_published ? 'Скрыть' : 'Опубликовать'}
+                          >
+                            <i className={`fas ${clip.is_published ? 'fa-eye-slash' : 'fa-eye'}`}></i>
+                            {clip.is_published ? 'Скрыть' : 'Показать'}
+                          </button>
+                        )}
                         <button
                           onClick={() => deleteClip(clip.id)}
                           className="btn-secondary reject-btn"
