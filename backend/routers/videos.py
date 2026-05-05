@@ -189,7 +189,8 @@ def like_video(
             v.dislikes = max(0, (v.dislikes or 0) - 1)
 
     db.commit()
-    return {"likes": v.likes, "dislikes": v.dislikes, "liked": liked, "disliked": already_disliked and not already_liked}
+    db.refresh(v)
+    return {"likes": v.likes, "dislikes": v.dislikes, "liked": liked, "disliked": False if liked else already_disliked}
 
 
 @router.post("/{video_id}/dislike")
@@ -227,7 +228,8 @@ def dislike_video(
             v.likes = max(0, (v.likes or 0) - 1)
 
     db.commit()
-    return {"likes": v.likes, "dislikes": v.dislikes, "disliked": disliked, "liked": already_liked and not already_disliked}
+    db.refresh(v)
+    return {"likes": v.likes, "dislikes": v.dislikes, "disliked": disliked, "liked": False if disliked else already_liked}
 
 
 @router.post("/{video_id}/view")
@@ -325,6 +327,21 @@ def like_comment(
 
 # ── Удаление комментария (свой или admin) ──────────────────────────────────────
 @router.delete("/comments/{comment_id}")
+def _delete_comment_recursive(comment_id: int, db: Session):
+    """Рекурсивно удаляет комментарий и все его ответы вместе с лайками."""
+    # Находим всех детей
+    children = db.query(models.VideoComment).filter(
+        models.VideoComment.parent_id == comment_id
+    ).all()
+    for child in children:
+        _delete_comment_recursive(child.id, db)
+
+    # Удаляем лайки этого комментария
+    db.execute(text("DELETE FROM video_comment_likes WHERE comment_id=:c"), {"c": comment_id})
+    # Удаляем сам комментарий
+    db.query(models.VideoComment).filter(models.VideoComment.id == comment_id).delete()
+
+
 def delete_comment(
     comment_id: int,
     db: Session = Depends(get_db),
@@ -335,7 +352,7 @@ def delete_comment(
         raise HTTPException(404)
     if current_user.role != "admin" and c.user_id != current_user.id:
         raise HTTPException(403, "Нет доступа")
-    db.delete(c)
+    _delete_comment_recursive(comment_id, db)
     db.commit()
     return {"ok": True}
 

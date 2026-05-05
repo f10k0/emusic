@@ -58,7 +58,13 @@ function CommentsSheet({ videoId, onClose }) {
   };
 
   const renderComment = (c, depth = 0) => (
-    <div key={c.id} style={{ marginLeft: depth * 16, marginBottom: 12 }}>
+    <div key={c.id} style={{
+      marginLeft: depth > 0 ? 0 : 0,
+      marginBottom: depth > 0 ? 8 : 14,
+      paddingLeft: depth > 0 ? 12 : 0,
+      borderLeft: depth > 0 ? '2px solid var(--border)' : 'none',
+      marginTop: depth > 0 ? 6 : 0,
+    }}>
       <div style={{ display: 'flex', gap: 8 }}>
         <img
           src={c.user_avatar ? `${API}/${c.user_avatar}` : '/default-avatar.png'}
@@ -81,7 +87,7 @@ function CommentsSheet({ videoId, onClose }) {
                 <i className="fas fa-reply"></i> Ответить
               </button>
             )}
-            {user && (user.id === c.user_id || user.role === 'admin') && (
+            {user && (Number(user.id) === Number(c.user_id) || user.role === 'admin') && (
               <button onClick={() => deleteComment(c.id)}
                 style={{ background: 'none', border: 'none', color: '#ff6b6b', fontSize: '0.78rem', cursor: 'pointer' }}>
                 <i className="fas fa-trash"></i>
@@ -245,7 +251,13 @@ function ClipSlide({ video: initialVideo, isActive }) {
     if (!user) return;
     try {
       const r = await api.post(`/videos/${video.id}/like`);
-      setVideo(v => ({ ...v, likes: r.data.likes, dislikes: r.data.dislikes, liked: r.data.liked, disliked: r.data.disliked }));
+      setVideo(v => ({
+        ...v,
+        likes: r.data.likes,
+        dislikes: r.data.dislikes,
+        liked: r.data.liked,
+        disliked: r.data.liked ? false : v.disliked, // лайк снимает дизлайк
+      }));
     } catch {}
   };
 
@@ -254,7 +266,13 @@ function ClipSlide({ video: initialVideo, isActive }) {
     if (!user) return;
     try {
       const r = await api.post(`/videos/${video.id}/dislike`);
-      setVideo(v => ({ ...v, likes: r.data.likes, dislikes: r.data.dislikes, liked: r.data.liked, disliked: r.data.disliked }));
+      setVideo(v => ({
+        ...v,
+        likes: r.data.likes,
+        dislikes: r.data.dislikes,
+        disliked: r.data.disliked,
+        liked: r.data.disliked ? false : v.liked, // дизлайк снимает лайк
+      }));
     } catch {}
   };
 
