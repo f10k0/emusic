@@ -164,6 +164,11 @@ export default function Sidebar() {
                 </Link>
               </li>
               <li>
+                <Link href="/admin/videos" className={isActive('/admin/videos') ? 'active' : ''}>
+                  <i className="fas fa-film"></i> Модерация видео
+                </Link>
+              </li>
+              <li>
                 <Link href="/admin/news" className={isActive('/admin/news') ? 'active' : ''}>
                   <i className="fas fa-newspaper"></i> Новости
                 </Link>

@@ -103,19 +103,66 @@ def get_video_feed(
     db: Session = Depends(get_db),
     current_user: Optional[models.User] = Depends(dependencies.optional_current_user)
 ):
-    query = db.query(models.Video).filter(models.Video.is_published == True)
-    if current_user and current_user.favorite_artists:
-        fav_ids = [a.id for a in current_user.favorite_artists]
-        from sqlalchemy import case
-        query = query.order_by(
-            case((models.Video.artist_id.in_(fav_ids), 0), else_=1),
-            models.Video.likes.desc(),
-            models.Video.created_at.desc()
-        )
-    else:
-        query = query.order_by(models.Video.likes.desc(), models.Video.created_at.desc())
-    videos = query.offset(skip).limit(limit).all()
-    return [_video_out(v, current_user, db) for v in videos]
+    from sqlalchemy import case, func as sqlfunc
+    from datetime import datetime, timedelta
+
+    all_videos = db.query(models.Video).filter(models.Video.is_published == True).all()
+
+    if not current_user:
+        # Без авторизации — просто по лайкам и дате
+        all_videos.sort(key=lambda v: (-(v.likes or 0), v.created_at), reverse=False)
+        page = all_videos[skip: skip + limit]
+        return [_video_out(v, current_user, db) for v in page]
+
+    # Собираем предпочтения пользователя
+    fav_artist_ids = {a.id for a in (current_user.favorite_artists or [])}
+
+    # Жанры из истории прослушиваний за последние 30 дней
+    since = datetime.utcnow() - timedelta(days=30)
+    history = db.query(models.ListeningHistory).filter(
+        models.ListeningHistory.user_id == current_user.id,
+        models.ListeningHistory.listened_at >= since
+    ).all()
+
+    liked_genre_ids = set()
+    for h in history:
+        track = db.query(models.Track).filter(models.Track.id == h.track_id).first()
+        if track:
+            for g in track.genres:
+                liked_genre_ids.add(g.id)
+
+    # Также добавляем жанры из треков любимых артистов
+    for artist in (current_user.favorite_artists or []):
+        for track in artist.tracks:
+            for g in track.genres:
+                liked_genre_ids.add(g.id)
+
+    def score_video(v: models.Video) -> float:
+        score = 0.0
+        # +3 если артист в подписках
+        if v.artist_id in fav_artist_ids:
+            score += 3.0
+        # +1 за каждый жанр артиста совпадающий с предпочтениями
+        for track in v.artist.tracks if v.artist else []:
+            for g in track.genres:
+                if g.id in liked_genre_ids:
+                    score += 0.5
+                    break  # один раз за трек
+        # Популярность (нормализованная)
+        likes = v.likes or 0
+        views = v.play_count or 0
+        score += min(likes / 10.0, 5.0)   # до +5 за лайки
+        score += min(views / 100.0, 2.0)  # до +2 за просмотры
+        # Свежесть — за последние 7 дней +1
+        if v.created_at:
+            age_days = (datetime.utcnow() - v.created_at.replace(tzinfo=None)).days
+            if age_days <= 7:
+                score += 1.0
+        return score
+
+    scored = sorted(all_videos, key=score_video, reverse=True)
+    page = scored[skip: skip + limit]
+    return [_video_out(v, current_user, db) for v in page]
 
 
 # ── Загрузка видео ────────────────────────────────────────────────────────────
@@ -439,3 +486,17 @@ def get_artist_videos(
         models.Video.is_published == True
     ).order_by(models.Video.created_at.desc()).offset(skip).limit(limit)
     return [_video_out(v, current_user, db) for v in q.all()]
+
+
+@router.get("/admin/all")
+def get_all_videos_admin(
+    skip: int = 0,
+    limit: int = 200,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(dependencies.get_current_user)
+):
+    """Все видео для администратора включая скрытые."""
+    if current_user.role != "admin":
+        raise HTTPException(403, "Только для администраторов")
+    videos = db.query(models.Video).order_by(models.Video.created_at.desc()).offset(skip).limit(limit).all()
+    return [_video_out(v, current_user, db) for v in videos]
