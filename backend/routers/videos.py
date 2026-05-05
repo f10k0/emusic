@@ -1,11 +1,11 @@
 import os, shutil, uuid
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form, Query
 from sqlalchemy.orm import Session
-from sqlalchemy import Table, Column, Integer, ForeignKey
 from typing import Optional, List
 from datetime import datetime
 
-from database import get_db, Base
+from database import get_db
+from sqlalchemy import text
 import models, schemas, dependencies
 
 router = APIRouter(prefix="/videos", tags=["videos"])
@@ -17,21 +17,21 @@ os.makedirs(UPLOAD_DIR_VIDEOS, exist_ok=True)
 # Проверяем через БД напрямую (без новых моделей, используем raw SQL)
 def _user_liked_video(db: Session, user_id: int, video_id: int) -> bool:
     row = db.execute(
-        "SELECT 1 FROM video_likes WHERE user_id=:u AND video_id=:v LIMIT 1",
+        text("SELECT 1 FROM video_likes WHERE user_id=:u AND video_id=:v LIMIT 1"),
         {"u": user_id, "v": video_id}
     ).fetchone()
     return row is not None
 
 def _user_disliked_video(db: Session, user_id: int, video_id: int) -> bool:
     row = db.execute(
-        "SELECT 1 FROM video_dislikes WHERE user_id=:u AND video_id=:v LIMIT 1",
+        text("SELECT 1 FROM video_dislikes WHERE user_id=:u AND video_id=:v LIMIT 1"),
         {"u": user_id, "v": video_id}
     ).fetchone()
     return row is not None
 
 def _user_liked_comment(db: Session, user_id: int, comment_id: int) -> bool:
     row = db.execute(
-        "SELECT 1 FROM video_comment_likes WHERE user_id=:u AND comment_id=:c LIMIT 1",
+        text("SELECT 1 FROM video_comment_likes WHERE user_id=:u AND comment_id=:c LIMIT 1"),
         {"u": user_id, "c": comment_id}
     ).fetchone()
     return row is not None
@@ -168,7 +168,7 @@ def like_video(
     if already_liked:
         # Убираем лайк
         db.execute(
-            "DELETE FROM video_likes WHERE user_id=:u AND video_id=:v",
+            text("DELETE FROM video_likes WHERE user_id=:u AND video_id=:v"),
             {"u": current_user.id, "v": video_id}
         )
         v.likes = max(0, (v.likes or 0) - 1)
@@ -176,7 +176,7 @@ def like_video(
     else:
         # Ставим лайк
         db.execute(
-            "INSERT INTO video_likes (user_id, video_id) VALUES (:u, :v) ON CONFLICT DO NOTHING",
+            text("INSERT INTO video_likes (user_id, video_id) VALUES (:u, :v) ON CONFLICT DO NOTHING"),
             {"u": current_user.id, "v": video_id}
         )
         v.likes = (v.likes or 0) + 1
@@ -184,7 +184,7 @@ def like_video(
         # Убираем дизлайк если был
         if already_disliked:
             db.execute(
-                "DELETE FROM video_dislikes WHERE user_id=:u AND video_id=:v",
+                text("DELETE FROM video_dislikes WHERE user_id=:u AND video_id=:v"),
                 {"u": current_user.id, "v": video_id}
             )
             v.dislikes = max(0, (v.dislikes or 0) - 1)
@@ -208,21 +208,21 @@ def dislike_video(
 
     if already_disliked:
         db.execute(
-            "DELETE FROM video_dislikes WHERE user_id=:u AND video_id=:v",
+            text("DELETE FROM video_dislikes WHERE user_id=:u AND video_id=:v"),
             {"u": current_user.id, "v": video_id}
         )
         v.dislikes = max(0, (v.dislikes or 0) - 1)
         disliked = False
     else:
         db.execute(
-            "INSERT INTO video_dislikes (user_id, video_id) VALUES (:u, :v) ON CONFLICT DO NOTHING",
+            text("INSERT INTO video_dislikes (user_id, video_id) VALUES (:u, :v) ON CONFLICT DO NOTHING"),
             {"u": current_user.id, "v": video_id}
         )
         v.dislikes = (v.dislikes or 0) + 1
         disliked = True
         if already_liked:
             db.execute(
-                "DELETE FROM video_likes WHERE user_id=:u AND video_id=:v",
+                text("DELETE FROM video_likes WHERE user_id=:u AND video_id=:v"),
                 {"u": current_user.id, "v": video_id}
             )
             v.likes = max(0, (v.likes or 0) - 1)
@@ -301,14 +301,14 @@ def like_comment(
     already = _user_liked_comment(db, current_user.id, comment_id)
     if already:
         db.execute(
-            "DELETE FROM video_comment_likes WHERE user_id=:u AND comment_id=:c",
+            text("DELETE FROM video_comment_likes WHERE user_id=:u AND comment_id=:c"),
             {"u": current_user.id, "c": comment_id}
         )
         c.likes = max(0, (c.likes or 0) - 1)
         liked = False
     else:
         db.execute(
-            "INSERT INTO video_comment_likes (user_id, comment_id) VALUES (:u, :c) ON CONFLICT DO NOTHING",
+            text("INSERT INTO video_comment_likes (user_id, comment_id) VALUES (:u, :c) ON CONFLICT DO NOTHING"),
             {"u": current_user.id, "c": comment_id}
         )
         c.likes = (c.likes or 0) + 1
