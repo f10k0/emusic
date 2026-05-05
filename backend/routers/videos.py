@@ -326,22 +326,18 @@ def like_comment(
 
 
 # ── Удаление комментария (свой или admin) ──────────────────────────────────────
-@router.delete("/comments/{comment_id}")
 def _delete_comment_recursive(comment_id: int, db: Session):
     """Рекурсивно удаляет комментарий и все его ответы вместе с лайками."""
-    # Находим всех детей
     children = db.query(models.VideoComment).filter(
         models.VideoComment.parent_id == comment_id
     ).all()
     for child in children:
         _delete_comment_recursive(child.id, db)
-
-    # Удаляем лайки этого комментария
     db.execute(text("DELETE FROM video_comment_likes WHERE comment_id=:c"), {"c": comment_id})
-    # Удаляем сам комментарий
     db.query(models.VideoComment).filter(models.VideoComment.id == comment_id).delete()
 
 
+@router.delete("/comments/{comment_id}")
 def delete_comment(
     comment_id: int,
     db: Session = Depends(get_db),
