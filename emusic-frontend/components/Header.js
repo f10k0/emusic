@@ -95,6 +95,20 @@ export default function Header() {
           />
         </form>
 
+        <Link
+          href="/clips"
+          style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            background: router.pathname === '/clips' ? 'var(--accent)' : 'var(--bg-elevated)',
+            border: '1px solid var(--border)',
+            borderRadius: 20, padding: '7px 16px',
+            color: router.pathname === '/clips' ? 'white' : 'var(--text-secondary)',
+            textDecoration: 'none', fontSize: '0.88rem', fontWeight: 600,
+            transition: 'all 0.2s', whiteSpace: 'nowrap',
+          }}
+        >
+          <i className="fas fa-film"></i> Клипы
+        </Link>
         <NewsButton />
 
         {!user ? (
@@ -132,6 +146,7 @@ export default function Header() {
             zIndex: 10000,
           }}
         >
+          {/* ── Личное ── */}
           <Link href="/profile" onClick={() => setDropdownOpen(false)}>
             <i className="fas fa-user"></i> Профиль
           </Link>
@@ -145,51 +160,64 @@ export default function Header() {
             <i className="fas fa-chart-bar"></i> Моя статистика
           </Link>
           <Link href="/profile/settings" onClick={() => setDropdownOpen(false)}>
-            <i className="fas fa-sliders-h"></i> Настройки
+            <i className="fas fa-sliders-h"></i> Настройки аккаунта
           </Link>
-          <Link href="/genres" onClick={() => setDropdownOpen(false)}>
-            <i className="fas fa-tags"></i> Жанры
-          </Link>
-          <Link href="/chart" onClick={() => setDropdownOpen(false)}>
-            <i className="fas fa-chart-line"></i> Чарт
-          </Link>
-          
+
+          {/* ── Стать артистом ── */}
           {user.role === 'user' && (
-            <Link href="/artist/create" onClick={() => setDropdownOpen(false)}>
-              <i className="fas fa-star"></i> Стать артистом
-            </Link>
+            <>
+              <div className="dropdown-divider" />
+              <Link href="/artist/create" onClick={() => setDropdownOpen(false)}>
+                <i className="fas fa-star"></i> Стать артистом
+              </Link>
+            </>
           )}
-          
+
+          {/* ── Для артиста ── */}
           {user.role === 'artist' && (
             <>
+              <div className="dropdown-divider" />
+              <div className="dropdown-section-label">Для артиста</div>
               <Link href="/artist/upload" onClick={() => setDropdownOpen(false)}>
                 <i className="fas fa-upload"></i> Загрузить трек
+              </Link>
+              <Link href="/artist/upload-video" onClick={() => setDropdownOpen(false)}>
+                <i className="fas fa-video"></i> Загрузить клип
               </Link>
               <Link href="/artist/my-tracks" onClick={() => setDropdownOpen(false)}>
                 <i className="fas fa-music"></i> Мои треки
               </Link>
+              <Link href="/artist/my-clips" onClick={() => setDropdownOpen(false)}>
+                <i className="fas fa-film"></i> Мои клипы
+              </Link>
               <Link href="/artist/albums" onClick={() => setDropdownOpen(false)}>
                 <i className="fas fa-compact-disc"></i> Мои альбомы
               </Link>
+              <Link href="/artist/events" onClick={() => setDropdownOpen(false)}>
+                <i className="fas fa-calendar-plus"></i> Мои мероприятия
+              </Link>
               <Link href="/artist/settings" onClick={() => setDropdownOpen(false)}>
-                <i className="fas fa-cog"></i> Настройки профиля
+                <i className="fas fa-cog"></i> Профиль артиста
               </Link>
               <Link href="/artist/submissions" onClick={() => setDropdownOpen(false)}>
-                <i className="fas fa-clock"></i> Мои заявки
+                <i className="fas fa-clock"></i> Заявки на модерацию
               </Link>
             </>
           )}
-          
+
+          {/* ── Для администратора ── */}
           {user.role === 'admin' && (
             <>
+              <div className="dropdown-divider" />
+              <div className="dropdown-section-label">Администрирование</div>
               <Link href="/admin/submissions" onClick={() => setDropdownOpen(false)}>
-                <i className="fas fa-tasks"></i> Модерация
+                <i className="fas fa-tasks"></i> Модерация треков
               </Link>
               <Link href="/admin/tracks" onClick={() => setDropdownOpen(false)}>
-                <i className="fas fa-music"></i> Управление треками
+                <i className="fas fa-music"></i> Все треки
               </Link>
               <Link href="/admin/console" onClick={() => setDropdownOpen(false)}>
-                <i className="fas fa-chart-line"></i> Админ-консоль
+                <i className="fas fa-terminal"></i> Консоль
               </Link>
               <Link href="/admin/news" onClick={() => setDropdownOpen(false)}>
                 <i className="fas fa-newspaper"></i> Новости

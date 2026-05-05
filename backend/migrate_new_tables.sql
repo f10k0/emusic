@@ -96,3 +96,22 @@ INSERT INTO moods (name, slug, emoji) VALUES
     (U&'\041D\043E\0441\0442\0430\043B\044C\0433\0438\0447\0435\0441\043A\0438\0439','nostalgic','fa-clock'),
     (U&'\0412\0434\043E\0445\043D\043E\0432\043B\044F\044E\0449\0438\0439','inspiring','fa-star')
 ON CONFLICT (slug) DO NOTHING;
+
+-- 10. Уникальные лайки для видео
+CREATE TABLE IF NOT EXISTS video_likes (
+    user_id  INTEGER NOT NULL REFERENCES users(id)  ON DELETE CASCADE,
+    video_id INTEGER NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, video_id)
+);
+
+CREATE TABLE IF NOT EXISTS video_dislikes (
+    user_id  INTEGER NOT NULL REFERENCES users(id)  ON DELETE CASCADE,
+    video_id INTEGER NOT NULL REFERENCES videos(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, video_id)
+);
+
+CREATE TABLE IF NOT EXISTS video_comment_likes (
+    user_id    INTEGER NOT NULL REFERENCES users(id)          ON DELETE CASCADE,
+    comment_id INTEGER NOT NULL REFERENCES video_comments(id) ON DELETE CASCADE,
+    PRIMARY KEY (user_id, comment_id)
+);

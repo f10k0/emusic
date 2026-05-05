@@ -13,35 +13,48 @@ function formatCount(n) {
   return String(n);
 }
 
-// ── Лист комментариев ────────────────────────────────────────────────────────
+// ── Лист комментариев ─────────────────────────────────────────────────────────
 function CommentsSheet({ videoId, onClose }) {
   const [comments, setComments] = useState([]);
-  const [text, setText] = useState('');
-  const [replyTo, setReplyTo] = useState(null); // { id, username }
+  const [mainText, setMainText] = useState('');
+  const [replyState, setReplyState] = useState(null); // { id, username, text }
   const { user } = useAuthStore();
 
-  useEffect(() => {
+  const loadComments = useCallback(() => {
     api.get(`/videos/${videoId}/comments`).then(r => setComments(r.data || [])).catch(() => {});
   }, [videoId]);
 
-  const submit = async () => {
-    if (!text.trim() || !user) return;
+  useEffect(() => { loadComments(); }, [loadComments]);
+
+  const submitMain = async () => {
+    if (!mainText.trim() || !user) return;
     const fd = new FormData();
-    fd.append('content', text);
-    if (replyTo) fd.append('parent_id', replyTo.id);
+    fd.append('content', mainText);
     try {
       await api.post(`/videos/${videoId}/comments`, fd);
-      const fresh = await api.get(`/videos/${videoId}/comments`);
-      setComments(fresh.data || []);
-      setText('');
-      setReplyTo(null);
+      setMainText('');
+      loadComments();
+    } catch {}
+  };
+
+  const submitReply = async () => {
+    if (!replyState?.text?.trim() || !user) return;
+    const fd = new FormData();
+    fd.append('content', replyState.text);
+    fd.append('parent_id', replyState.id);
+    try {
+      await api.post(`/videos/${videoId}/comments`, fd);
+      setReplyState(null);
+      loadComments();
     } catch {}
   };
 
   const likeComment = async (cid) => {
-    try { await api.post(`/videos/comments/${cid}/like`); } catch {}
-    const fresh = await api.get(`/videos/${videoId}/comments`);
-    setComments(fresh.data || []);
+    try { await api.post(`/videos/comments/${cid}/like`); loadComments(); } catch {}
+  };
+
+  const deleteComment = async (cid) => {
+    try { await api.delete(`/videos/comments/${cid}`); loadComments(); } catch {}
   };
 
   const renderComment = (c, depth = 0) => (
@@ -53,45 +66,63 @@ function CommentsSheet({ videoId, onClose }) {
           onError={e => { e.target.src = '/default-avatar.png'; }}
           alt=""
         />
-        <div style={{ flex: 1 }}>
+        <div style={{ flex: 1, minWidth: 0 }}>
           <div style={{ fontWeight: 600, fontSize: '0.82rem', marginBottom: 2 }}>{c.username}</div>
-          <div style={{ fontSize: '0.9rem', lineHeight: 1.4 }}>{c.content}</div>
-          <div style={{ display: 'flex', gap: 12, marginTop: 4 }}>
-            <button onClick={() => likeComment(c.id)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 4 }}>
+          <div style={{ fontSize: '0.9rem', lineHeight: 1.4, wordBreak: 'break-word' }}>{c.content}</div>
+          <div style={{ display: 'flex', gap: 10, marginTop: 5, flexWrap: 'wrap' }}>
+            <button onClick={() => likeComment(c.id)}
+              style={{ background: 'none', border: 'none', color: c.liked ? 'var(--accent)' : 'var(--text-muted)', fontSize: '0.78rem', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 3 }}>
               <i className="fas fa-thumbs-up"></i> {c.likes || 0}
             </button>
             {depth < 2 && user && (
-              <button onClick={() => setReplyTo(replyTo?.id === c.id ? null : { id: c.id, username: c.username })}
+              <button
+                onClick={() => setReplyState(replyState?.id === c.id ? null : { id: c.id, username: c.username, text: '' })}
                 style={{ background: 'none', border: 'none', color: 'var(--text-muted)', fontSize: '0.78rem', cursor: 'pointer' }}>
                 <i className="fas fa-reply"></i> Ответить
               </button>
             )}
+            {user && (user.id === c.user_id || user.role === 'admin') && (
+              <button onClick={() => deleteComment(c.id)}
+                style={{ background: 'none', border: 'none', color: '#ff6b6b', fontSize: '0.78rem', cursor: 'pointer' }}>
+                <i className="fas fa-trash"></i>
+              </button>
+            )}
           </div>
-          {replyTo?.id === c.id && (
+          {/* Поле ответа — только если replyState.id === c.id */}
+          {replyState?.id === c.id && (
             <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
               <input
                 className="comments-input"
                 style={{ flex: 1, fontSize: '0.82rem' }}
-                value={text}
-                onChange={e => setText(e.target.value)}
+                value={replyState.text}
+                onChange={e => setReplyState(s => ({ ...s, text: e.target.value }))}
                 placeholder={`Ответить ${c.username}…`}
-                onKeyDown={e => e.key === 'Enter' && submit()}
+                onKeyDown={e => e.key === 'Enter' && submitReply()}
                 autoFocus
               />
-              <button className="comments-submit" onClick={submit}><i className="fas fa-paper-plane"></i></button>
+              <button className="comments-submit" onClick={submitReply}>
+                <i className="fas fa-paper-plane"></i>
+              </button>
+              <button onClick={() => setReplyState(null)}
+                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.8rem' }}>
+                <i className="fas fa-times"></i>
+              </button>
             </div>
           )}
         </div>
       </div>
+      {/* Вложенные ответы */}
       {c.replies?.map(r => renderComment(r, depth + 1))}
     </div>
   );
+
+  const total = comments.reduce((a, c) => a + 1 + (c.replies?.length || 0), 0);
 
   return (
     <div className="clips-comments-overlay" onClick={onClose}>
       <div className="clips-comments-sheet" onClick={e => e.stopPropagation()}>
         <div className="comments-sheet-header">
-          <span>Комментарии ({comments.reduce((a, c) => a + 1 + (c.replies?.length || 0), 0)})</span>
+          <span>Комментарии ({total})</span>
           <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '1.1rem' }}>
             <i className="fas fa-times"></i>
           </button>
@@ -105,18 +136,14 @@ function CommentsSheet({ videoId, onClose }) {
           <div className="comments-input-area">
             <input
               className="comments-input"
-              placeholder={replyTo ? `Ответить ${replyTo.username}…` : 'Написать комментарий…'}
-              value={text}
-              onChange={e => setText(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && !replyTo && submit()}
+              placeholder="Написать комментарий…"
+              value={mainText}
+              onChange={e => setMainText(e.target.value)}
+              onKeyDown={e => e.key === 'Enter' && submitMain()}
             />
-            {replyTo && (
-              <button onClick={() => { setReplyTo(null); setText(''); }}
-                style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '0.8rem', whiteSpace: 'nowrap' }}>
-                Отмена
-              </button>
-            )}
-            <button className="comments-submit" onClick={submit}><i className="fas fa-paper-plane"></i></button>
+            <button className="comments-submit" onClick={submitMain}>
+              <i className="fas fa-paper-plane"></i>
+            </button>
           </div>
         ) : (
           <p style={{ textAlign: 'center', padding: '12px', color: 'var(--text-muted)', fontSize: '0.85rem' }}>
@@ -128,78 +155,72 @@ function CommentsSheet({ videoId, onClose }) {
   );
 }
 
-// ── Один слайд с видео ───────────────────────────────────────────────────────
-function ClipSlide({ video, isActive }) {
+// ── Один слайд ────────────────────────────────────────────────────────────────
+function ClipSlide({ video: initialVideo, isActive }) {
   const videoRef = useRef(null);
+  const [video, setVideo] = useState(initialVideo);
   const [playing, setPlaying] = useState(false);
-  const [muted, setMuted] = useState(true); // начинаем muted для autoplay
-  const [showPlayIcon, setShowPlayIcon] = useState(false); // иконка паузы/плея
-  const [liked, setLiked] = useState(false);
-  const [disliked, setDisliked] = useState(false);
-  const [likes, setLikes] = useState(video.likes || 0);
-  const [dislikes, setDislikes] = useState(video.dislikes || 0);
+  const [showPauseIcon, setShowPauseIcon] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const [volume, setVolume] = useState(0.8);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
   const [showComments, setShowComments] = useState(false);
-  const playIconTimer = useRef(null);
   const { user } = useAuthStore();
 
-  // Autoplay когда слайд становится активным
+  // Autoplay когда слайд активен
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
-
     if (isActive) {
       v.currentTime = 0;
+      v.muted = true;
+      setMuted(true);
       const tryPlay = () => {
-        v.muted = true;
-        setMuted(true);
         v.play()
           .then(() => {
             setPlaying(true);
-            // После успешного запуска пробуем включить звук
             setTimeout(() => {
               v.muted = false;
+              v.volume = volume;
               setMuted(false);
-            }, 300);
+            }, 200);
           })
           .catch(() => {
-            // Autoplay заблокирован — остаёмся muted
             v.muted = true;
             v.play().then(() => setPlaying(true)).catch(() => {});
           });
       };
-
-      if (v.readyState >= 2) {
-        tryPlay();
-      } else {
-        v.addEventListener('canplay', tryPlay, { once: true });
-      }
-
+      if (v.readyState >= 2) tryPlay();
+      else v.addEventListener('canplay', tryPlay, { once: true });
       api.post(`/videos/${video.id}/view`).catch(() => {});
     } else {
       v.pause();
       v.currentTime = 0;
       setPlaying(false);
+      setShowPauseIcon(false);
     }
-
-    return () => {
-      if (playIconTimer.current) clearTimeout(playIconTimer.current);
-    };
   }, [isActive]);
 
   const togglePlay = () => {
     const v = videoRef.current;
     if (!v) return;
-
-    if (playIconTimer.current) clearTimeout(playIconTimer.current);
-
     if (v.paused) {
-      v.play().then(() => setPlaying(true)).catch(() => {});
-      setShowPlayIcon(false); // ничего не показываем при возобновлении (TikTok-стиль)
+      v.play().then(() => { setPlaying(true); setShowPauseIcon(false); }).catch(() => {});
     } else {
       v.pause();
       setPlaying(false);
-      setShowPlayIcon(true); // показываем иконку паузы
-      // Иконка остаётся пока видео стоит на паузе
+      setShowPauseIcon(true);
+    }
+  };
+
+  const handleVolumeChange = (val) => {
+    const v = videoRef.current;
+    const newVol = parseFloat(val);
+    setVolume(newVol);
+    if (v) {
+      v.volume = newVol;
+      v.muted = newVol === 0;
+      setMuted(newVol === 0);
     }
   };
 
@@ -207,17 +228,24 @@ function ClipSlide({ video, isActive }) {
     e.stopPropagation();
     const v = videoRef.current;
     if (!v) return;
-    v.muted = !v.muted;
-    setMuted(v.muted);
+    if (v.muted || volume === 0) {
+      const newVol = volume > 0 ? volume : 0.8;
+      v.muted = false;
+      v.volume = newVol;
+      setVolume(newVol);
+      setMuted(false);
+    } else {
+      v.muted = true;
+      setMuted(true);
+    }
   };
 
   const handleLike = async (e) => {
     e.stopPropagation();
     if (!user) return;
     try {
-      await api.post(`/videos/${video.id}/like`);
-      if (liked) { setLikes(l => l - 1); setLiked(false); }
-      else { setLikes(l => l + 1); setLiked(true); if (disliked) { setDislikes(d => d - 1); setDisliked(false); } }
+      const r = await api.post(`/videos/${video.id}/like`);
+      setVideo(v => ({ ...v, likes: r.data.likes, dislikes: r.data.dislikes, liked: r.data.liked, disliked: r.data.disliked }));
     } catch {}
   };
 
@@ -225,31 +253,30 @@ function ClipSlide({ video, isActive }) {
     e.stopPropagation();
     if (!user) return;
     try {
-      await api.post(`/videos/${video.id}/dislike`);
-      if (disliked) { setDislikes(d => d - 1); setDisliked(false); }
-      else { setDislikes(d => d + 1); setDisliked(true); if (liked) { setLikes(l => l - 1); setLiked(false); } }
+      const r = await api.post(`/videos/${video.id}/dislike`);
+      setVideo(v => ({ ...v, likes: r.data.likes, dislikes: r.data.dislikes, liked: r.data.liked, disliked: r.data.disliked }));
     } catch {}
   };
 
   const handleShare = (e) => {
     e.stopPropagation();
-    if (navigator.share) navigator.share({ title: video.title, url: window.location.href }).catch(() => {});
-    else { navigator.clipboard?.writeText(window.location.href).catch(() => {}); }
+    navigator.clipboard?.writeText(window.location.href).catch(() => {});
   };
 
   return (
-    <div className="clip-slide" style={{ position: 'relative', width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#000' }}>
-      {/* Видео */}
+    <div style={{ position: 'relative', width: '100%', height: '100%', background: '#000', overflow: 'hidden' }}>
+      {/* Видео — занимает весь слайд, сохраняя пропорции */}
       <video
         ref={videoRef}
         src={`${API}/${video.file_path}`}
         style={{
-          height: '100%',
+          position: 'absolute',
+          inset: 0,
           width: '100%',
-          maxWidth: '420px',
-          objectFit: 'contain',
-          display: 'block',
+          height: '100%',
+          objectFit: 'contain',   // contain чтобы не обрезать горизонтальное видео
           cursor: 'pointer',
+          zIndex: 1,
         }}
         loop
         playsInline
@@ -260,129 +287,139 @@ function ClipSlide({ video, isActive }) {
         onPause={() => setPlaying(false)}
       />
 
-      {/* Иконка паузы (центр экрана, TikTok-стиль) */}
-      {showPlayIcon && (
+      {/* Иконка паузы по центру */}
+      {showPauseIcon && (
         <div
           onClick={togglePlay}
           style={{
-            position: 'absolute',
-            top: '50%', left: '50%',
+            position: 'absolute', top: '50%', left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: 72, height: 72,
-            background: 'rgba(0,0,0,0.55)',
+            width: 80, height: 80,
+            background: 'rgba(0,0,0,0.6)',
             borderRadius: '50%',
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            fontSize: '2rem', color: 'white',
-            cursor: 'pointer',
+            fontSize: '2.2rem', color: 'white',
             zIndex: 10,
             animation: 'fadeInScale 0.15s ease',
+            cursor: 'pointer',
           }}
         >
           <i className="fas fa-pause"></i>
         </div>
       )}
 
-      {/* Кнопка звука — верхний правый угол */}
-      <button
-        onClick={toggleMute}
-        style={{
-          position: 'absolute', top: 14, right: 14,
-          background: 'rgba(0,0,0,0.5)',
-          border: 'none', color: 'white', borderRadius: '50%',
-          width: 36, height: 36,
-          display: 'flex', alignItems: 'center', justifyContent: 'center',
-          cursor: 'pointer', fontSize: '0.85rem', zIndex: 10,
-        }}
+      {/* Громкость — верхний правый угол */}
+      <div
+        style={{ position: 'absolute', top: 14, right: 14, zIndex: 20, display: 'flex', alignItems: 'center', gap: 6 }}
+        onMouseEnter={() => setShowVolumeSlider(true)}
+        onMouseLeave={() => setShowVolumeSlider(false)}
       >
-        <i className={`fas ${muted ? 'fa-volume-mute' : 'fa-volume-up'}`}></i>
-      </button>
+        {showVolumeSlider && (
+          <input
+            type="range" min="0" max="1" step="0.05"
+            value={muted ? 0 : volume}
+            onChange={e => handleVolumeChange(e.target.value)}
+            onClick={e => e.stopPropagation()}
+            style={{ width: 80, accentColor: 'white', cursor: 'pointer' }}
+          />
+        )}
+        <button
+          onClick={toggleMute}
+          style={{
+            background: 'rgba(0,0,0,0.55)', border: 'none', color: 'white',
+            borderRadius: '50%', width: 36, height: 36,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            cursor: 'pointer', fontSize: '0.85rem',
+          }}
+        >
+          <i className={`fas ${muted ? 'fa-volume-mute' : volume < 0.5 ? 'fa-volume-down' : 'fa-volume-up'}`}></i>
+        </button>
+      </div>
 
-      {/* Нижний оверлей — информация об артисте + название */}
+      {/* Нижний градиент + информация */}
       <div style={{
-        position: 'absolute',
-        bottom: 0, left: 0,
-        width: 'calc(100% - 70px)', // оставляем место для кнопок справа
-        padding: '60px 16px 18px',
-        background: 'linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.3) 60%, transparent 100%)',
-        pointerEvents: 'none',
+        position: 'absolute', bottom: 0, left: 0,
+        width: 'calc(100% - 70px)',
+        padding: '80px 16px 20px',
+        background: 'linear-gradient(to top, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.2) 70%, transparent 100%)',
         zIndex: 5,
+        pointerEvents: 'none',
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 6, pointerEvents: 'auto' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 7, pointerEvents: 'auto' }}>
           <img
             src={video.artist_avatar ? `${API}/${video.artist_avatar}` : '/default-artist.jpg'}
-            style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.7)' }}
+            style={{ width: 34, height: 34, borderRadius: '50%', objectFit: 'cover', border: '2px solid rgba(255,255,255,0.7)', flexShrink: 0 }}
             onError={e => { e.target.src = '/default-artist.jpg'; }}
             alt=""
           />
-          <Link href={`/artist/${video.artist_id}`} style={{ color: 'white', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none' }}>
+          <Link href={`/artist/${video.artist_id}`} style={{ color: 'white', fontWeight: 700, fontSize: '0.95rem', textDecoration: 'none', textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>
             {video.artist_name}
           </Link>
         </div>
-        <div style={{ fontWeight: 700, fontSize: '1rem', color: 'white', marginBottom: 4, textShadow: '0 1px 4px rgba(0,0,0,0.6)' }}>
+        <div style={{ fontWeight: 700, fontSize: '1rem', color: 'white', marginBottom: 4, textShadow: '0 1px 4px rgba(0,0,0,0.7)' }}>
           {video.title}
         </div>
         {video.description && (
-          <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.8)', lineHeight: 1.4, textShadow: '0 1px 3px rgba(0,0,0,0.6)' }}>
+          <div style={{ fontSize: '0.85rem', color: 'rgba(255,255,255,0.85)', lineHeight: 1.4, textShadow: '0 1px 3px rgba(0,0,0,0.7)' }}>
             {video.description}
           </div>
         )}
       </div>
 
-      {/* Кнопки действий — правая сторона, вертикально */}
+      {/* Кнопки действий — правая вертикальная колонка */}
       <div style={{
-        position: 'absolute',
-        bottom: 24, right: 12,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: 20,
+        position: 'absolute', bottom: 24, right: 12,
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20,
         zIndex: 10,
       }}>
-        {/* Лайк */}
-        <button onClick={handleLike} style={{ background: 'none', border: 'none', color: liked ? '#ff4d6d' : 'white', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-          <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '50%', width: 46, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
-            <i className={liked ? 'fas fa-heart' : 'far fa-heart'}></i>
-          </div>
-          <span style={{ fontSize: '0.72rem', fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{formatCount(likes)}</span>
-        </button>
-
-        {/* Дизлайк */}
-        <button onClick={handleDislike} style={{ background: 'none', border: 'none', color: disliked ? '#7b8cde' : 'white', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-          <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '50%', width: 46, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
-            <i className={disliked ? 'fas fa-thumbs-down' : 'far fa-thumbs-down'}></i>
-          </div>
-          <span style={{ fontSize: '0.72rem', fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>{formatCount(dislikes)}</span>
-        </button>
-
-        {/* Комментарии */}
-        <button onClick={(e) => { e.stopPropagation(); setShowComments(true); }} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-          <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '50%', width: 46, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
-            <i className="far fa-comment"></i>
-          </div>
-          <span style={{ fontSize: '0.72rem', fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>Коменты</span>
-        </button>
-
-        {/* Поделиться */}
-        <button onClick={handleShare} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3 }}>
-          <div style={{ background: 'rgba(0,0,0,0.4)', borderRadius: '50%', width: 46, height: 46, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.3rem' }}>
-            <i className="fas fa-share"></i>
-          </div>
-          <span style={{ fontSize: '0.72rem', fontWeight: 600, textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>Поделиться</span>
-        </button>
+        <ActionBtn icon={video.liked ? 'fas fa-heart' : 'far fa-heart'} label={formatCount(video.likes)}
+          color={video.liked ? '#ff4d6d' : 'white'} onClick={handleLike} />
+        <ActionBtn icon={video.disliked ? 'fas fa-thumbs-down' : 'far fa-thumbs-down'} label={formatCount(video.dislikes)}
+          color={video.disliked ? '#7b8cde' : 'white'} onClick={handleDislike} />
+        <ActionBtn icon="far fa-comment" label="Коменты"
+          onClick={e => { e.stopPropagation(); setShowComments(true); }} />
+        <ActionBtn icon="fas fa-share" label="Поделиться" onClick={handleShare} />
       </div>
 
       {showComments && <CommentsSheet videoId={video.id} onClose={() => setShowComments(false)} />}
+
+      <style>{`
+        @keyframes fadeInScale {
+          from { opacity: 0; transform: translate(-50%, -50%) scale(0.6); }
+          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+        }
+      `}</style>
     </div>
   );
 }
 
-// ── Главная страница клипов ──────────────────────────────────────────────────
+function ActionBtn({ icon, label, color = 'white', onClick }) {
+  return (
+    <button onClick={onClick} style={{
+      background: 'none', border: 'none', color, cursor: 'pointer',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 3,
+    }}>
+      <div style={{
+        background: 'rgba(0,0,0,0.45)', borderRadius: '50%',
+        width: 46, height: 46,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        fontSize: '1.3rem', transition: 'transform 0.15s',
+      }}>
+        <i className={icon}></i>
+      </div>
+      <span style={{ fontSize: '0.7rem', fontWeight: 600, color: 'white', textShadow: '0 1px 3px rgba(0,0,0,0.8)' }}>
+        {label}
+      </span>
+    </button>
+  );
+}
+
+// ── Главная страница клипов ────────────────────────────────────────────────────
 export default function Clips() {
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
   const containerRef = useRef(null);
-  const slideRefs = useRef([]);
 
   useEffect(() => {
     api.get('/videos/feed?limit=30')
@@ -391,71 +428,51 @@ export default function Clips() {
       .finally(() => setLoading(false));
   }, []);
 
-  // IntersectionObserver для определения активного слайда
   useEffect(() => {
     const el = containerRef.current;
     if (!el || !videos.length) return;
-
     const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            const idx = parseInt(entry.target.dataset.idx, 10);
-            if (!isNaN(idx)) setActiveIndex(idx);
-          }
-        });
-      },
-      { root: el, threshold: 0.6 }
+      entries => entries.forEach(e => {
+        if (e.isIntersecting) setActiveIndex(parseInt(e.target.dataset.idx, 10));
+      }),
+      { root: el, threshold: 0.55 }
     );
-
     el.querySelectorAll('[data-idx]').forEach(s => observer.observe(s));
     return () => observer.disconnect();
   }, [videos]);
 
-  // Высота: вычитаем header (~60px) и player bar (~90px)
-  const containerH = 'calc(100vh - 60px - 90px)';
-
   return (
-    <Layout>
-      <div style={{ height: containerH, overflow: 'hidden', background: '#000', position: 'relative' }}>
+    <Layout fullscreen>
+      <div style={{
+        flex: 1,
+        background: '#000',
+        overflow: 'hidden',
+        display: 'flex',
+        flexDirection: 'column',
+        minHeight: 0,
+      }}>
         {loading ? (
-          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)' }}>
+          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
             <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem' }}></i>
           </div>
         ) : videos.length === 0 ? (
-          <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, color: 'var(--text-muted)' }}>
-            <i className="fas fa-film" style={{ fontSize: '3rem', opacity: 0.4 }}></i>
+          <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, color: '#888' }}>
+            <i className="fas fa-film" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
             <p>Клипов пока нет</p>
           </div>
         ) : (
           <div
             ref={containerRef}
-            style={{
-              height: '100%',
-              overflowY: 'scroll',
-              scrollSnapType: 'y mandatory',
-              scrollBehavior: 'smooth',
-            }}
+            style={{ flex: 1, overflowY: 'scroll', scrollSnapType: 'y mandatory', minHeight: 0 }}
           >
             {videos.map((v, i) => (
-              <div
-                key={v.id}
-                data-idx={i}
-                style={{ height: containerH, scrollSnapAlign: 'start', flexShrink: 0 }}
-              >
+              <div key={v.id} data-idx={i} style={{ height: '100%', scrollSnapAlign: 'start', flexShrink: 0, minHeight: '100%' }}>
                 <ClipSlide video={v} isActive={i === activeIndex} />
               </div>
             ))}
           </div>
         )}
       </div>
-
-      <style>{`
-        @keyframes fadeInScale {
-          from { opacity: 0; transform: translate(-50%, -50%) scale(0.7); }
-          to   { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-        }
-      `}</style>
     </Layout>
   );
 }

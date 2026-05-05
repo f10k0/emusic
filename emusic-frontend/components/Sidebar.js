@@ -29,11 +29,6 @@ export default function Sidebar() {
           </Link>
         </li>
         <li>
-          <Link href="/clips" className={isActive('/clips') ? 'active' : ''}>
-            <i className="fas fa-film"></i> Клипы
-          </Link>
-        </li>
-        <li>
           <Link href="/events" className={isActive('/events') ? 'active' : ''}>
             <i className="fas fa-calendar-alt"></i> Мероприятия
           </Link>

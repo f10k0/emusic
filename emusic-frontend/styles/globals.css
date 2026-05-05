@@ -6247,3 +6247,27 @@ body.modal-open {
 
 /* ── Artist upload video page ─────────────────────────────── */
 .upload-video-form { max-width: 560px; margin: 0 auto; }
+
+/* ── Clips fullscreen layout ───────────────────────────────── */
+.main-content--fullscreen {
+  padding: 0 !important;
+  overflow: hidden !important;
+  display: flex;
+  flex-direction: column;
+}
+.main-content--fullscreen .content-header { display: none; }
+
+/* ── Dropdown dividers & section labels ────────────────────── */
+.dropdown-divider {
+  height: 1px;
+  background: var(--border);
+  margin: 6px 0;
+}
+.dropdown-section-label {
+  padding: 4px 14px 2px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}

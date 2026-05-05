@@ -131,7 +131,7 @@ class Track(Base):
     submissions = relationship('Submission', back_populates='track')
     genres = relationship('Genre', secondary=track_genres, back_populates='tracks')
     moods = relationship('Mood', secondary=track_moods, back_populates='tracks')
-    listening_history = relationship('ListeningHistory', back_populates='track')
+    listening_history = relationship('ListeningHistory', back_populates='track', cascade='all, delete-orphan')
 
     @property
     def artist_name(self):

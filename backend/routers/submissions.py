@@ -203,6 +203,8 @@ def delete_track(
     if track.cover and os.path.exists(track.cover):
         os.remove(track.cover)
 
+    # Удаляем зависимые записи перед удалением трека
+    db.query(models.ListeningHistory).filter(models.ListeningHistory.track_id == track_id).delete()
     for sub in db.query(models.Submission).filter(models.Submission.track_id == track_id).all():
         db.delete(sub)
 
