@@ -81,22 +81,22 @@ export default function StatsPage() {
                 <div className="stats-summary">
                   <div className="stats-card">
                     <div className="stats-card-value">{stats.total_listens}</div>
-                    <div className="stats-card-label">Прослушиваний</div>
+                    <div className="stats-card-label"><i className="fas fa-headphones" style={{marginRight:5}}></i>Прослушиваний</div>
                   </div>
                   <div className="stats-card">
                     <div className="stats-card-value">{formatSeconds(stats.total_seconds)}</div>
-                    <div className="stats-card-label">Время в музыке</div>
+                    <div className="stats-card-label"><i className="fas fa-clock" style={{marginRight:5}}></i>Время в музыке</div>
                   </div>
                   <div className="stats-card">
                     <div className="stats-card-value">{stats.top_artists?.length || 0}</div>
-                    <div className="stats-card-label">Любимых артистов</div>
+                    <div className="stats-card-label"><i className="fas fa-star" style={{marginRight:5}}></i>Любимых артистов</div>
                   </div>
                 </div>
 
                 {/* Топ треки */}
                 {stats.top_tracks?.length > 0 && (
                   <div className="stats-section">
-                    <h3>🎵 Топ треков</h3>
+                    <h3><i className="fas fa-music" style={{color:"var(--accent)",marginRight:8}}></i>Топ треков</h3>
                     {stats.top_tracks.map((t, i) => (
                       <div key={t.id} className="stats-track-item">
                         <div className={`stats-rank ${rankClass(i)}`}>#{i + 1}</div>
@@ -125,7 +125,7 @@ export default function StatsPage() {
                 {/* Топ артисты */}
                 {stats.top_artists?.length > 0 && (
                   <div className="stats-section">
-                    <h3>🎤 Топ артистов</h3>
+                    <h3><i className="fas fa-microphone-alt" style={{color:"var(--accent)",marginRight:8}}></i>Топ артистов</h3>
                     {stats.top_artists.map((a, i) => (
                       <Link key={a.id} href={`/artist/${a.id}`} style={{ textDecoration: 'none' }}>
                         <div className="stats-track-item" style={{ cursor: 'pointer', transition: 'background 0.15s' }}>
@@ -156,7 +156,7 @@ export default function StatsPage() {
                 {/* Жанры */}
                 {stats.genres?.length > 0 && (
                   <div className="stats-section">
-                    <h3>🎸 Любимые жанры</h3>
+                    <h3><i className="fas fa-guitar" style={{color:"var(--accent)",marginRight:8}}></i>Любимые жанры</h3>
                     <div>
                       {stats.genres.slice(0, 12).map(g => (
                         <span key={g.name} className="genre-chip">

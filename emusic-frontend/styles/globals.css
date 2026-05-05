@@ -6205,13 +6205,18 @@ body.modal-open {
 .mood-badge {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(136, 51, 255, 0.15);
-  border: 1px solid rgba(136, 51, 255, 0.3);
+  gap: 5px;
+  background: rgba(136, 51, 255, 0.12);
+  border: 1px solid rgba(136, 51, 255, 0.28);
   border-radius: 12px;
-  padding: 3px 9px;
+  padding: 4px 10px;
   font-size: 0.75rem;
   color: var(--accent-light);
+  font-weight: 500;
+}
+.mood-badge i {
+  font-size: 0.72rem;
+  opacity: 0.9;
 }
 
 /* ── Artist events page ───────────────────────────────────── */

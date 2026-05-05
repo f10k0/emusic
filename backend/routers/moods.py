@@ -8,14 +8,14 @@ import models, dependencies
 router = APIRouter(prefix="/moods", tags=["moods"])
 
 DEFAULT_MOODS = [
-    {"name": "Энергичный", "slug": "energetic", "emoji": "⚡"},
-    {"name": "Грустный", "slug": "sad", "emoji": "😢"},
-    {"name": "Романтичный", "slug": "romantic", "emoji": "💕"},
-    {"name": "Спокойный", "slug": "calm", "emoji": "😌"},
-    {"name": "Агрессивный", "slug": "aggressive", "emoji": "🔥"},
-    {"name": "Танцевальный", "slug": "dance", "emoji": "🕺"},
-    {"name": "Ностальгический", "slug": "nostalgic", "emoji": "🌅"},
-    {"name": "Вдохновляющий", "slug": "inspiring", "emoji": "✨"},
+    {"name": "Энергичный", "slug": "energetic", "emoji": "fa-bolt"},
+    {"name": "Грустный", "slug": "sad", "emoji": "fa-cloud-rain"},
+    {"name": "Романтичный", "slug": "romantic", "emoji": "fa-heart"},
+    {"name": "Спокойный", "slug": "calm", "emoji": "fa-leaf"},
+    {"name": "Агрессивный", "slug": "aggressive", "emoji": "fa-fire"},
+    {"name": "Танцевальный", "slug": "dance", "emoji": "fa-music"},
+    {"name": "Ностальгический", "slug": "nostalgic", "emoji": "fa-clock"},
+    {"name": "Вдохновляющий", "slug": "inspiring", "emoji": "fa-star"},
 ]
 
 

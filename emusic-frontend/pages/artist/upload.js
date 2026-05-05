@@ -285,7 +285,7 @@ export default function UploadTrack() {
                       transition: 'all 0.2s',
                     }}
                   >
-                    {mood.emoji} {mood.name}
+                    {mood.emoji && <i className={`fas ${mood.emoji}`} style={{marginRight:5}}></i>}{mood.name}
                   </button>
                 ))}
               </div>
@@ -312,7 +312,7 @@ export default function UploadTrack() {
                   onChange={(e) => setIsAdult(e.target.checked)}
                   style={{ width: 16, height: 16, accentColor: 'var(--accent)', cursor: 'pointer' }}
                 />
-                <span>🔞 Контент 18+ (будет скрыт по умолчанию)</span>
+                <span><i className="fas fa-ban" style={{marginRight:5,color:"var(--accent)"}}></i>Контент 18+ (будет скрыт по умолчанию)</span>
               </label>
             </div>
 

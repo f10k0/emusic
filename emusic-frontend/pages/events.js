@@ -47,7 +47,7 @@ export default function EventsPage() {
         <div className="event-filter-bar">
           <input
             className="event-filter-input"
-            placeholder="🌍 Город…"
+            placeholder="Город..."
             value={city}
             onChange={e => setCity(e.target.value)}
             style={{ minWidth: 160 }}

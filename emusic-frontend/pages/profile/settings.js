@@ -97,14 +97,14 @@ export default function SettingsPage() {
                 <div className="settings-group">
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">🔞 Скрывать 18+ контент</div>
+                      <div className="settings-item-label"><i className="fas fa-ban" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Скрывать 18+ контент</div>
                       <div className="settings-item-desc">Треки с пометкой 18+ не будут отображаться в поиске и рекомендациях</div>
                     </div>
                     <Toggle checked={settings.hide_adult} onChange={v => set('hide_adult', v)} />
                   </div>
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">🎨 Тема оформления</div>
+                      <div className="settings-item-label"><i className="fas fa-palette" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Тема оформления</div>
                     </div>
                     <select className="settings-select" value={settings.theme} onChange={e => set('theme', e.target.value)}>
                       <option value="dark">Тёмная</option>
@@ -116,14 +116,14 @@ export default function SettingsPage() {
                 <div className="settings-group">
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">🔔 Уведомления о новых треках</div>
+                      <div className="settings-item-label"><i className="fas fa-bell" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Уведомления о новых треках</div>
                       <div className="settings-item-desc">Когда артист из ваших подписок выпускает новый трек</div>
                     </div>
                     <Toggle checked={settings.notifications_new_tracks} onChange={v => set('notifications_new_tracks', v)} />
                   </div>
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">📅 Уведомления о мероприятиях</div>
+                      <div className="settings-item-label"><i className="fas fa-calendar-alt" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Уведомления о мероприятиях</div>
                       <div className="settings-item-desc">Когда артист добавляет новое мероприятие</div>
                     </div>
                     <Toggle checked={settings.notifications_events} onChange={v => set('notifications_events', v)} />
@@ -137,14 +137,14 @@ export default function SettingsPage() {
                 <div className="settings-group">
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">▶️ Автовоспроизведение</div>
+                      <div className="settings-item-label"><i className="fas fa-play-circle" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Автовоспроизведение</div>
                       <div className="settings-item-desc">Автоматически начинать воспроизведение при открытии плеера</div>
                     </div>
                     <Toggle checked={settings.autoplay} onChange={v => set('autoplay', v)} />
                   </div>
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">🎵 Качество аудио</div>
+                      <div className="settings-item-label"><i className="fas fa-sliders-h" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Качество аудио</div>
                     </div>
                     <select className="settings-select" value={settings.audio_quality} onChange={e => set('audio_quality', e.target.value)}>
                       <option value="low">Низкое</option>
@@ -154,7 +154,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">🔊 Громкость (dB): {settings.volume_db > 0 ? '+' : ''}{settings.volume_db} dB</div>
+                      <div className="settings-item-label"><i className="fas fa-volume-up" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Громкость (dB): {settings.volume_db > 0 ? '+' : ''}{settings.volume_db} dB</div>
                       <div className="settings-item-desc">Нормализация громкости относительно стандартного уровня</div>
                     </div>
                     <input
@@ -167,7 +167,7 @@ export default function SettingsPage() {
                   </div>
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">🎛️ Эквалайзер</div>
+                      <div className="settings-item-label"><i className="fas fa-wave-square" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Эквалайзер</div>
                     </div>
                     <select className="settings-select" value={settings.equalizer_preset} onChange={e => set('equalizer_preset', e.target.value)}>
                       {EQ_PRESETS.map(p => <option key={p} value={p}>{EQ_LABELS[p]}</option>)}
@@ -177,7 +177,7 @@ export default function SettingsPage() {
                 <div className="settings-group">
                   <div className="settings-item">
                     <div>
-                      <div className="settings-item-label">💾 Сохранять очередь после перезагрузки</div>
+                      <div className="settings-item-label"><i className="fas fa-save" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Сохранять очередь после перезагрузки</div>
                       <div className="settings-item-desc">Очередь воспроизведения сохраняется в localStorage</div>
                     </div>
                     <Toggle checked={settings.save_queue} onChange={v => set('save_queue', v)} />
@@ -190,14 +190,14 @@ export default function SettingsPage() {
               <div className="settings-group">
                 <div className="settings-item">
                   <div>
-                    <div className="settings-item-label">👤 Публичный профиль</div>
+                    <div className="settings-item-label"><i className="fas fa-user" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Публичный профиль</div>
                     <div className="settings-item-desc">Другие пользователи могут видеть ваши плейлисты</div>
                   </div>
                   <Toggle checked={settings.profile_public} onChange={v => set('profile_public', v)} />
                 </div>
                 <div className="settings-item">
                   <div>
-                    <div className="settings-item-label">📊 Публичная статистика</div>
+                    <div className="settings-item-label"><i className="fas fa-chart-bar" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Публичная статистика</div>
                     <div className="settings-item-desc">Другие пользователи могут видеть вашу статистику прослушиваний</div>
                   </div>
                   <Toggle checked={settings.stats_public} onChange={v => set('stats_public', v)} />
@@ -209,7 +209,7 @@ export default function SettingsPage() {
               <div className="settings-group">
                 <div className="settings-item">
                   <div>
-                    <div className="settings-item-label">🗑️ Автоочистка истории</div>
+                    <div className="settings-item-label"><i className="fas fa-trash-alt" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Автоочистка истории</div>
                     <div className="settings-item-desc">Автоматически удалять историю прослушиваний раз в месяц</div>
                   </div>
                   <Toggle checked={settings.auto_clear_history} onChange={v => set('auto_clear_history', v)} />
