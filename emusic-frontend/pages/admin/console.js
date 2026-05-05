@@ -441,18 +441,36 @@ export default function AdminConsole() {
                   gap: '12px'
                 }}>
                   {[
-                    { cmd: 'help', desc: 'Показать список команд' },
-                    { cmd: 'stats', desc: 'Показать полную статистику' },
-                    { cmd: 'users', desc: 'Список пользователей' },
-                    { cmd: 'artists', desc: 'Список артистов' },
-                    { cmd: 'tracks', desc: 'Список треков' },
-                    { cmd: 'top [N]', desc: 'Топ N треков (по умолчанию 10)' },
-                    { cmd: 'user [id/name]', desc: 'Информация о пользователе' },
-                    { cmd: 'toggle-ban [id]', desc: 'Забанить/разбанить пользователя' },
-                    { cmd: 'delete-track [id]', desc: 'Удалить трек по ID' },
-                    { cmd: 'delete-user [id]', desc: 'Удалить пользователя (осторожно!)' },
-                    { cmd: 'clear-logs', desc: 'Очистить логи команд' },
-                  ].map((item, index) => (
+                    { cmd: 'help',                    desc: 'Показать список команд' },
+                    { cmd: 'stats',                   desc: 'Полная статистика платформы' },
+                    { cmd: '',                         desc: '── Просмотр ──' },
+                    { cmd: 'users [limit]',           desc: 'Список пользователей' },
+                    { cmd: 'artists [limit]',         desc: 'Список артистов' },
+                    { cmd: 'tracks [limit]',          desc: 'Список треков' },
+                    { cmd: 'videos [limit]',          desc: 'Список видеоклипов' },
+                    { cmd: 'events [limit]',          desc: 'Список мероприятий' },
+                    { cmd: 'top [N]',                 desc: 'Топ N треков по прослушиваниям' },
+                    { cmd: 'user [id/name]',          desc: 'Подробная инфо о пользователе' },
+                    { cmd: 'track [id]',              desc: 'Подробная инфо о треке' },
+                    { cmd: 'video [id]',              desc: 'Подробная инфо о видео' },
+                    { cmd: '',                         desc: '── Модерация треков ──' },
+                    { cmd: 'toggle-ban [id]',         desc: 'Забанить / разбанить пользователя' },
+                    { cmd: 'publish-track [id]',      desc: 'Опубликовать трек' },
+                    { cmd: 'unpublish-track [id]',    desc: 'Снять трек с публикации' },
+                    { cmd: 'delete-track [id]',       desc: 'Удалить трек (необратимо)' },
+                    { cmd: '',                         desc: '── Модерация видео ──' },
+                    { cmd: 'hide-video [id]',         desc: 'Скрыть видеоклип' },
+                    { cmd: 'show-video [id]',         desc: 'Опубликовать видеоклип' },
+                    { cmd: 'delete-video [id]',       desc: 'Удалить видеоклип (необратимо)' },
+                    { cmd: '',                         desc: '── Модерация мероприятий ──' },
+                    { cmd: 'hide-event [id]',         desc: 'Скрыть мероприятие' },
+                    { cmd: 'show-event [id]',         desc: 'Опубликовать мероприятие' },
+                    { cmd: 'delete-event [id]',       desc: 'Удалить мероприятие' },
+                    { cmd: '',                         desc: '── Системные ──' },
+                    { cmd: 'delete-user [id]',        desc: 'Удалить пользователя (осторожно!)' },
+                    { cmd: 'clear-history [user_id]', desc: 'Очистить историю прослушиваний' },
+                    { cmd: 'clear-logs',              desc: 'Очистить логи консоли' },
+                  ].filter(item => item.cmd !== '' || true).map((item, index) => (
                     <div
                       key={index}
                       style={{
