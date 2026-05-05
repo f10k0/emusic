@@ -63,16 +63,21 @@ def _video_out(v: models.Video, current_user=None, db: Session = None) -> dict:
     }
 
 
-def _comment_out(c: models.VideoComment, current_user=None, db: Session = None) -> dict:
+def _comment_out(c: models.VideoComment, current_user=None, db: Session = None, depth: int = 0) -> dict:
     liked = False
     if current_user and db:
         liked = _user_liked_comment(db, current_user.id, c.id)
 
-    # Safely get replies list
-    try:
-        replies_list = [r for r in (c.replies or []) if hasattr(r, 'id')]
-    except Exception:
-        replies_list = []
+    # Load replies directly from DB (max 3 levels deep)
+    replies = []
+    if db and depth < 3:
+        child_comments = (
+            db.query(models.VideoComment)
+            .filter(models.VideoComment.parent_id == c.id)
+            .order_by(models.VideoComment.created_at.asc())
+            .all()
+        )
+        replies = [_comment_out(r, current_user, db, depth + 1) for r in child_comments]
 
     return {
         "id": c.id,
@@ -85,7 +90,7 @@ def _comment_out(c: models.VideoComment, current_user=None, db: Session = None) 
         "created_at": c.created_at,
         "username": c.user.username if c.user else None,
         "user_avatar": c.user.avatar if c.user else None,
-        "replies": [_comment_out(r, current_user, db) for r in replies_list],
+        "replies": replies,
         "liked": liked,
     }
 
@@ -241,17 +246,12 @@ def get_comments(
     db: Session = Depends(get_db),
     current_user: Optional[models.User] = Depends(dependencies.optional_current_user)
 ):
-    from sqlalchemy.orm import joinedload
-    # Load top-level comments with replies and user info
+    # Only top-level comments; replies loaded recursively in _comment_out
     comments = (
         db.query(models.VideoComment)
         .filter(
             models.VideoComment.video_id == video_id,
             models.VideoComment.parent_id == None
-        )
-        .options(
-            joinedload(models.VideoComment.replies).joinedload(models.VideoComment.user),
-            joinedload(models.VideoComment.user),
         )
         .order_by(models.VideoComment.created_at.asc())
         .all()
@@ -287,17 +287,8 @@ def add_comment(
     db.commit()
     db.refresh(c)
 
-    # Перечитываем с joinedload чтобы relationships были загружены
-    from sqlalchemy.orm import joinedload
-    c = (
-        db.query(models.VideoComment)
-        .filter(models.VideoComment.id == c.id)
-        .options(
-            joinedload(models.VideoComment.replies).joinedload(models.VideoComment.user),
-            joinedload(models.VideoComment.user),
-        )
-        .first()
-    )
+    # Перечитываем чтобы подгрузить user relationship
+    c = db.query(models.VideoComment).filter(models.VideoComment.id == c.id).first()
     return _comment_out(c, current_user, db)
 
 

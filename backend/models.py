@@ -226,13 +226,7 @@ class VideoComment(Base):
 
     video = relationship('Video', back_populates='comments')
     user = relationship('User')
-    replies = relationship(
-        'VideoComment',
-        primaryjoin='VideoComment.parent_id == VideoComment.id',
-        foreign_keys='VideoComment.parent_id',
-        backref='parent_comment',
-        lazy='select',
-    )
+    # replies loaded manually via query in router
 
 
 class Event(Base):
