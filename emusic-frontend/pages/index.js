@@ -15,7 +15,7 @@ export default function Home() {
   const [genres, setGenres] = useState([]);
   const [featuredGenres, setFeaturedGenres] = useState([]);
   const [chartTracks, setChartTracks] = useState([]);
-  const { setTrack, updateQueue } = usePlayerStore();
+  const { setTrack, updateQueue, addToQueue, addNext } = usePlayerStore();
 
   useEffect(() => {
     fetchTopTracks();
