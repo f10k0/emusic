@@ -78,26 +78,7 @@ export default function Sidebar() {
         </ul>
       </div>
 
-      {user && (
-        <>
-          <div className="sidebar-divider"></div>
-          <div className="sidebar-section">
-            <h3>Профиль</h3>
-            <ul>
-              <li>
-                <Link href="/profile/stats" className={isActive('/profile/stats') ? 'active' : ''}>
-                  <i className="fas fa-chart-bar"></i> Моя статистика
-                </Link>
-              </li>
-              <li>
-                <Link href="/profile/settings" className={isActive('/profile/settings') ? 'active' : ''}>
-                  <i className="fas fa-sliders-h"></i> Настройки
-                </Link>
-              </li>
-            </ul>
-          </div>
-        </>
-      )}
+
 
       {user && user.role === 'user' && (
         <>

@@ -141,6 +141,12 @@ export default function Header() {
           <Link href="/playlists" onClick={() => setDropdownOpen(false)}>
             <i className="fas fa-list"></i> Мои плейлисты
           </Link>
+          <Link href="/profile/stats" onClick={() => setDropdownOpen(false)}>
+            <i className="fas fa-chart-bar"></i> Моя статистика
+          </Link>
+          <Link href="/profile/settings" onClick={() => setDropdownOpen(false)}>
+            <i className="fas fa-sliders-h"></i> Настройки
+          </Link>
           <Link href="/genres" onClick={() => setDropdownOpen(false)}>
             <i className="fas fa-tags"></i> Жанры
           </Link>
