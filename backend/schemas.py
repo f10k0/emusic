@@ -1,5 +1,5 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
-from typing import Optional, List
+from typing import Optional, List, Any, Dict
 from datetime import datetime
 
 
@@ -19,6 +19,7 @@ class UserOut(UserBase):
     role: str
     is_active: bool
     created_at: datetime
+    settings: Optional[Dict[str, Any]] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -100,6 +101,15 @@ class GenreOut(GenreBase):
     model_config = ConfigDict(from_attributes=True)
 
 
+# Mood schemas
+class MoodOut(BaseModel):
+    id: int
+    name: str
+    slug: str
+    emoji: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+
 # Track schemas
 class TrackBase(BaseModel):
     title: str
@@ -118,6 +128,9 @@ class TrackUpdate(BaseModel):
     album_id: Optional[int] = None
     cover: Optional[str] = None
     genre_ids: Optional[List[int]] = None
+    mood_ids: Optional[List[int]] = None
+    lyrics: Optional[str] = None
+    is_adult: Optional[bool] = None
 
 
 class TrackOut(TrackBase):
@@ -126,10 +139,13 @@ class TrackOut(TrackBase):
     album_id: Optional[int] = None
     play_count: int
     is_published: bool
+    is_adult: bool = False
     file_path: str
     artist_name: Optional[str] = None
     liked: bool = False
     genres: List[GenreOut] = []
+    moods: List[MoodOut] = []
+    lyrics: Optional[str] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -170,12 +186,15 @@ class SubmissionCreate(SubmissionBase):
     pass
 
 
-class SubmissionOut(SubmissionBase):
+class SubmissionOut(BaseModel):
     id: int
     artist_id: int
+    track_id: int
     status: str
     submitted_at: datetime
     reviewed_at: Optional[datetime]
+    artist: Optional[ArtistOut] = None
+    track: Optional[TrackOut] = None
     model_config = ConfigDict(from_attributes=True)
 
 
@@ -210,8 +229,7 @@ class SearchResult(BaseModel):
     genres: List[GenreOut] = []
 
 
-# после SearchResult добавить:
-
+# News schemas
 class NewsBase(BaseModel):
     title: str
     content: str
@@ -236,6 +254,7 @@ class NewsOut(NewsBase):
     updated_at: Optional[datetime] = None
     model_config = ConfigDict(from_attributes=True)
 
+
 # Chart schemas
 class ChartTrackOut(BaseModel):
     id: int
@@ -251,16 +270,3 @@ class ChartTrackOut(BaseModel):
 class ChartResponse(BaseModel):
     tracks: List[ChartTrackOut]
     total: int
-
-# ... в конце файла, после всех существующих классов ...
-
-class SubmissionOut(BaseModel):
-    id: int
-    artist_id: int
-    track_id: int
-    status: str
-    submitted_at: datetime
-    reviewed_at: Optional[datetime]
-    artist: Optional[ArtistOut] = None  # добавляем
-    track: Optional[TrackOut] = None    # добавляем
-    model_config = ConfigDict(from_attributes=True)

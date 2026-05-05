@@ -19,6 +19,10 @@ export default function EditTrack() {
   const [albums, setAlbums] = useState([]);
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedMoods, setSelectedMoods] = useState([]);
+  const [moods, setMoods] = useState([]);
+  const [lyrics, setLyrics] = useState('');
+  const [isAdult, setIsAdult] = useState(false);
   const [genreSearch, setGenreSearch] = useState('');
   const [form, setForm] = useState({
     title: '',
@@ -32,6 +36,7 @@ export default function EditTrack() {
       fetchTrack();
       fetchAlbums();
       fetchGenres();
+      fetchMoods();
     }
   }, [id, user]);
 
@@ -63,6 +68,13 @@ export default function EditTrack() {
     }
   };
 
+  const fetchMoods = async () => {
+    try {
+      const res = await api.get('/moods/');
+      setMoods(res.data || []);
+    } catch {}
+  };
+
   const fetchGenres = async () => {
     try {
       const res = await api.get('/genres');
@@ -88,7 +100,10 @@ export default function EditTrack() {
         duration: parseInt(form.duration) || 0,
         album_id: form.album_id ? parseInt(form.album_id) : null,
         cover: form.cover || null,
-        genre_ids: selectedGenres
+        genre_ids: selectedGenres,
+        mood_ids: selectedMoods,
+        lyrics: lyrics,
+        is_adult: isAdult
       };
 
       const res = await api.put(`/submissions/tracks/${id}`, dataToSend);

@@ -12,7 +12,7 @@ export default function SearchPage() {
   const router = useRouter();
   const { q } = router.query;
   const [results, setResults] = useState({ artists: [], albums: [], tracks: [], genres: [] });
-  const { setTrack, updateQueue } = usePlayerStore();
+  const { setTrack, addToQueue, addNext, updateQueue } = usePlayerStore();
 
   useEffect(() => {
     if (q) {

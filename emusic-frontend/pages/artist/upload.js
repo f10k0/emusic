@@ -13,6 +13,10 @@ export default function UploadTrack() {
   const [albums, setAlbums] = useState([]);
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedMoods, setSelectedMoods] = useState([]);
+  const [moods, setMoods] = useState([]);
+  const [lyrics, setLyrics] = useState('');
+  const [isAdult, setIsAdult] = useState(false);
   const [genreSearch, setGenreSearch] = useState('');
   const [form, setForm] = useState({
     title: '',
@@ -35,6 +39,7 @@ export default function UploadTrack() {
     if (user?.role === 'artist') {
       fetchAlbums();
       fetchGenres();
+      fetchMoods();
     }
   }, [user]);
 
@@ -54,6 +59,13 @@ export default function UploadTrack() {
     } catch (err) {
       console.error('Ошибка загрузки жанров:', err);
     }
+  };
+
+  const fetchMoods = async () => {
+    try {
+      const res = await api.get('/moods/');
+      setMoods(res.data || []);
+    } catch (err) { console.error(err); }
   };
 
   const filteredGenres = genres.filter(g => 
@@ -88,6 +100,9 @@ export default function UploadTrack() {
       formData.append('album_id', form.album_id);
     }
     formData.append('genre_ids', JSON.stringify(selectedGenres));
+    formData.append('mood_ids', JSON.stringify(selectedMoods));
+    formData.append('lyrics', lyrics);
+    formData.append('is_adult', isAdult ? 'true' : 'false');
     formData.append('file', file);
 
     try {
@@ -246,6 +261,62 @@ export default function UploadTrack() {
             </div>
 
             <div className="form-group">
+              <label>Настроения трека</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
+                {moods.map((mood) => (
+                  <button
+                    key={mood.id}
+                    type="button"
+                    onClick={() => {
+                      if (selectedMoods.includes(mood.id)) {
+                        setSelectedMoods(selectedMoods.filter(id => id !== mood.id));
+                      } else {
+                        setSelectedMoods([...selectedMoods, mood.id]);
+                      }
+                    }}
+                    style={{
+                      padding: '6px 14px',
+                      borderRadius: '20px',
+                      border: selectedMoods.includes(mood.id) ? '1px solid var(--accent)' : '1px solid var(--border)',
+                      background: selectedMoods.includes(mood.id) ? 'rgba(136,51,255,0.2)' : 'var(--bg-elevated)',
+                      color: selectedMoods.includes(mood.id) ? 'var(--accent-light)' : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      fontSize: '0.83rem',
+                      transition: 'all 0.2s',
+                    }}
+                  >
+                    {mood.emoji} {mood.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="lyrics">Текст трека</label>
+              <textarea
+                id="lyrics"
+                className="form-control"
+                value={lyrics}
+                onChange={(e) => setLyrics(e.target.value)}
+                rows={6}
+                placeholder={"Текст с таймкодами: [0:30] Первый куплет\n[1:00] Второй куплет\nИли просто текст без таймкодов"}
+              />
+              <small>Формат таймкода: [мм:сс] Строка текста</small>
+            </div>
+
+            <div className="form-group">
+              <label style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}>
+                <input
+                  type="checkbox"
+                  checked={isAdult}
+                  onChange={(e) => setIsAdult(e.target.checked)}
+                  style={{ width: 16, height: 16, accentColor: 'var(--accent)', cursor: 'pointer' }}
+                />
+                <span>🔞 Контент 18+ (будет скрыт по умолчанию)</span>
+              </label>
+            </div>
+
+                        <div className="form-group">
               <label htmlFor="file">Аудиофайл (MP3) <span style={{ color: 'var(--accent)' }}>*</span></label>
               <input
                 type="file"

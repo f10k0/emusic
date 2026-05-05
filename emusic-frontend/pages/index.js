@@ -98,7 +98,15 @@ export default function Home() {
               <div style={{ display: 'flex', gap: '10px', marginTop: '10px', justifyContent: 'space-between' }}>
                 <LikeButton item={track} type="tracks" initialState={track.liked} />
                 <DownloadButton trackId={track.id} trackTitle={track.title} />
-                <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                                <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                <button
+                  className="btn-secondary"
+                  style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
+                  onClick={(e) => { e.stopPropagation(); addToQueue(track); }}
+                  title="Добавить в очередь"
+                >
+                  <i className="fas fa-list-ol"></i>
+                </button>
               </div>
             </div>
           ))}
@@ -144,7 +152,15 @@ export default function Home() {
               <div className="track-actions">
                 <LikeButton item={track} type="tracks" initialState={track.liked} />
                 <DownloadButton trackId={track.id} trackTitle={track.title} />
-                <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                                <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                <button
+                  className="btn-secondary"
+                  style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
+                  onClick={(e) => { e.stopPropagation(); addToQueue(track); }}
+                  title="Добавить в очередь"
+                >
+                  <i className="fas fa-list-ol"></i>
+                </button>
               </div>
             </div>
           ))}

@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, Table, Text, BigInteger
+from sqlalchemy import Column, Integer, String, ForeignKey, Boolean, DateTime, Table, Text, BigInteger, JSON, Float
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from database import Base
@@ -25,7 +25,6 @@ favorite_artists = Table(
     Column('artist_id', Integer, ForeignKey('artists.id'))
 )
 
-# Таблица для связи плейлистов и треков
 playlist_tracks = Table(
     'playlist_tracks',
     Base.metadata,
@@ -33,12 +32,18 @@ playlist_tracks = Table(
     Column('track_id', Integer, ForeignKey('tracks.id', ondelete='CASCADE'))
 )
 
-# Таблица связи треков и жанров (многие ко многим)
 track_genres = Table(
     'track_genres',
     Base.metadata,
     Column('track_id', Integer, ForeignKey('tracks.id', ondelete='CASCADE')),
     Column('genre_id', Integer, ForeignKey('genres.id', ondelete='CASCADE'))
+)
+
+track_moods = Table(
+    'track_moods',
+    Base.metadata,
+    Column('track_id', Integer, ForeignKey('tracks.id', ondelete='CASCADE')),
+    Column('mood_id', Integer, ForeignKey('moods.id', ondelete='CASCADE'))
 )
 
 
@@ -53,12 +58,14 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     avatar = Column(String, nullable=True)
+    settings = Column(JSON, nullable=True)
 
     favorite_tracks = relationship('Track', secondary=favorite_tracks, backref='favorited_by')
     favorite_albums = relationship('Album', secondary=favorite_albums, backref='favorited_by')
     favorite_artists = relationship('Artist', secondary=favorite_artists, backref='favorited_by')
     artist = relationship('Artist', back_populates='user', uselist=False)
     playlists = relationship('Playlist', back_populates='user', cascade='all, delete-orphan')
+    listening_history = relationship('ListeningHistory', back_populates='user', cascade='all, delete-orphan')
 
 
 class Artist(Base):
@@ -74,6 +81,8 @@ class Artist(Base):
     albums = relationship('Album', back_populates='artist')
     tracks = relationship('Track', back_populates='artist')
     submissions = relationship('Submission', back_populates='artist')
+    videos = relationship('Video', back_populates='artist', cascade='all, delete-orphan')
+    events = relationship('Event', back_populates='artist', cascade='all, delete-orphan')
 
 
 class Album(Base):
@@ -91,6 +100,17 @@ class Album(Base):
     tracks = relationship('Track', back_populates='album')
 
 
+class Mood(Base):
+    __tablename__ = 'moods'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, unique=True, nullable=False)
+    slug = Column(String, unique=True, nullable=False)
+    emoji = Column(String, nullable=True)
+
+    tracks = relationship('Track', secondary=track_moods, back_populates='moods')
+
+
 class Track(Base):
     __tablename__ = 'tracks'
 
@@ -103,11 +123,15 @@ class Track(Base):
     cover = Column(String, nullable=True)
     play_count = Column(BigInteger, default=0)
     is_published = Column(Boolean, default=False)
+    is_adult = Column(Boolean, default=False)
+    lyrics = Column(Text, nullable=True)
 
     album = relationship('Album', back_populates='tracks')
     artist = relationship('Artist', back_populates='tracks')
     submissions = relationship('Submission', back_populates='track')
     genres = relationship('Genre', secondary=track_genres, back_populates='tracks')
+    moods = relationship('Mood', secondary=track_moods, back_populates='tracks')
+    listening_history = relationship('ListeningHistory', back_populates='track')
 
     @property
     def artist_name(self):
@@ -143,7 +167,6 @@ class Playlist(Base):
     user = relationship('User', back_populates='playlists')
     tracks = relationship('Track', secondary=playlist_tracks, backref='playlists')
 
-# после класса Playlist добавить:
 
 class News(Base):
     __tablename__ = 'news'
@@ -151,10 +174,11 @@ class News(Base):
     id = Column(Integer, primary_key=True, index=True)
     title = Column(String, nullable=False)
     content = Column(Text, nullable=False)
-    image = Column(String, nullable=True)  # путь к картинке
+    image = Column(String, nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     is_published = Column(Boolean, default=True)
+
 
 class Genre(Base):
     __tablename__ = 'genres'
@@ -167,3 +191,68 @@ class Genre(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     tracks = relationship('Track', secondary=track_genres, back_populates='genres')
+
+
+class Video(Base):
+    __tablename__ = 'videos'
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    file_path = Column(String, nullable=False)
+    artist_id = Column(Integer, ForeignKey('artists.id'), nullable=False)
+    duration = Column(Integer, nullable=True)
+    play_count = Column(BigInteger, default=0)
+    likes = Column(Integer, default=0)
+    dislikes = Column(Integer, default=0)
+    is_published = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    artist = relationship('Artist', back_populates='videos')
+    comments = relationship('VideoComment', back_populates='video', cascade='all, delete-orphan')
+
+
+class VideoComment(Base):
+    __tablename__ = 'video_comments'
+
+    id = Column(Integer, primary_key=True, index=True)
+    video_id = Column(Integer, ForeignKey('videos.id', ondelete='CASCADE'), nullable=False)
+    user_id = Column(Integer, ForeignKey('users.id'), nullable=False)
+    parent_id = Column(Integer, ForeignKey('video_comments.id'), nullable=True)
+    content = Column(Text, nullable=False)
+    likes = Column(Integer, default=0)
+    dislikes = Column(Integer, default=0)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    video = relationship('Video', back_populates='comments')
+    user = relationship('User')
+    replies = relationship('VideoComment', backref='parent', remote_side=[id])
+
+
+class Event(Base):
+    __tablename__ = 'events'
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    date = Column(DateTime(timezone=True), nullable=False)
+    location = Column(String, nullable=True)
+    tickets_url = Column(String, nullable=True)
+    image = Column(String, nullable=True)
+    artist_id = Column(Integer, ForeignKey('artists.id'), nullable=False)
+    is_published = Column(Boolean, default=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    artist = relationship('Artist', back_populates='events')
+
+
+class ListeningHistory(Base):
+    __tablename__ = 'listening_history'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    track_id = Column(Integer, ForeignKey('tracks.id', ondelete='CASCADE'), nullable=False)
+    listened_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship('User', back_populates='listening_history')
+    track = relationship('Track', back_populates='listening_history')

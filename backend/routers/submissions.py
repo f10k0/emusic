@@ -21,6 +21,9 @@ async def create_submission(
     duration: int = Form(0),
     album_id: Optional[int] = Form(None),
     genre_ids: Optional[str] = Form(None),
+    mood_ids: Optional[str] = Form(None),
+    lyrics: Optional[str] = Form(None),
+    is_adult: bool = Form(False),
     file: UploadFile = File(...),
     current_user: models.User = Depends(dependencies.require_role("artist")),
     db: Session = Depends(get_db)
@@ -33,17 +36,15 @@ async def create_submission(
     file_extension = os.path.splitext(file.filename)[1]
     file_name = f"{datetime.utcnow().timestamp()}{file_extension}"
     file_path = os.path.join(UPLOAD_DIR, file_name)
-    
+
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
 
     new_track = models.Track(
-        title=title,
-        duration=duration,
-        album_id=album_id,
-        artist_id=artist.id,
-        file_path=file_path,
-        is_published=False
+        title=title, duration=duration, album_id=album_id,
+        artist_id=artist.id, file_path=file_path,
+        is_published=False, is_adult=is_adult,
+        lyrics=lyrics or None,
     )
     db.add(new_track)
     db.flush()
@@ -55,21 +56,26 @@ async def create_submission(
                 genre = db.query(models.Genre).filter(models.Genre.id == gid).first()
                 if genre:
                     new_track.genres.append(genre)
-        except:
+        except Exception:
+            pass
+
+    if mood_ids:
+        try:
+            ids = json.loads(mood_ids)
+            for mid in ids:
+                mood = db.query(models.Mood).filter(models.Mood.id == mid).first()
+                if mood:
+                    new_track.moods.append(mood)
+        except Exception:
             pass
 
     db.commit()
     db.refresh(new_track)
 
-    submission = models.Submission(
-        artist_id=artist.id,
-        track_id=new_track.id,
-        status="pending"
-    )
+    submission = models.Submission(artist_id=artist.id, track_id=new_track.id, status="pending")
     db.add(submission)
     db.commit()
     db.refresh(submission)
-
     return submission
 
 
@@ -82,14 +88,14 @@ def get_track(
     track = db.query(models.Track).filter(models.Track.id == track_id).first()
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")
-    
+
     if current_user.role == "artist":
         artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
         if not artist or track.artist_id != artist.id:
             raise HTTPException(status_code=403, detail="You can only edit your own tracks")
-    else:
+    elif current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Only artists can edit tracks")
-    
+
     return track
 
 
@@ -103,14 +109,14 @@ def update_track(
     track = db.query(models.Track).filter(models.Track.id == track_id).first()
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")
-    
+
     if current_user.role == "artist":
         artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
         if not artist or track.artist_id != artist.id:
             raise HTTPException(status_code=403, detail="You can only edit your own tracks")
-    else:
+    elif current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Only artists can edit tracks")
-    
+
     if track_data.title is not None:
         track.title = track_data.title
     if track_data.duration is not None:
@@ -125,7 +131,17 @@ def update_track(
             genre = db.query(models.Genre).filter(models.Genre.id == gid).first()
             if genre:
                 track.genres.append(genre)
-    
+    if track_data.mood_ids is not None:
+        track.moods.clear()
+        for mid in track_data.mood_ids:
+            mood = db.query(models.Mood).filter(models.Mood.id == mid).first()
+            if mood:
+                track.moods.append(mood)
+    if track_data.lyrics is not None:
+        track.lyrics = track_data.lyrics
+    if track_data.is_adult is not None:
+        track.is_adult = track_data.is_adult
+
     db.commit()
     db.refresh(track)
     return track
@@ -141,29 +157,27 @@ async def upload_track_cover(
     track = db.query(models.Track).filter(models.Track.id == track_id).first()
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")
-    
+
     if current_user.role == "artist":
         artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
         if not artist or track.artist_id != artist.id:
             raise HTTPException(status_code=403, detail="You can only edit your own tracks")
-    else:
+    elif current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Only artists can edit tracks")
-    
+
     if not file.content_type.startswith("image/"):
         raise HTTPException(status_code=400, detail="File must be an image")
-    
+
     os.makedirs(UPLOAD_DIR_TRACK_COVERS, exist_ok=True)
-    
     file_extension = os.path.splitext(file.filename)[1]
     file_name = f"track_{track_id}_{int(datetime.utcnow().timestamp())}{file_extension}"
     file_path = os.path.join(UPLOAD_DIR_TRACK_COVERS, file_name)
-    
+
     with open(file_path, "wb") as buffer:
         shutil.copyfileobj(file.file, buffer)
-    
+
     track.cover = file_path
     db.commit()
-    
     return {"cover_url": file_path}
 
 
@@ -176,23 +190,22 @@ def delete_track(
     track = db.query(models.Track).filter(models.Track.id == track_id).first()
     if not track:
         raise HTTPException(status_code=404, detail="Track not found")
-    
+
     if current_user.role == "artist":
         artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
         if not artist or track.artist_id != artist.id:
             raise HTTPException(status_code=403, detail="You can only delete your own tracks")
-    else:
+    elif current_user.role != "admin":
         raise HTTPException(status_code=403, detail="Only artists can delete tracks")
-    
+
     if os.path.exists(track.file_path):
         os.remove(track.file_path)
-    if hasattr(track, 'cover') and track.cover and os.path.exists(track.cover):
+    if track.cover and os.path.exists(track.cover):
         os.remove(track.cover)
-    
-    submissions = db.query(models.Submission).filter(models.Submission.track_id == track_id).all()
-    for sub in submissions:
+
+    for sub in db.query(models.Submission).filter(models.Submission.track_id == track_id).all():
         db.delete(sub)
-    
+
     db.delete(track)
     db.commit()
     return {"message": "Track deleted successfully"}

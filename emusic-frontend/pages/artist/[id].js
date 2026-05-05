@@ -14,7 +14,15 @@ export default function ArtistPage() {
   const [artist, setArtist] = useState(null);
   const [albums, setAlbums] = useState([]);
   const [tracks, setTracks] = useState([]);
+  const [events, setEvents] = useState([]);
   const { setTrack, updateQueue } = usePlayerStore();
+
+  const fetchEvents = async (artistId) => {
+    try {
+      const r = await api.get(`/events/artist/${artistId}`);
+      setEvents(r.data || []);
+    } catch {}
+  };
 
   useEffect(() => {
     if (id) {
@@ -24,6 +32,7 @@ export default function ArtistPage() {
           setAlbums(res.data.albums || []);
           setTracks(res.data.tracks || []);
           updateQueue(res.data.tracks || []);
+          fetchEvents(id);
         })
         .catch(err => console.error('Ошибка загрузки артиста:', err));
     }
@@ -133,6 +142,40 @@ export default function ArtistPage() {
               </div>
             ))}
           </div>
+
+          {events.length > 0 && (
+            <div style={{ marginTop: '32px' }}>
+              <h2 style={{ marginBottom: '16px' }}>
+                <i className="fas fa-calendar-alt" style={{ color: 'var(--accent)', marginRight: '8px' }}></i>
+                Ближайшие мероприятия
+              </h2>
+              <div className="events-grid">
+                {events.slice(0, 4).map(ev => (
+                  <a key={ev.id} href={`/events/${ev.id}`} style={{ textDecoration: 'none' }}>
+                    <div className="event-card">
+                      {ev.image ? (
+                        <img src={`${process.env.NEXT_PUBLIC_API_URL}/${ev.image}`} className="event-card-img" alt="" onError={e => { e.target.style.display='none'; }} />
+                      ) : (
+                        <div className="event-card-img" style={{ display:'flex', alignItems:'center', justifyContent:'center', background:'var(--bg-secondary)' }}>
+                          <i className="fas fa-calendar-alt" style={{ fontSize:'2.5rem', color:'var(--accent)', opacity:0.4 }}></i>
+                        </div>
+                      )}
+                      <div className="event-card-body">
+                        <div className="event-card-date">{new Date(ev.date).toLocaleDateString('ru-RU', { day:'numeric', month:'long', year:'numeric' })}</div>
+                        <div className="event-card-title">{ev.title}</div>
+                        {ev.location && <div className="event-card-location"><i className="fas fa-map-marker-alt"></i> {ev.location}</div>}
+                      </div>
+                    </div>
+                  </a>
+                ))}
+              </div>
+              {events.length > 4 && (
+                <div style={{ textAlign: 'center', marginTop: 16 }}>
+                  <a href="/events" style={{ color: 'var(--accent)', fontSize: '0.9rem' }}>Все мероприятия →</a>
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </div>
     </Layout>

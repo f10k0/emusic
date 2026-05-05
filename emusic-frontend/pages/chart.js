@@ -12,7 +12,7 @@ export default function ChartPage() {
   const router = useRouter();
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setTrack } = usePlayerStore();
+  const { setTrack, addToQueue, addNext, addToQueue, addNext } = usePlayerStore();
 
   useEffect(() => {
     fetchChart();

@@ -1,13 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import FileResponse
 from sqlalchemy.orm import Session
+from sqlalchemy import func as sqlfunc
 from typing import Optional
 import os
+from datetime import datetime, timedelta
 
 from database import get_db
 import models, schemas, dependencies
 
 router = APIRouter(prefix="/music", tags=["music"])
+
+
+def _apply_adult_filter(query, current_user):
+    if not current_user:
+        return query.filter(models.Track.is_adult == False)
+    settings = current_user.settings or {}
+    if settings.get("hide_adult", True):
+        return query.filter(models.Track.is_adult == False)
+    return query
 
 
 @router.get("/top", response_model=list[schemas.TrackOut])
@@ -16,7 +27,9 @@ def get_top_tracks(
     db: Session = Depends(get_db),
     current_user: Optional[models.User] = Depends(dependencies.optional_current_user)
 ):
-    tracks = db.query(models.Track).filter(models.Track.is_published == True).order_by(models.Track.play_count.desc()).limit(limit).all()
+    query = db.query(models.Track).filter(models.Track.is_published == True)
+    query = _apply_adult_filter(query, current_user)
+    tracks = query.order_by(models.Track.play_count.desc()).limit(limit).all()
     result = []
     for track in tracks:
         track_data = schemas.TrackOut.model_validate(track)
@@ -33,34 +46,36 @@ def search(
 ):
     artists = db.query(models.Artist).filter(models.Artist.name.ilike(f"%{q}%")).all()
     albums = db.query(models.Album).filter(models.Album.title.ilike(f"%{q}%"), models.Album.is_published == True).all()
-    tracks = db.query(models.Track).filter(models.Track.title.ilike(f"%{q}%"), models.Track.is_published == True).all()
+
+    track_query = db.query(models.Track).filter(
+        (models.Track.title.ilike(f"%{q}%") | models.Track.lyrics.ilike(f"%{q}%")),
+        models.Track.is_published == True
+    )
+    track_query = _apply_adult_filter(track_query, current_user)
+    tracks = track_query.all()
+
     genres = db.query(models.Genre).filter(models.Genre.name.ilike(f"%{q}%")).all()
-    
+
     artists_out = []
     for artist in artists:
         artist_data = schemas.ArtistOut.model_validate(artist)
         artist_data.liked = current_user and (artist in current_user.favorite_artists) if current_user else False
         artists_out.append(artist_data)
-    
+
     albums_out = []
     for album in albums:
         album_data = schemas.AlbumOut.model_validate(album)
         album_data.artist_name = album.artist.name if album.artist else None
         album_data.liked = current_user and (album in current_user.favorite_albums) if current_user else False
         albums_out.append(album_data)
-    
+
     tracks_out = []
     for track in tracks:
         track_data = schemas.TrackOut.model_validate(track)
         track_data.liked = current_user and (track in current_user.favorite_tracks) if current_user else False
         tracks_out.append(track_data)
-    
-    return {
-        "artists": artists_out,
-        "albums": albums_out,
-        "tracks": tracks_out,
-        "genres": genres
-    }
+
+    return {"artists": artists_out, "albums": albums_out, "tracks": tracks_out, "genres": genres}
 
 
 @router.get("/listen/{track_id}")
@@ -69,40 +84,33 @@ def listen_track(
     db: Session = Depends(get_db),
     current_user: Optional[models.User] = Depends(dependencies.optional_current_user)
 ):
-    print(f"=== Запрос на прослушивание трека {track_id} ===")
-    print(f"Пользователь: {current_user.username if current_user else 'не авторизован'}, роль: {current_user.role if current_user else 'None'}")
-    
-    # Админ может слушать неопубликованные треки
     if current_user and current_user.role == "admin":
         track = db.query(models.Track).filter(models.Track.id == track_id).first()
-        print(f"Админ запрашивает трек {track_id}, найден: {track is not None}")
     else:
         track = db.query(models.Track).filter(models.Track.id == track_id, models.Track.is_published == True).first()
-        print(f"Обычный пользователь запрашивает трек {track_id}, найден: {track is not None}")
-    
+
     if not track:
-        print(f"Трек {track_id} не найден в базе!")
         raise HTTPException(status_code=404, detail="Track not found")
-    
-    # Увеличиваем счётчик прослушиваний
+
     track.play_count += 1
     db.commit()
-    print(f"Счётчик прослушиваний обновлён: {track.play_count}")
-    
+
+    # Записываем в историю прослушиваний
+    if current_user:
+        hist = models.ListeningHistory(user_id=current_user.id, track_id=track_id)
+        db.add(hist)
+        db.commit()
+
     file_path = track.file_path
-    print(f"Путь к файлу: {file_path}")
-    
     if not os.path.exists(file_path):
-        print(f"Файл не найден по пути: {file_path}")
         raise HTTPException(status_code=404, detail="File not found")
-    
-    print(f"Файл найден, отправляем: {file_path}")
+
     return FileResponse(file_path, media_type="audio/mpeg", filename=f"{track.title}.mp3")
 
 
 @router.get("/download/{track_id}")
 def download_track(
-    track_id: int, 
+    track_id: int,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(dependencies.get_current_active_user)
 ):
@@ -113,9 +121,7 @@ def download_track(
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
     return FileResponse(
-        file_path, 
-        media_type="audio/mpeg", 
-        filename=f"{track.title}.mp3",
+        file_path, media_type="audio/mpeg", filename=f"{track.title}.mp3",
         headers={"Content-Disposition": f"attachment; filename={track.title}.mp3"}
     )
 
@@ -134,22 +140,28 @@ def get_track(
     return track_data
 
 
+@router.get("/track/{track_id}/lyrics")
+def get_lyrics(track_id: int, db: Session = Depends(get_db)):
+    track = db.query(models.Track).filter(models.Track.id == track_id).first()
+    if not track:
+        raise HTTPException(404, "Трек не найден")
+    return {"lyrics": track.lyrics or ""}
+
+
 @router.get("/chart", response_model=schemas.ChartResponse)
 def get_chart(
     db: Session = Depends(get_db),
     current_user: Optional[models.User] = Depends(dependencies.optional_current_user),
     limit: int = 100
 ):
-    tracks = db.query(models.Track).filter(models.Track.is_published == True).order_by(models.Track.play_count.desc()).limit(limit).all()
+    query = db.query(models.Track).filter(models.Track.is_published == True)
+    query = _apply_adult_filter(query, current_user)
+    tracks = query.order_by(models.Track.play_count.desc()).limit(limit).all()
     result = []
     for idx, track in enumerate(tracks, start=1):
         track_data = schemas.ChartTrackOut(
-            id=track.id,
-            title=track.title,
-            artist_name=track.artist_name,
-            artist_id=track.artist_id,
-            cover=track.cover,
-            play_count=track.play_count,
+            id=track.id, title=track.title, artist_name=track.artist_name,
+            artist_id=track.artist_id, cover=track.cover, play_count=track.play_count,
             liked=current_user and (track in current_user.favorite_tracks) if current_user else False,
             rank=idx
         )

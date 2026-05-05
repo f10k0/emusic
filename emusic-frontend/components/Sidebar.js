@@ -28,6 +28,16 @@ export default function Sidebar() {
             <i className="fas fa-search"></i> Поиск
           </Link>
         </li>
+        <li>
+          <Link href="/clips" className={isActive('/clips') ? 'active' : ''}>
+            <i className="fas fa-film"></i> Клипы
+          </Link>
+        </li>
+        <li>
+          <Link href="/events" className={isActive('/events') ? 'active' : ''}>
+            <i className="fas fa-calendar-alt"></i> Мероприятия
+          </Link>
+        </li>
       </ul>
 
       <div className="sidebar-divider"></div>
@@ -36,55 +46,58 @@ export default function Sidebar() {
         <h3>Библиотека</h3>
         <ul>
           <li>
-            <Link
-              href="/profile/favorites?tab=tracks"
-              className={isFavoritesTabActive('tracks') ? 'active' : ''}
-            >
+            <Link href="/profile/favorites?tab=tracks" className={isFavoritesTabActive('tracks') ? 'active' : ''}>
               <i className="fas fa-heart"></i> Любимые треки
             </Link>
           </li>
           <li>
-            <Link
-              href="/profile/favorites?tab=albums"
-              className={isFavoritesTabActive('albums') ? 'active' : ''}
-            >
+            <Link href="/profile/favorites?tab=albums" className={isFavoritesTabActive('albums') ? 'active' : ''}>
               <i className="fas fa-compact-disc"></i> Любимые альбомы
             </Link>
           </li>
           <li>
-            <Link
-              href="/profile/favorites?tab=artists"
-              className={isFavoritesTabActive('artists') ? 'active' : ''}
-            >
+            <Link href="/profile/favorites?tab=artists" className={isFavoritesTabActive('artists') ? 'active' : ''}>
               <i className="fas fa-microphone-alt"></i> Любимые артисты
             </Link>
           </li>
           <li>
-            <Link
-              href="/playlists"
-              className={isActive('/playlists') || router.pathname.startsWith('/playlists/') ? 'active' : ''}
-            >
+            <Link href="/playlists" className={isActive('/playlists') || router.pathname.startsWith('/playlists/') ? 'active' : ''}>
               <i className="fas fa-list"></i> Мои плейлисты
             </Link>
           </li>
           <li>
-            <Link
-              href="/genres"
-              className={isActive('/genres') ? 'active' : ''}
-            >
+            <Link href="/genres" className={isActive('/genres') ? 'active' : ''}>
               <i className="fas fa-tags"></i> Жанры
             </Link>
           </li>
           <li>
-            <Link
-              href="/chart"
-              className={isActive('/chart') ? 'active' : ''}
-            >
+            <Link href="/chart" className={isActive('/chart') ? 'active' : ''}>
               <i className="fas fa-chart-line"></i> Чарт
             </Link>
           </li>
         </ul>
       </div>
+
+      {user && (
+        <>
+          <div className="sidebar-divider"></div>
+          <div className="sidebar-section">
+            <h3>Профиль</h3>
+            <ul>
+              <li>
+                <Link href="/profile/stats" className={isActive('/profile/stats') ? 'active' : ''}>
+                  <i className="fas fa-chart-bar"></i> Моя статистика
+                </Link>
+              </li>
+              <li>
+                <Link href="/profile/settings" className={isActive('/profile/settings') ? 'active' : ''}>
+                  <i className="fas fa-sliders-h"></i> Настройки
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </>
+      )}
 
       {user && user.role === 'user' && (
         <>
@@ -93,10 +106,7 @@ export default function Sidebar() {
             <h3>Стать артистом</h3>
             <ul>
               <li>
-                <Link
-                  href="/artist/create"
-                  className={isActive('/artist/create') ? 'active' : ''}
-                >
+                <Link href="/artist/create" className={isActive('/artist/create') ? 'active' : ''}>
                   <i className="fas fa-star"></i> Создать профиль артиста
                 </Link>
               </li>
@@ -117,6 +127,11 @@ export default function Sidebar() {
                 </Link>
               </li>
               <li>
+                <Link href="/artist/upload-video" className={isActive('/artist/upload-video') ? 'active' : ''}>
+                  <i className="fas fa-video"></i> Загрузить клип
+                </Link>
+              </li>
+              <li>
                 <Link href="/artist/my-tracks" className={isActive('/artist/my-tracks') ? 'active' : ''}>
                   <i className="fas fa-music"></i> Мои треки
                 </Link>
@@ -124,6 +139,11 @@ export default function Sidebar() {
               <li>
                 <Link href="/artist/albums" className={isActive('/artist/albums') ? 'active' : ''}>
                   <i className="fas fa-compact-disc"></i> Мои альбомы
+                </Link>
+              </li>
+              <li>
+                <Link href="/artist/events" className={isActive('/artist/events') ? 'active' : ''}>
+                  <i className="fas fa-calendar-plus"></i> Мои мероприятия
                 </Link>
               </li>
               <li>
