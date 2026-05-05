@@ -5,235 +5,174 @@ import api from '../../lib/api';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import Link from 'next/link';
 
-const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-
-const STATUS_CONFIG = {
-  pending:  { bg: 'rgba(255,193,7,0.12)',  color: '#ffc107', icon: 'fa-clock',       label: 'На проверке' },
-  approved: { bg: 'rgba(40,167,69,0.12)',  color: '#28a745', icon: 'fa-check-circle', label: 'Одобрен'     },
-  rejected: { bg: 'rgba(220,53,69,0.12)',  color: '#dc3545', icon: 'fa-times-circle', label: 'Отклонён'    },
-};
-
-function StatusBadge({ status }) {
-  const cfg = STATUS_CONFIG[status] || STATUS_CONFIG.pending;
-  return (
-    <span style={{
-      display: 'inline-flex', alignItems: 'center', gap: 5,
-      background: cfg.bg, color: cfg.color,
-      padding: '5px 13px', borderRadius: 20,
-      fontSize: '0.82rem', fontWeight: 700,
-      border: `1px solid ${cfg.color}33`,
-    }}>
-      <i className={`fas ${cfg.icon}`}></i>
-      {cfg.label}
-    </span>
-  );
-}
-
-function formatDate(d) {
-  if (!d) return '—';
-  return new Date(d).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-}
-
-function formatDuration(sec) {
-  if (!sec) return '—';
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${m}:${String(s).padStart(2, '0')}`;
-}
-
 export default function Submissions() {
   const router = useRouter();
   const { success } = router.query;
   const [showSuccess, setShowSuccess] = useState(false);
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [showAll, setShowAll] = useState(false);
 
   useEffect(() => {
     if (success === 'true') {
       setShowSuccess(true);
-      setTimeout(() => setShowSuccess(false), 5000);
+      const timer = setTimeout(() => setShowSuccess(false), 5000);
+      return () => clearTimeout(timer);
     }
   }, [success]);
 
-  useEffect(() => { fetchSubmissions(); }, []);
+  useEffect(() => {
+    fetchSubmissions();
+  }, []);
 
   const fetchSubmissions = async () => {
     setLoading(true);
     try {
-      const r = await api.get('/submissions/my?limit=50');
-      setSubmissions(r.data || []);
-    } catch {
+      // TODO: когда появится эндпоинт GET /submissions/my
+      // const res = await api.get('/submissions/my');
+      // setSubmissions(res.data);
+      
+      // Пока заглушка
       setSubmissions([]);
+    } catch (err) {
+      console.error(err);
     } finally {
       setLoading(false);
     }
   };
 
-  const displayed = showAll ? submissions : submissions.slice(0, 3);
-  const stats = {
-    total: submissions.length,
-    approved: submissions.filter(s => s.status === 'approved').length,
-    pending: submissions.filter(s => s.status === 'pending').length,
-    rejected: submissions.filter(s => s.status === 'rejected').length,
+  const getStatusBadge = (status) => {
+    const styles = {
+      pending: { bg: 'rgba(255, 193, 7, 0.1)', color: '#ffc107', text: 'На проверке' },
+      approved: { bg: 'rgba(40, 167, 69, 0.1)', color: '#28a745', text: 'Опубликован' },
+      rejected: { bg: 'rgba(220, 53, 69, 0.1)', color: '#dc3545', text: 'Отклонён' }
+    };
+    const style = styles[status] || styles.pending;
+    return (
+      <span style={{ 
+        backgroundColor: style.bg,
+        color: style.color,
+        padding: '4px 12px',
+        borderRadius: '20px',
+        fontSize: '0.85rem',
+        fontWeight: '600'
+      }}>
+        {style.text}
+      </span>
+    );
+  };
+
+  // Безопасное получение названия трека
+  const getTrackTitle = (submission) => {
+    if (!submission.track) return 'Без названия';
+    if (typeof submission.track === 'object') {
+      return submission.track.title || 'Без названия';
+    }
+    return String(submission.track);
+  };
+
+  // Безопасное получение URL обложки
+  const getTrackCover = (submission) => {
+    if (!submission.track) return '/default-cover.png';
+    if (typeof submission.track === 'object') {
+      return submission.track.cover || '/default-cover.png';
+    }
+    return '/default-cover.png';
+  };
+
+  // Безопасное форматирование даты
+  const formatDate = (dateString) => {
+    if (!dateString) return 'Дата неизвестна';
+    try {
+      return new Date(dateString).toLocaleDateString();
+    } catch (e) {
+      return 'Дата неизвестна';
+    }
   };
 
   return (
     <ProtectedRoute requiredRole="artist">
       <Layout>
         <div className="profile-container">
-          {/* Шапка */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 28, flexWrap: 'wrap', gap: 12 }}>
-            <div>
-              <h2 style={{ marginBottom: 4 }}>
-                <i className="fas fa-clock" style={{ color: 'var(--accent)', marginRight: 10 }}></i>
-                Мои заявки
-              </h2>
-              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
-                История отправленных треков на модерацию
-              </p>
-            </div>
-            <Link href="/artist/upload" className="btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 8, padding: '10px 20px', textDecoration: 'none' }}>
-              <i className="fas fa-upload"></i> Загрузить трек
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+            <h2>Мои заявки</h2>
+            <Link href="/artist/upload" className="btn">
+              <i className="fas fa-upload" style={{ marginRight: '8px' }}></i>
+              Загрузить новый трек
             </Link>
           </div>
 
-          {/* Уведомление об успехе */}
           {showSuccess && (
-            <div style={{ background: 'rgba(40,167,69,0.1)', border: '1px solid #28a745', borderRadius: 12, padding: '14px 18px', marginBottom: 24, display: 'flex', alignItems: 'center', gap: 12 }}>
-              <i className="fas fa-check-circle" style={{ color: '#28a745', fontSize: '1.4rem', flexShrink: 0 }}></i>
+            <div style={{ 
+              backgroundColor: 'rgba(40, 167, 69, 0.1)', 
+              border: '1px solid #28a745', 
+              borderRadius: '12px', 
+              padding: '16px', 
+              marginBottom: '25px',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px'
+            }}>
+              <i className="fas fa-check-circle" style={{ color: '#28a745', fontSize: '24px' }}></i>
               <div>
-                <strong>Трек успешно загружен!</strong>
-                <p style={{ color: 'var(--text-muted)', fontSize: '0.88rem', marginTop: 2 }}>Отправлен на модерацию. Статус появится в списке ниже.</p>
+                <strong style={{ color: 'var(--text-primary)' }}>Трек успешно загружен!</strong>
+                <p style={{ color: 'var(--text-secondary)', marginTop: '4px' }}>
+                  Он отправлен на модерацию. Мы уведомим вас, когда статус изменится.
+                </p>
               </div>
             </div>
           )}
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: 60, color: 'var(--text-muted)' }}>
-              <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem' }}></i>
+            <div style={{ textAlign: 'center', padding: '40px' }}>
+              <i className="fas fa-spinner fa-spin" style={{ fontSize: '32px', color: 'var(--accent)' }}></i>
+              <p style={{ marginTop: '16px', color: 'var(--text-secondary)' }}>Загрузка заявок...</p>
             </div>
           ) : submissions.length === 0 ? (
-            <div style={{ background: 'var(--bg-elevated)', borderRadius: 16, padding: 48, textAlign: 'center', border: '1px solid var(--border)' }}>
-              <i className="fas fa-music" style={{ fontSize: '3rem', color: 'var(--text-muted)', marginBottom: 16, display: 'block', opacity: 0.4 }}></i>
-              <h3 style={{ marginBottom: 8 }}>Заявок пока нет</h3>
-              <p style={{ color: 'var(--text-muted)', marginBottom: 24 }}>Загрузите первый трек — он появится здесь</p>
-              <Link href="/artist/upload" className="btn" style={{ textDecoration: 'none', padding: '10px 24px', display: 'inline-flex', alignItems: 'center', gap: 8 }}>
-                <i className="fas fa-upload"></i> Загрузить трек
+            <div style={{ 
+              backgroundColor: 'var(--bg-secondary)', 
+              borderRadius: '20px', 
+              padding: '40px', 
+              textAlign: 'center',
+              border: '1px solid var(--border)'
+            }}>
+              <i className="fas fa-music" style={{ fontSize: '48px', color: 'var(--text-muted)', marginBottom: '16px' }}></i>
+              <h3 style={{ marginBottom: '8px' }}>У вас пока нет загруженных треков</h3>
+              <p style={{ color: 'var(--text-secondary)', marginBottom: '24px' }}>
+                Загрузите свой первый трек, чтобы он появился здесь
+              </p>
+              <Link href="/artist/upload" className="btn">
+                Загрузить трек
               </Link>
             </div>
           ) : (
-            <>
-              {/* Краткая статистика */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 12, marginBottom: 24 }}>
-                {[
-                  { label: 'Всего', value: stats.total, color: 'var(--text-primary)' },
-                  { label: 'Одобрено', value: stats.approved, color: '#28a745' },
-                  { label: 'На проверке', value: stats.pending, color: '#ffc107' },
-                  { label: 'Отклонено', value: stats.rejected, color: '#dc3545' },
-                ].map(s => (
-                  <div key={s.label} style={{ background: 'var(--bg-elevated)', borderRadius: 12, padding: '14px 16px', border: '1px solid var(--border)', textAlign: 'center' }}>
-                    <div style={{ fontSize: '1.6rem', fontWeight: 800, color: s.color }}>{s.value}</div>
-                    <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', marginTop: 2 }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Список заявок */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                {displayed.map((sub, idx) => {
-                  const cfg = STATUS_CONFIG[sub.status] || STATUS_CONFIG.pending;
-                  const isLatest = idx === 0;
-                  return (
-                    <div key={sub.id} style={{
-                      background: 'var(--bg-elevated)',
-                      borderRadius: 14,
-                      border: `1px solid ${sub.status === 'rejected' ? 'rgba(220,53,69,0.25)' : sub.status === 'approved' ? 'rgba(40,167,69,0.2)' : 'var(--border)'}`,
-                      overflow: 'hidden',
-                      display: 'flex',
-                      gap: 0,
-                      position: 'relative',
-                    }}>
-                      {/* Цветная полоска слева */}
-                      <div style={{ width: 4, background: cfg.color, flexShrink: 0, opacity: 0.7 }} />
-
-                      {/* Обложка */}
-                      <div style={{ width: 72, flexShrink: 0, background: 'var(--bg-secondary)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                        {sub.track?.cover ? (
-                          <img
-                            src={`${API}/${sub.track.cover}`}
-                            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-                            onError={e => { e.target.src = '/default-cover.png'; }}
-                            alt=""
-                          />
-                        ) : (
-                          <i className="fas fa-music" style={{ fontSize: '1.4rem', color: 'var(--text-muted)', opacity: 0.4 }}></i>
-                        )}
-                      </div>
-
-                      {/* Инфо */}
-                      <div style={{ flex: 1, padding: '12px 16px', minWidth: 0 }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 4, flexWrap: 'wrap' }}>
-                          <span style={{ fontWeight: 700, fontSize: '0.95rem' }}>
-                            {sub.track?.title || 'Без названия'}
-                          </span>
-                          {isLatest && (
-                            <span style={{ background: 'rgba(136,51,255,0.15)', color: 'var(--accent-light)', fontSize: '0.7rem', padding: '1px 7px', borderRadius: 8, fontWeight: 600 }}>
-                              Последняя
-                            </span>
-                          )}
-                        </div>
-                        <div style={{ display: 'flex', gap: 14, fontSize: '0.78rem', color: 'var(--text-muted)', flexWrap: 'wrap' }}>
-                          <span>
-                            <i className="fas fa-paper-plane" style={{ marginRight: 4 }}></i>
-                            Отправлена: {formatDate(sub.submitted_at)}
-                          </span>
-                          {sub.reviewed_at && (
-                            <span>
-                              <i className="fas fa-check" style={{ marginRight: 4 }}></i>
-                              Рассмотрена: {formatDate(sub.reviewed_at)}
-                            </span>
-                          )}
-                          {sub.track?.duration && (
-                            <span>
-                              <i className="fas fa-clock" style={{ marginRight: 4 }}></i>
-                              {formatDuration(sub.track.duration)}
-                            </span>
-                          )}
-                          {sub.track?.is_published && (
-                            <span>
-                              <i className="fas fa-headphones" style={{ marginRight: 4 }}></i>
-                              {sub.track.play_count || 0} прослушиваний
-                            </span>
-                          )}
-                        </div>
-                      </div>
-
-                      {/* Статус */}
-                      <div style={{ display: 'flex', alignItems: 'center', padding: '0 16px', flexShrink: 0 }}>
-                        <StatusBadge status={sub.status} />
+            <div className="track-list">
+              {submissions.map(sub => (
+                <div key={sub.id} className="track-item" style={{ flexDirection: 'column', alignItems: 'stretch' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <img 
+                        src={getTrackCover(sub)}
+                        style={{ width: '60px', height: '60px', borderRadius: '12px', objectFit: 'cover' }}
+                        alt={getTrackTitle(sub)}
+                      />
+                      <div>
+                        <h4 style={{ marginBottom: '4px' }}>{getTrackTitle(sub)}</h4>
+                        <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
+                          Загружен: {formatDate(sub.submitted_at)}
+                        </p>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-
-              {/* Кнопка показать все */}
-              {submissions.length > 3 && (
-                <div style={{ textAlign: 'center', marginTop: 16 }}>
-                  <button
-                    className="btn-secondary"
-                    onClick={() => setShowAll(v => !v)}
-                    style={{ padding: '9px 24px', fontSize: '0.88rem' }}
-                  >
-                    {showAll
-                      ? <><i className="fas fa-chevron-up" style={{ marginRight: 6 }}></i>Свернуть</>
-                      : <><i className="fas fa-chevron-down" style={{ marginRight: 6 }}></i>Показать все ({submissions.length})</>
-                    }
-                  </button>
+                    {getStatusBadge(sub.status)}
+                  </div>
+                  {sub.reviewed_at && (
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', borderTop: '1px solid var(--border)', paddingTop: '10px', marginTop: '10px' }}>
+                      <i className="fas fa-clock" style={{ marginRight: '5px' }}></i>
+                      Рассмотрено: {formatDate(sub.reviewed_at)}
+                    </p>
+                  )}
                 </div>
-              )}
-            </>
+              ))}
+            </div>
           )}
         </div>
       </Layout>

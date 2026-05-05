@@ -19,8 +19,6 @@ export default function ArtistAlbums() {
     cover_image: ''
   });
   const [creating, setCreating] = useState(false);
-  const [coverFile, setCoverFile] = useState(null);
-  const [coverPreview, setCoverPreview] = useState(null);
 
   useEffect(() => {
     if (user?.role === 'artist') {
@@ -47,19 +45,9 @@ export default function ArtistAlbums() {
     }
     setCreating(true);
     try {
-      const res = await api.post('/albums', newAlbum);
-      // Загружаем обложку если выбрана
-      if (coverFile && res.data?.id) {
-        const fd = new FormData();
-        fd.append('file', coverFile);
-        await api.post(`/albums/${res.data.id}/cover`, fd, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        }).catch(() => {});
-      }
+      await api.post('/albums', newAlbum);
       setShowCreateForm(false);
       setNewAlbum({ title: '', type: 'album', release_date: '', cover_image: '' });
-      setCoverFile(null);
-      setCoverPreview(null);
       fetchAlbums();
     } catch (err) {
       console.error('Ошибка создания альбома:', err);
@@ -145,46 +133,13 @@ export default function ArtistAlbums() {
                   />
                 </div>
                 <div className="form-group">
-                  <label>Обложка альбома</label>
-                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14, marginTop: 8 }}>
-                    <div style={{
-                      width: 88, height: 88, flexShrink: 0,
-                      borderRadius: 10, overflow: 'hidden',
-                      background: 'var(--bg-elevated)',
-                      border: '2px dashed var(--border)',
-                      display: 'flex', alignItems: 'center', justifyContent: 'center',
-                      position: 'relative',
-                    }}>
-                      {coverPreview ? (
-                        <>
-                          <img src={coverPreview} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
-                          <button type="button" onClick={() => { setCoverFile(null); setCoverPreview(null); }}
-                            style={{ position: 'absolute', top: 3, right: 3, background: 'rgba(0,0,0,0.65)', border: 'none', color: 'white', borderRadius: '50%', width: 18, height: 18, cursor: 'pointer', fontSize: '0.6rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                            <i className="fas fa-times"></i>
-                          </button>
-                        </>
-                      ) : (
-                        <i className="fas fa-image" style={{ fontSize: '1.8rem', color: 'var(--text-muted)', opacity: 0.35 }}></i>
-                      )}
-                    </div>
-                    <div>
-                      <input type="file" accept="image/*" id="album-cover-upload" style={{ display: 'none' }}
-                        onChange={e => {
-                          const f = e.target.files[0];
-                          if (!f) return;
-                          setCoverFile(f);
-                          setCoverPreview(URL.createObjectURL(f));
-                        }}
-                      />
-                      <label htmlFor="album-cover-upload" className="btn-secondary"
-                        style={{ display: 'inline-flex', alignItems: 'center', gap: 6, padding: '7px 14px', cursor: 'pointer', fontSize: '0.83rem', borderRadius: 20 }}>
-                        <i className="fas fa-upload"></i>
-                        {coverFile ? 'Сменить' : 'Выбрать обложку'}
-                      </label>
-                      {coverFile && <p style={{ marginTop: 5, fontSize: '0.78rem', color: 'var(--text-secondary)' }}><i className="fas fa-check-circle" style={{ color: '#28a745', marginRight: 4 }}></i>{coverFile.name}</p>}
-                      <p style={{ marginTop: 4, fontSize: '0.76rem', color: 'var(--text-muted)' }}>JPG, PNG, WebP · 500×500 px</p>
-                    </div>
-                  </div>
+                  <label>Ссылка на обложку</label>
+                  <input
+                    type="url"
+                    value={newAlbum.cover_image}
+                    onChange={(e) => setNewAlbum({ ...newAlbum, cover_image: e.target.value })}
+                    placeholder="https://example.com/cover.jpg"
+                  />
                 </div>
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button type="submit" className="btn" disabled={creating}>

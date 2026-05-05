@@ -79,45 +79,6 @@ async def create_submission(
     return submission
 
 
-
-@router.get("/my")
-def get_my_submissions(
-    limit: int = 20,
-    db: Session = Depends(get_db),
-    current_user: models.User = Depends(dependencies.get_current_active_user)
-):
-    """Заявки текущего артиста — с данными трека."""
-    artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
-    if not artist:
-        return []
-    subs = (
-        db.query(models.Submission)
-        .filter(models.Submission.artist_id == artist.id)
-        .order_by(models.Submission.submitted_at.desc())
-        .limit(limit)
-        .all()
-    )
-    result = []
-    for s in subs:
-        track = db.query(models.Track).filter(models.Track.id == s.track_id).first()
-        result.append({
-            "id": s.id,
-            "track_id": s.track_id,
-            "status": s.status,
-            "submitted_at": s.submitted_at,
-            "reviewed_at": s.reviewed_at,
-            "track": {
-                "id": track.id,
-                "title": track.title,
-                "cover": track.cover,
-                "duration": track.duration,
-                "is_published": track.is_published,
-                "play_count": track.play_count,
-            } if track else None,
-        })
-    return result
-
-
 @router.get("/tracks/{track_id}", response_model=schemas.TrackOut)
 def get_track(
     track_id: int,

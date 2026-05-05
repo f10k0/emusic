@@ -14,7 +14,7 @@ UPLOAD_DIR_AVATARS = "uploads/avatars/"
 router = APIRouter(prefix="/users", tags=["users"])
 
 DEFAULT_SETTINGS = {
-    "hide_adult": False,
+    "hide_adult": True,
     "autoplay": True,
     "audio_quality": "medium",
     "theme": "dark",

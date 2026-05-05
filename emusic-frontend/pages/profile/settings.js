@@ -98,7 +98,7 @@ export default function SettingsPage() {
                   <div className="settings-item">
                     <div>
                       <div className="settings-item-label"><i className="fas fa-ban" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Скрывать 18+ контент</div>
-                      <div className="settings-item-desc">Скрывать треки с пометкой 18+ в поиске и рекомендациях. По умолчанию выключено.</div>
+                      <div className="settings-item-desc">Треки с пометкой 18+ не будут отображаться в поиске и рекомендациях</div>
                     </div>
                     <Toggle checked={settings.hide_adult} onChange={v => set('hide_adult', v)} />
                   </div>

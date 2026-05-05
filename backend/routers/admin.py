@@ -143,11 +143,7 @@ def admin_update_track(
             genre = db.query(models.Genre).filter(models.Genre.id == gid).first()
             if genre:
                 track.genres.append(genre)
-    if track_data.is_adult is not None:
-        track.is_adult = track_data.is_adult
-    if track_data.lyrics is not None:
-        track.lyrics = track_data.lyrics
-
+    
     db.commit()
     db.refresh(track)
     add_admin_log(current_admin.username, "Редактирование", f"Отредактирован трек '{track.title}' (ID: {track_id})")
@@ -491,10 +487,9 @@ def execute_command(
                     result["message"] = f"Видео ID {args.strip()} не найдено"
                 else:
                     v.is_published = False
-                    v.hidden_by_admin = True
                     db.commit()
-                    result["message"] = f"Видео '{v.title}' скрыто администратором (артист не может разскрыть)"
-                    add_admin_log(current_admin.username, "Скрытие", f"Видео '{v.title}' (ID: {v.id}) скрыто администратором")
+                    result["message"] = f"Видео '{v.title}' скрыто"
+                    add_admin_log(current_admin.username, "Скрытие", f"Видео '{v.title}' (ID: {v.id}) скрыто")
         elif cmd == "show-video":
             if not args or not args.strip().isdigit():
                 result["message"] = "Укажите ID видео"
@@ -504,7 +499,6 @@ def execute_command(
                     result["message"] = f"Видео ID {args.strip()} не найдено"
                 else:
                     v.is_published = True
-                    v.hidden_by_admin = False
                     db.commit()
                     result["message"] = f"Видео '{v.title}' опубликовано"
                     add_admin_log(current_admin.username, "Публикация", f"Видео '{v.title}' (ID: {v.id}) опубликовано")

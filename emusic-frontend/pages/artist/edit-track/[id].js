@@ -51,7 +51,6 @@ export default function EditTrack() {
         cover: res.data.cover || ''
       });
       setSelectedGenres(res.data.genres?.map(g => g.id) || []);
-        setSelectedMoods(res.data.moods?.map(m => m.id) || []);
     } catch (err) {
       console.error('Ошибка загрузки трека:', err);
       setError('Не удалось загрузить трек');
@@ -111,7 +110,6 @@ export default function EditTrack() {
       setSuccess('Трек успешно обновлён');
       setTrack(res.data);
       setSelectedGenres(res.data.genres?.map(g => g.id) || []);
-        setSelectedMoods(res.data.moods?.map(m => m.id) || []);
     } catch (err) {
       console.error('Ошибка обновления:', err);
       if (err.response?.data?.detail) {
@@ -361,42 +359,6 @@ export default function EditTrack() {
                 ))}
               </div>
               <small>Выберите один или несколько жанров для трека</small>
-            </div>
-
-            <div className="form-group">
-              <label>Настроения трека</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginTop: '8px' }}>
-                {moods.map((mood) => (
-                  <button
-                    key={mood.id}
-                    type="button"
-                    onClick={() => {
-                      if (selectedMoods.includes(mood.id)) {
-                        setSelectedMoods(selectedMoods.filter(id => id !== mood.id));
-                      } else {
-                        setSelectedMoods([...selectedMoods, mood.id]);
-                      }
-                    }}
-                    style={{
-                      padding: '6px 14px',
-                      borderRadius: '20px',
-                      border: selectedMoods.includes(mood.id) ? '1px solid var(--accent)' : '1px solid var(--border)',
-                      background: selectedMoods.includes(mood.id) ? 'rgba(136,51,255,0.2)' : 'var(--bg-elevated)',
-                      color: selectedMoods.includes(mood.id) ? 'var(--accent-light)' : 'var(--text-secondary)',
-                      cursor: 'pointer',
-                      fontSize: '0.85rem',
-                      transition: 'all 0.2s',
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 5,
-                    }}
-                  >
-                    {mood.emoji && <i className={`fas ${mood.emoji}`} style={{ fontSize: '0.75rem' }}></i>}
-                    {mood.name}
-                  </button>
-                ))}
-              </div>
-              <small>Выберите одно или несколько настроений</small>
             </div>
 
             <div className="form-group">

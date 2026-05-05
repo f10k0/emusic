@@ -133,6 +133,3 @@ INSERT INTO moods (name, slug, emoji) VALUES
     (U&'\041D\043E\0441\0442\0430\043B\044C\0433\0438\0447\0435\0441\043A\0438\0439','nostalgic','fa-clock'),
     (U&'\0412\0434\043E\0445\043D\043E\0432\043B\044F\044E\0449\0438\0439','inspiring','fa-star')
 ON CONFLICT (slug) DO NOTHING;
-
--- 15. hidden_by_admin flag on videos (artist cannot un-hide admin-moderated videos)
-ALTER TABLE videos ADD COLUMN IF NOT EXISTS hidden_by_admin BOOLEAN DEFAULT FALSE;

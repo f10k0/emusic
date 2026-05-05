@@ -21,13 +21,10 @@ export default function AdminTracks() {
     duration: '',
     album_id: '',
     cover: '',
-    genre_ids: [],
-    is_adult: false,
+    genre_ids: []
   });
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
-  const [selectedMoods, setSelectedMoods] = useState([]);
-  const [moods, setMoods] = useState([]);
   const [genreSearch, setGenreSearch] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -35,7 +32,6 @@ export default function AdminTracks() {
     if (user?.role === 'admin') {
       fetchTracks();
       fetchGenres();
-      fetchMoods();
     }
   }, [user]);
 
@@ -50,13 +46,6 @@ export default function AdminTracks() {
     } finally {
       setLoading(false);
     }
-  };
-
-  const fetchMoods = async () => {
-    try {
-      const r = await api.get('/moods/');
-      setMoods(r.data || []);
-    } catch {}
   };
 
   const fetchGenres = async () => {
@@ -92,11 +81,9 @@ export default function AdminTracks() {
       duration: track.duration || '',
       album_id: track.album_id || '',
       cover: track.cover || '',
-      genre_ids: track.genres?.map(g => g.id) || [],
-      is_adult: track.is_adult || false,
+      genre_ids: track.genres?.map(g => g.id) || []
     });
     setSelectedGenres(track.genres?.map(g => g.id) || []);
-    setSelectedMoods(track.moods?.map(m => m.id) || []);
     setGenreSearch('');
   };
 
@@ -110,7 +97,6 @@ export default function AdminTracks() {
       genre_ids: []
     });
     setSelectedGenres([]);
-    setSelectedMoods([]);
     setGenreSearch('');
   };
 
@@ -130,9 +116,7 @@ export default function AdminTracks() {
         duration: parseInt(editForm.duration) || 0,
         album_id: editForm.album_id ? parseInt(editForm.album_id) : null,
         cover: editForm.cover || null,
-        genre_ids: selectedGenres,
-        is_adult: editForm.is_adult,
-        mood_ids: selectedMoods,
+        genre_ids: selectedGenres
       };
       
       await api.put(`/admin/tracks/${editingTrack.id}`, dataToSend);
@@ -215,11 +199,6 @@ export default function AdminTracks() {
                           <strong> ID:</strong> {track.id} | 
                           <strong> Статус:</strong> {track.is_published ? 'Опубликован' : 'Не опубликован'} | 
                           <strong> Жанры:</strong> {track.genres?.map(g => g.name).join(', ') || '—'}
-                          {track.is_adult && (
-                            <span style={{ marginLeft: 8, background: 'rgba(220,53,69,0.12)', color: '#dc3545', fontSize: '0.72rem', padding: '2px 8px', borderRadius: 8, fontWeight: 600, border: '1px solid rgba(220,53,69,0.25)' }}>
-                              18+
-                            </span>
-                          )}
                         </p>
                       </div>
                     </div>
@@ -338,43 +317,6 @@ export default function AdminTracks() {
                 ))}
               </div>
               <small>Выберите один или несколько жанров для трека</small>
-            </div>
-
-            <div className="form-group" style={{ marginTop: '12px' }}>
-              <label style={{ marginBottom: 8, display: 'block' }}>Настроения трека</label>
-              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
-                {moods.map(mood => (
-                  <button key={mood.id} type="button"
-                    onClick={() => setSelectedMoods(prev => prev.includes(mood.id) ? prev.filter(id => id !== mood.id) : [...prev, mood.id])}
-                    style={{
-                      padding: '5px 12px', borderRadius: 20, fontSize: '0.8rem', cursor: 'pointer',
-                      border: selectedMoods.includes(mood.id) ? '1px solid var(--accent)' : '1px solid var(--border)',
-                      background: selectedMoods.includes(mood.id) ? 'rgba(136,51,255,0.18)' : 'var(--bg-secondary)',
-                      color: selectedMoods.includes(mood.id) ? 'var(--accent-light)' : 'var(--text-secondary)',
-                      transition: 'all 0.15s',
-                      display: 'inline-flex', alignItems: 'center', gap: 4,
-                    }}
-                  >
-                    {mood.emoji && <i className={`fas ${mood.emoji}`} style={{ fontSize: '0.7rem' }}></i>}
-                    {mood.name}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="form-group" style={{ marginTop: '16px' }}>
-              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', userSelect: 'none' }}>
-                <input
-                  type="checkbox"
-                  checked={!!editForm.is_adult}
-                  onChange={e => setEditForm(prev => ({ ...prev, is_adult: e.target.checked }))}
-                  style={{ width: 16, height: 16, accentColor: 'var(--accent)', cursor: 'pointer' }}
-                />
-                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
-                  <i className="fas fa-ban" style={{ color: 'var(--accent)', fontSize: '0.85rem' }}></i>
-                  Контент 18+ (будет скрыт у пользователей с фильтром)
-                </span>
-              </label>
             </div>
 
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>

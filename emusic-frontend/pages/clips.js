@@ -484,7 +484,7 @@ export default function Clips() {
             style={{ flex: 1, overflowY: 'scroll', scrollSnapType: 'y mandatory', minHeight: 0 }}
           >
             {videos.map((v, i) => (
-              <div key={v.id} data-idx={i} style={{ height: '100%', scrollSnapAlign: 'start', flexShrink: 0 }}>
+              <div key={v.id} data-idx={i} style={{ height: '100%', scrollSnapAlign: 'start', flexShrink: 0, minHeight: '100%' }}>
                 <ClipSlide video={v} isActive={i === activeIndex} />
               </div>
             ))}

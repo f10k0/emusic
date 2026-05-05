@@ -206,7 +206,6 @@ class Video(Base):
     likes = Column(Integer, default=0)
     dislikes = Column(Integer, default=0)
     is_published = Column(Boolean, default=True)
-    hidden_by_admin = Column(Boolean, default=False)  # True = скрыто администратором, артист не может разскрыть
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     artist = relationship('Artist', back_populates='videos')
