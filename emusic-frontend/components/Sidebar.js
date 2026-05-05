@@ -169,6 +169,11 @@ export default function Sidebar() {
                 </Link>
               </li>
               <li>
+                <Link href="/admin/events" className={isActive('/admin/events') ? 'active' : ''}>
+                  <i className="fas fa-calendar-alt"></i> Модерация мероприятий
+                </Link>
+              </li>
+              <li>
                 <Link href="/admin/news" className={isActive('/admin/news') ? 'active' : ''}>
                   <i className="fas fa-newspaper"></i> Новости
                 </Link>

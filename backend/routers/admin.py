@@ -143,7 +143,11 @@ def admin_update_track(
             genre = db.query(models.Genre).filter(models.Genre.id == gid).first()
             if genre:
                 track.genres.append(genre)
-    
+    if track_data.is_adult is not None:
+        track.is_adult = track_data.is_adult
+    if track_data.lyrics is not None:
+        track.lyrics = track_data.lyrics
+
     db.commit()
     db.refresh(track)
     add_admin_log(current_admin.username, "Редактирование", f"Отредактирован трек '{track.title}' (ID: {track_id})")
@@ -259,16 +263,34 @@ def execute_command(
             result["data"] = {
                 "commands": [
                     {"name": "help", "desc": "Показать список команд"},
-                    {"name": "stats", "desc": "Показать полную статистику"},
-                    {"name": "users", "desc": "Список пользователей"},
-                    {"name": "artists", "desc": "Список артистов"},
-                    {"name": "tracks", "desc": "Список треков"},
-                    {"name": "top [N]", "desc": "Топ N треков (по умолчанию 10)"},
-                    {"name": "user [id/name]", "desc": "Информация о пользователе"},
+                    {"name": "stats", "desc": "Полная статистика платформы"},
+                    {"name": "", "desc": "── Просмотр ──────────────────────"},
+                    {"name": "users [limit]", "desc": "Список пользователей (default 50)"},
+                    {"name": "artists [limit]", "desc": "Список артистов"},
+                    {"name": "tracks [limit]", "desc": "Список треков"},
+                    {"name": "videos [limit]", "desc": "Список видеоклипов"},
+                    {"name": "events [limit]", "desc": "Список мероприятий"},
+                    {"name": "top [N]", "desc": "Топ N треков по прослушиваниям"},
+                    {"name": "user [id/name]", "desc": "Подробная инфо о пользователе"},
+                    {"name": "track [id]", "desc": "Подробная инфо о треке"},
+                    {"name": "video [id]", "desc": "Подробная инфо о видео"},
+                    {"name": "", "desc": "── Модерация треков ──────────────"},
                     {"name": "toggle-ban [id]", "desc": "Забанить/разбанить пользователя"},
-                    {"name": "delete-track [id]", "desc": "Удалить трек по ID"},
+                    {"name": "publish-track [id]", "desc": "Опубликовать трек"},
+                    {"name": "unpublish-track [id]", "desc": "Снять трек с публикации"},
+                    {"name": "delete-track [id]", "desc": "Удалить трек (необратимо)"},
+                    {"name": "", "desc": "── Модерация видео ───────────────"},
+                    {"name": "hide-video [id]", "desc": "Скрыть видеоклип"},
+                    {"name": "show-video [id]", "desc": "Опубликовать видеоклип"},
+                    {"name": "delete-video [id]", "desc": "Удалить видеоклип (необратимо)"},
+                    {"name": "", "desc": "── Модерация мероприятий ─────────"},
+                    {"name": "hide-event [id]", "desc": "Скрыть мероприятие"},
+                    {"name": "show-event [id]", "desc": "Опубликовать мероприятие"},
+                    {"name": "delete-event [id]", "desc": "Удалить мероприятие"},
+                    {"name": "", "desc": "── Системные ─────────────────────"},
                     {"name": "delete-user [id]", "desc": "Удалить пользователя (осторожно!)"},
-                    {"name": "clear-logs", "desc": "Очистить логи команд"},
+                    {"name": "clear-history [user_id]", "desc": "Очистить историю прослушиваний"},
+                    {"name": "clear-logs", "desc": "Очистить логи консоли"},
                 ]
             }
         elif cmd == "stats":
@@ -383,6 +405,174 @@ def execute_command(
                     db.commit()
                     result["message"] = f"Пользователь '{username}' (ID: {user_id}) удален"
                     add_admin_log(current_admin.username, "Удаление", f"Удален пользователь '{username}' (ID: {user_id})")
+        elif cmd == "videos":
+            n = 50
+            if args:
+                try: n = int(args.split()[0])
+                except: pass
+            videos = db.query(models.Video).order_by(models.Video.created_at.desc()).limit(n).all()
+            result["data"] = [
+                {"id": v.id, "title": v.title, "artist": v.artist.name if v.artist else None,
+                 "views": v.play_count, "likes": v.likes, "published": v.is_published}
+                for v in videos
+            ]
+        elif cmd == "events":
+            n = 50
+            if args:
+                try: n = int(args.split()[0])
+                except: pass
+            events = db.query(models.Event).order_by(models.Event.date.asc()).limit(n).all()
+            result["data"] = [
+                {"id": e.id, "title": e.title, "artist": e.artist.name if e.artist else None,
+                 "date": e.date.isoformat() if e.date else None,
+                 "location": e.location, "published": e.is_published}
+                for e in events
+            ]
+        elif cmd == "track":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID трека"
+            else:
+                track = db.query(models.Track).filter(models.Track.id == int(args.strip())).first()
+                if not track:
+                    result["message"] = f"Трек ID {args.strip()} не найден"
+                else:
+                    result["data"] = {
+                        "id": track.id, "title": track.title,
+                        "artist": track.artist_name, "artist_id": track.artist_id,
+                        "duration": track.duration, "play_count": track.play_count,
+                        "published": track.is_published, "is_adult": track.is_adult,
+                        "genres": [g.name for g in track.genres],
+                        "moods": [m.name for m in track.moods],
+                    }
+        elif cmd == "video":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID видео"
+            else:
+                v = db.query(models.Video).filter(models.Video.id == int(args.strip())).first()
+                if not v:
+                    result["message"] = f"Видео ID {args.strip()} не найдено"
+                else:
+                    result["data"] = {
+                        "id": v.id, "title": v.title, "description": v.description,
+                        "artist": v.artist.name if v.artist else None,
+                        "views": v.play_count, "likes": v.likes, "dislikes": v.dislikes,
+                        "published": v.is_published, "created": v.created_at.isoformat() if v.created_at else None,
+                    }
+        elif cmd == "publish-track":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID трека"
+            else:
+                track = db.query(models.Track).filter(models.Track.id == int(args.strip())).first()
+                if not track:
+                    result["message"] = f"Трек ID {args.strip()} не найден"
+                else:
+                    track.is_published = True
+                    db.commit()
+                    result["message"] = f"Трек '{track.title}' опубликован"
+                    add_admin_log(current_admin.username, "Публикация", f"Трек '{track.title}' (ID: {track.id}) опубликован")
+        elif cmd == "unpublish-track":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID трека"
+            else:
+                track = db.query(models.Track).filter(models.Track.id == int(args.strip())).first()
+                if not track:
+                    result["message"] = f"Трек ID {args.strip()} не найден"
+                else:
+                    track.is_published = False
+                    db.commit()
+                    result["message"] = f"Трек '{track.title}' снят с публикации"
+                    add_admin_log(current_admin.username, "Снятие", f"Трек '{track.title}' (ID: {track.id}) снят с публикации")
+        elif cmd == "hide-video":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID видео"
+            else:
+                v = db.query(models.Video).filter(models.Video.id == int(args.strip())).first()
+                if not v:
+                    result["message"] = f"Видео ID {args.strip()} не найдено"
+                else:
+                    v.is_published = False
+                    v.hidden_by_admin = True
+                    db.commit()
+                    result["message"] = f"Видео '{v.title}' скрыто администратором (артист не может разскрыть)"
+                    add_admin_log(current_admin.username, "Скрытие", f"Видео '{v.title}' (ID: {v.id}) скрыто администратором")
+        elif cmd == "show-video":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID видео"
+            else:
+                v = db.query(models.Video).filter(models.Video.id == int(args.strip())).first()
+                if not v:
+                    result["message"] = f"Видео ID {args.strip()} не найдено"
+                else:
+                    v.is_published = True
+                    v.hidden_by_admin = False
+                    db.commit()
+                    result["message"] = f"Видео '{v.title}' опубликовано"
+                    add_admin_log(current_admin.username, "Публикация", f"Видео '{v.title}' (ID: {v.id}) опубликовано")
+        elif cmd == "delete-video":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID видео"
+            else:
+                v = db.query(models.Video).filter(models.Video.id == int(args.strip())).first()
+                if not v:
+                    result["message"] = f"Видео ID {args.strip()} не найдено"
+                else:
+                    title = v.title
+                    if os.path.exists(v.file_path):
+                        os.remove(v.file_path)
+                    db.delete(v)
+                    db.commit()
+                    result["message"] = f"Видео '{title}' (ID: {args.strip()}) удалено"
+                    add_admin_log(current_admin.username, "Удаление", f"Удалено видео '{title}'")
+        elif cmd == "hide-event":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID мероприятия"
+            else:
+                e = db.query(models.Event).filter(models.Event.id == int(args.strip())).first()
+                if not e:
+                    result["message"] = f"Мероприятие ID {args.strip()} не найдено"
+                else:
+                    e.is_published = False
+                    db.commit()
+                    result["message"] = f"Мероприятие '{e.title}' скрыто"
+                    add_admin_log(current_admin.username, "Скрытие", f"Мероприятие '{e.title}' (ID: {e.id}) скрыто")
+        elif cmd == "show-event":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID мероприятия"
+            else:
+                e = db.query(models.Event).filter(models.Event.id == int(args.strip())).first()
+                if not e:
+                    result["message"] = f"Мероприятие ID {args.strip()} не найдено"
+                else:
+                    e.is_published = True
+                    db.commit()
+                    result["message"] = f"Мероприятие '{e.title}' опубликовано"
+                    add_admin_log(current_admin.username, "Публикация", f"Мероприятие '{e.title}' (ID: {e.id}) опубликовано")
+        elif cmd == "delete-event":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID мероприятия"
+            else:
+                e = db.query(models.Event).filter(models.Event.id == int(args.strip())).first()
+                if not e:
+                    result["message"] = f"Мероприятие ID {args.strip()} не найдено"
+                else:
+                    title = e.title
+                    db.delete(e)
+                    db.commit()
+                    result["message"] = f"Мероприятие '{title}' (ID: {args.strip()}) удалено"
+                    add_admin_log(current_admin.username, "Удаление", f"Удалено мероприятие '{title}'")
+        elif cmd == "clear-history":
+            if not args or not args.strip().isdigit():
+                result["message"] = "Укажите ID пользователя"
+            else:
+                uid = int(args.strip())
+                u = db.query(models.User).filter(models.User.id == uid).first()
+                if not u:
+                    result["message"] = f"Пользователь ID {uid} не найден"
+                else:
+                    db.query(models.ListeningHistory).filter(models.ListeningHistory.user_id == uid).delete()
+                    db.commit()
+                    result["message"] = f"История прослушиваний пользователя '{u.username}' очищена"
+                    add_admin_log(current_admin.username, "Очистка", f"История прослушиваний пользователя '{u.username}' очищена")
         elif cmd == "clear-logs":
             command_logs.clear()
             result["message"] = "Логи команд очищены"

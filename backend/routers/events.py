@@ -192,3 +192,33 @@ def hide_event(
     e.is_published = False
     db.commit()
     return {"ok": True}
+
+
+@router.get("/admin/all")
+def get_all_events_admin(
+    skip: int = 0,
+    limit: int = 200,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(dependencies.get_current_user)
+):
+    """Все мероприятия для администратора включая скрытые."""
+    if current_user.role != "admin":
+        raise HTTPException(403)
+    events = db.query(models.Event).order_by(models.Event.date.asc()).offset(skip).limit(limit).all()
+    return [_event_out(e) for e in events]
+
+
+@router.patch("/{event_id}/publish")
+def publish_event(
+    event_id: int,
+    db: Session = Depends(get_db),
+    current_user: models.User = Depends(dependencies.get_current_user)
+):
+    if current_user.role != "admin":
+        raise HTTPException(403)
+    e = db.query(models.Event).filter(models.Event.id == event_id).first()
+    if not e:
+        raise HTTPException(404)
+    e.is_published = True
+    db.commit()
+    return {"ok": True}

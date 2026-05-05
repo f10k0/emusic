@@ -222,6 +222,9 @@ export default function Header() {
               <Link href="/admin/videos" onClick={() => setDropdownOpen(false)}>
                 <i className="fas fa-film"></i> Модерация видео
               </Link>
+              <Link href="/admin/events" onClick={() => setDropdownOpen(false)}>
+                <i className="fas fa-calendar-alt"></i> Модерация мероприятий
+              </Link>
               <Link href="/admin/news" onClick={() => setDropdownOpen(false)}>
                 <i className="fas fa-newspaper"></i> Новости
               </Link>
