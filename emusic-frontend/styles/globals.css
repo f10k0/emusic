@@ -6251,19 +6251,33 @@ body.modal-open {
 /* ── Clips fullscreen layout ───────────────────────────────── */
 .main-content--fullscreen {
   padding: 0 !important;
+  margin: 0 !important;
   overflow: hidden !important;
-  display: flex;
-  flex-direction: column;
-  height: 100vh;
-  max-height: 100vh;
+  height: 100vh !important;
+  max-height: 100vh !important;
   background: #000 !important;
+  position: relative !important;
+  /* Kill the aurora animation and all pseudo-elements */
+  animation: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+/* Completely remove the ::before aurora on clips page */
+.main-content--fullscreen::before {
+  display: none !important;
+  content: none !important;
+  animation: none !important;
+  filter: none !important;
+  transform: none !important;
+}
+/* Remove z-index override on clips page direct children */
+.main-content--fullscreen > * {
   position: relative;
-  /* Remove any top/bottom gaps */
-  margin: 0;
+  z-index: auto;
 }
 .main-content--fullscreen .content-header { display: none; }
 
-/* Clips page: app-container must not scroll and sidebar must be fixed height */
+/* Clips page: lock ALL scrolling outside the clips container */
 .clips-layout .app-container {
   height: 100vh;
   overflow: hidden;
@@ -6271,6 +6285,11 @@ body.modal-open {
 .clips-layout .sidebar {
   height: 100vh;
   overflow-y: auto;
+}
+html:has(.clips-page),
+body:has(.clips-page) {
+  overflow: hidden !important;
+  height: 100vh !important;
 }
 
 /* Ensure clips-page fills the entire main-content area with zero gaps */
@@ -8142,3 +8161,35 @@ button[style*="border-radius:24"]:hover {
 [data-theme="space"] #role-badge { background: linear-gradient(135deg, #7c4dff, #e040fb) !important; }
 [data-theme="space"] .progress-bar-fill,
 [data-theme="space"] .level-progress-bar { background: #7c4dff !important; }
+
+/* ── Hide scrollbars on clips page completely ──────────────── */
+.main-content--fullscreen,
+.main-content--fullscreen * {
+  scrollbar-width: none !important;      /* Firefox */
+  -ms-overflow-style: none !important;   /* IE/Edge */
+}
+.main-content--fullscreen::-webkit-scrollbar,
+.main-content--fullscreen *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+/* Also hide sidebar scrollbar on clips page */
+.clips-layout .sidebar::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+}
+.clips-layout .sidebar {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+/* ── Clips page: hide ALL scrollbars on the entire page ────── */
+.clips-layout *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+}
+.clips-layout * {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}

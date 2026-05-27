@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
 import useAuthStore from '../../store/authStore';
@@ -209,9 +210,9 @@ export default function AdminVideos() {
         </div>
 
         {/* Подтверждение удаления */}
-        {confirmId && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: 'var(--bg-elevated)', borderRadius: 16, padding: 28, width: 360, border: '1px solid var(--border)', boxShadow: 'var(--shadow)' }}>
+        {confirmId && typeof document !== 'undefined' && createPortal(
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: 'var(--bg-elevated)', borderRadius: 16, padding: 28, width: 400, border: '1px solid var(--border)', boxShadow: '0 20px 60px rgba(0,0,0,0.8)' }}>
               <h3 style={{ marginBottom: 12, fontSize: '1.1rem' }}>
                 <i className="fas fa-exclamation-triangle" style={{ color: '#ff6b6b', marginRight: 8 }}></i>
                 Удалить видео?
@@ -223,12 +224,13 @@ export default function AdminVideos() {
                 <button className="btn-secondary" onClick={() => setConfirmId(null)} style={{ padding: '9px 18px' }}>
                   Отмена
                 </button>
-                <button className="btn reject-btn" onClick={() => deleteVideo(confirmId)} style={{ padding: '9px 18px', background: '#ff4d4d', border: 'none', color: 'white' }}>
+                <button onClick={() => deleteVideo(confirmId)} style={{ padding: '9px 18px', background: '#ff4d4d', border: 'none', color: 'white', borderRadius: 8, cursor: 'pointer', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 6 }}>
                   <i className="fas fa-trash"></i> Удалить
                 </button>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </Layout>
     </ProtectedRoute>

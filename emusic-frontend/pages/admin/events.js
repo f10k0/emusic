@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
 import useAuthStore from '../../store/authStore';
@@ -196,19 +197,20 @@ export default function AdminEvents() {
           )}
         </div>
 
-        {confirmDeleteId && (
-          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 3000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ background: 'var(--bg-elevated)', borderRadius: 16, padding: 28, width: 340, border: '1px solid var(--border)' }}>
+        {confirmDeleteId && typeof document !== 'undefined' && createPortal(
+          <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.7)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+            <div style={{ background: 'var(--bg-elevated)', borderRadius: 16, padding: 28, width: 380, border: '1px solid var(--border)', boxShadow: '0 20px 60px rgba(0,0,0,0.8)' }}>
               <h3 style={{ marginBottom: 10, fontSize: '1.05rem' }}><i className="fas fa-exclamation-triangle" style={{ color: '#ff6b6b', marginRight: 8 }}></i>Удалить мероприятие?</h3>
               <p style={{ color: 'var(--text-muted)', marginBottom: 18, fontSize: '0.88rem' }}>Это действие нельзя отменить.</p>
               <div style={{ display: 'flex', gap: 8, justifyContent: 'flex-end' }}>
                 <button className="btn-secondary" onClick={() => setConfirmDeleteId(null)} style={{ padding: '8px 16px' }}>Отмена</button>
-                <button onClick={() => deleteEvent(confirmDeleteId)} style={{ padding: '8px 16px', background: '#ff4d4d', border: 'none', color: 'white', borderRadius: 20, cursor: 'pointer', fontWeight: 600 }}>
+                <button onClick={() => deleteEvent(confirmDeleteId)} style={{ padding: '8px 16px', background: '#ff4d4d', border: 'none', color: 'white', borderRadius: 8, cursor: 'pointer', fontWeight: 600 }}>
                   <i className="fas fa-trash"></i> Удалить
                 </button>
               </div>
             </div>
-          </div>
+          </div>,
+          document.body
         )}
       </Layout>
     </ProtectedRoute>

@@ -290,7 +290,7 @@ function ClipSlide({ video: initialVideo, isActive }) {
   };
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100%', background: '#000', overflow: 'hidden' }}>
+    <div style={{ position: 'relative', width: '100%', height: '100vh', background: '#000', overflow: 'hidden' }}>
       {/* Видео — занимает весь слайд, сохраняя пропорции */}
       <video
         ref={videoRef}
@@ -499,12 +499,12 @@ export default function Clips() {
   return (
     <Layout fullscreen>
       <div style={{
-        flex: 1,
+        width: '100%',
+        height: '100vh',
         background: '#000',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        minHeight: 0,
         position: 'relative',
       }}>
         {/* Поиск по клипам */}
@@ -535,21 +535,21 @@ export default function Clips() {
         </div>
 
         {loading ? (
-          <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
+          <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
             <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem' }}></i>
           </div>
         ) : videos.length === 0 ? (
-          <div style={{ height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, color: '#888' }}>
+          <div style={{ height: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 16, color: '#888' }}>
             <i className="fas fa-film" style={{ fontSize: '3rem', opacity: 0.3 }}></i>
             <p>Клипов пока нет</p>
           </div>
         ) : (
           <div
             ref={containerRef}
-            style={{ flex: 1, overflowY: 'scroll', scrollSnapType: 'y mandatory', minHeight: 0 }}
+            style={{ width: '100%', height: '100vh', overflowY: 'scroll', scrollSnapType: 'y mandatory', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
           >
             {(search ? videos.filter(v => v.title?.toLowerCase().includes(search.toLowerCase()) || v.artist_name?.toLowerCase().includes(search.toLowerCase())) : videos).map((v, i) => (
-              <div key={v.id} data-idx={i} style={{ height: '100%', scrollSnapAlign: 'start', flexShrink: 0 }}>
+              <div key={v.id} data-idx={i} style={{ width: '100%', height: '100vh', scrollSnapAlign: 'start', flexShrink: 0 }}>
                 <ClipSlide video={v} isActive={i === activeIndex} />
               </div>
             ))}
