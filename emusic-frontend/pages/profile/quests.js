@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
 import useAuthStore from '../../store/authStore';
+import useRequireAuth from '../../hooks/useRequireAuth';
 import { useRouter } from 'next/router';
 
 const RARITY_LABEL = { common: 'Обычный', rare: 'Редкий', epic: 'Эпический', legendary: 'Легендарный' };
@@ -26,7 +27,7 @@ const TYPE_LABEL = {
 };
 
 export default function QuestsPage() {
-  const { user } = useAuthStore();
+  const { user, ready } = useRequireAuth();
   const router = useRouter();
 
   const [tab, setTab] = useState('quests');
@@ -39,9 +40,9 @@ export default function QuestsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!user) { router.push('/login'); return; }
+    if (!ready || !user) return;
     loadAll();
-  }, [user]);
+  }, [ready, user?.id]);
 
   async function loadAll() {
     setLoading(true);
@@ -113,7 +114,7 @@ export default function QuestsPage() {
   const shopTypes = ['all', ...new Set(shopItems.map(i => i.item_type))];
   const filteredShop = shopFilter === 'all' ? shopItems : shopItems.filter(i => i.item_type === shopFilter);
 
-  if (loading) return <Layout><div className="page-loading">Загрузка...</div></Layout>;
+  if (!ready || loading) return <Layout><div className="page-loading">Загрузка...</div></Layout>;
 
   return (
     <Layout>

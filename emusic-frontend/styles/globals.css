@@ -8193,3 +8193,7 @@ button[style*="border-radius:24"]:hover {
   scrollbar-width: none !important;
   -ms-overflow-style: none !important;
 }
+
+/* ── Clips page sidebar wrapper scrollbar hidden ───────────── */
+.clips-sidebar-wrapper::-webkit-scrollbar { display: none !important; width: 0 !important; }
+.clips-sidebar-wrapper { scrollbar-width: none !important; }

@@ -144,7 +144,7 @@ export default function PlayerBar() {
       if (listenStartRef.current && currentTrack) {
         const seconds = Math.floor((Date.now() - listenStartRef.current) / 1000);
         listenStartRef.current = null;
-        if (seconds >= 10) reportListenTime(seconds, currentTrack);
+        if (seconds >= 3) reportListenTime(seconds, currentTrack);
       }
     }
   }, [isPlaying, currentTrack?.id]);
@@ -155,7 +155,7 @@ export default function PlayerBar() {
       if (listenStartRef.current && currentTrack) {
         const seconds = Math.floor((Date.now() - listenStartRef.current) / 1000);
         listenStartRef.current = null;
-        if (seconds >= 10) reportListenTime(seconds, currentTrack);
+        if (seconds >= 3) reportListenTime(seconds, currentTrack);
       }
     };
   }, [currentTrack?.id]);
@@ -164,7 +164,11 @@ export default function PlayerBar() {
     try {
       const { user } = useAuthStore.getState();
       if (!user) return;
-      const genre = track?.genre_name || track?.genre || null;
+      // Extract genre name from track.genres array (API returns [{id, name}])
+      const genre = track?.genres?.[0]?.name
+        || track?.genre_name
+        || track?.genre
+        || null;
       await api.post('/gamification/progress/add-listen-time', null, {
         params: { seconds: Math.min(seconds, 3600), ...(genre ? { genre } : {}) }
       });
@@ -172,11 +176,15 @@ export default function PlayerBar() {
   };
 
   const handleEnded = () => {
-    // Report listen time for completed track
-    if (listenStartRef.current && currentTrack) {
-      const seconds = Math.floor((Date.now() - listenStartRef.current) / 1000);
-      listenStartRef.current = null;
-      if (seconds >= 10) reportListenTime(seconds, currentTrack);
+    // Always report a completed track (minimum 1 second to count)
+    const trackToReport = currentTrack;
+    const startTime = listenStartRef.current;
+    listenStartRef.current = null;
+    if (trackToReport) {
+      const seconds = startTime
+        ? Math.max(1, Math.floor((Date.now() - startTime) / 1000))
+        : 30; // fallback if timer was lost
+      reportListenTime(seconds, trackToReport);
     }
     if (repeat === 'one') {
       if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(console.error); }

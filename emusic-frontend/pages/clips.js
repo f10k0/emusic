@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
+import Sidebar from '../components/Sidebar';
 import api from '../lib/api';
 import useAuthStore from '../store/authStore';
 import Link from 'next/link';
@@ -497,15 +498,35 @@ export default function Clips() {
   }, [videos, search]);
 
   return (
-    <Layout fullscreen>
+    <>
+      {/* Sidebar fixed in place */}
       <div style={{
-        width: '100%',
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: 260,
+        height: '100vh',
+        zIndex: 20,
+        overflowY: 'auto',
+        scrollbarWidth: 'none',
+        msOverflowStyle: 'none',
+      }}>
+        <Sidebar />
+      </div>
+      {/* Clips content fixed next to sidebar */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 260,
+        right: 0,
+        bottom: 0,
+        width: 'calc(100vw - 260px)',
         height: '100vh',
         background: '#000',
         overflow: 'hidden',
         display: 'flex',
         flexDirection: 'column',
-        position: 'relative',
+        zIndex: 10,
       }}>
         {/* Поиск по клипам */}
         <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', zIndex: 30, display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -556,6 +577,6 @@ export default function Clips() {
           </div>
         )}
       </div>
-    </Layout>
+    </>
   );
 }

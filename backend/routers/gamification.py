@@ -77,12 +77,12 @@ DEFAULT_QUESTS = [
     # Средние
     {"title": "Два часа музыки",       "description": "Слушай музыку 2 часа",                     "quest_type": "listen_minutes", "target_value": 120,"ecoin_reward": 25, "difficulty": "medium"},
     {"title": "Двадцатка треков",      "description": "Прослушай 20 треков",                      "quest_type": "listen_tracks",  "target_value": 20, "ecoin_reward": 25, "difficulty": "medium"},
-    {"title": "Рок-сессия",            "description": "Прослушай 5 треков жанра Рок",             "quest_type": "listen_genre",   "target_value": 5,  "target_ref": "rock",  "ecoin_reward": 20, "difficulty": "medium"},
-    {"title": "Поп-марафон",           "description": "Прослушай 5 треков жанра Поп",             "quest_type": "listen_genre",   "target_value": 5,  "target_ref": "pop",   "ecoin_reward": 20, "difficulty": "medium"},
-    {"title": "Хип-хоп",               "description": "Прослушай 5 треков жанра Хип-хоп",        "quest_type": "listen_genre",   "target_value": 5,  "target_ref": "hiphop","ecoin_reward": 20, "difficulty": "medium"},
-    {"title": "Классика вечером",      "description": "Прослушай 3 классических трека",           "quest_type": "listen_genre",   "target_value": 3,  "target_ref": "classical","ecoin_reward": 20,"difficulty": "medium"},
-    {"title": "Электронщик",           "description": "Прослушай 5 электронных треков",           "quest_type": "listen_genre",   "target_value": 5,  "target_ref": "electronic","ecoin_reward": 20,"difficulty": "medium"},
-    {"title": "Джазовый вечер",        "description": "Прослушай 3 джазовых трека",               "quest_type": "listen_genre",   "target_value": 3,  "target_ref": "jazz",  "ecoin_reward": 18, "difficulty": "medium"},
+    {"title": "Рок-сессия",            "description": "Прослушай 5 треков жанра Рок",             "quest_type": "listen_genre",   "target_value": 5,  "target_ref": "Рок",  "ecoin_reward": 20, "difficulty": "medium"},
+    {"title": "Поп-марафон",           "description": "Прослушай 5 треков жанра Поп",             "quest_type": "listen_genre",   "target_value": 5,  "target_ref": "Поп",   "ecoin_reward": 20, "difficulty": "medium"},
+    {"title": "Хип-хоп",               "description": "Прослушай 5 треков жанра Хип-хоп",        "quest_type": "listen_genre",   "target_value": 5,  "target_ref": "Хип-хоп","ecoin_reward": 20, "difficulty": "medium"},
+    {"title": "Классика вечером",      "description": "Прослушай 3 классических трека",           "quest_type": "listen_genre",   "target_value": 3,  "target_ref": "Классическая","ecoin_reward": 20,"difficulty": "medium"},
+    {"title": "Электронщик",           "description": "Прослушай 5 электронных треков",           "quest_type": "listen_genre",   "target_value": 5,  "target_ref": "Электронная музыка","ecoin_reward": 20,"difficulty": "medium"},
+    {"title": "Джазовый вечер",        "description": "Прослушай 3 джазовых трека",               "quest_type": "listen_genre",   "target_value": 3,  "target_ref": "Джаз",  "ecoin_reward": 18, "difficulty": "medium"},
     {"title": "Десять лайков",         "description": "Лайкни 10 треков",                         "quest_type": "like_tracks",    "target_value": 10, "ecoin_reward": 20, "difficulty": "medium"},
     {"title": "Три часа подряд",       "description": "Слушай музыку 3 часа",                     "quest_type": "listen_minutes", "target_value": 180,"ecoin_reward": 35, "difficulty": "medium"},
     {"title": "Открытие новых",        "description": "Прослушай 3 трека из чарта",               "quest_type": "listen_chart",   "target_value": 3,  "ecoin_reward": 20, "difficulty": "medium"},
@@ -94,8 +94,8 @@ DEFAULT_QUESTS = [
     {"title": "Меломан дня",           "description": "Слушай музыку 5 часов",                    "quest_type": "listen_minutes", "target_value": 300,"ecoin_reward": 60, "difficulty": "hard"},
     {"title": "Полтинник треков",      "description": "Прослушай 50 треков",                      "quest_type": "listen_tracks",  "target_value": 50, "ecoin_reward": 50, "difficulty": "hard"},
     {"title": "Знаток жанров",         "description": "Прослушай треки 8 разных жанров",          "quest_type": "listen_genres",  "target_value": 8,  "ecoin_reward": 45, "difficulty": "hard"},
-    {"title": "Рок-легенда",           "description": "Прослушай 20 рок-треков",                  "quest_type": "listen_genre",   "target_value": 20, "target_ref": "rock", "ecoin_reward": 55, "difficulty": "hard"},
-    {"title": "Электронный мастер",    "description": "Прослушай 20 электронных треков",          "quest_type": "listen_genre",   "target_value": 20, "target_ref": "electronic","ecoin_reward": 55,"difficulty": "hard"},
+    {"title": "Рок-легенда",           "description": "Прослушай 20 рок-треков",                  "quest_type": "listen_genre",   "target_value": 20, "target_ref": "Рок", "ecoin_reward": 55, "difficulty": "hard"},
+    {"title": "Электронный мастер",    "description": "Прослушай 20 электронных треков",          "quest_type": "listen_genre",   "target_value": 20, "target_ref": "Электронная музыка","ecoin_reward": 55,"difficulty": "hard"},
     {"title": "Сотня лайков",          "description": "Лайкни 100 треков (за всё время)",         "quest_type": "like_tracks",    "target_value": 100,"ecoin_reward": 80, "difficulty": "hard"},
     {"title": "Большой плейлист",      "description": "Добавь 20 треков в плейлист",              "quest_type": "playlist_tracks","target_value": 20, "ecoin_reward": 50, "difficulty": "hard"},
     {"title": "Три дня слушателя",     "description": "Слушай музыку 3 дня подряд",               "quest_type": "listen_days",    "target_value": 3,  "ecoin_reward": 70, "difficulty": "hard"},
@@ -104,21 +104,75 @@ DEFAULT_QUESTS = [
     {"title": "Все жанры",             "description": "Прослушай треки всех жанров сервиса",      "quest_type": "listen_all_genres","target_value": 1, "ecoin_reward": 100,"difficulty": "hard"},
     {"title": "Новатор",               "description": "Прослушай 5 новых исполнителей",           "quest_type": "listen_new_artists","target_value": 5,"ecoin_reward": 60, "difficulty": "hard"},
     {"title": "Утро+День+Вечер",       "description": "Слушай музыку утром, днём и вечером",      "quest_type": "listen_all_day", "target_value": 1,  "ecoin_reward": 55, "difficulty": "hard"},
-    {"title": "Металлург",             "description": "Прослушай 15 метал-треков",                "quest_type": "listen_genre",   "target_value": 15, "target_ref": "metal","ecoin_reward": 55,"difficulty": "hard"},
-    {"title": "Джазмен",               "description": "Прослушай 15 джазовых треков",             "quest_type": "listen_genre",   "target_value": 15, "target_ref": "jazz", "ecoin_reward": 55,"difficulty": "hard"},
-    {"title": "R&B адепт",             "description": "Прослушай 15 R&B треков",                  "quest_type": "listen_genre",   "target_value": 15, "target_ref": "rnb",  "ecoin_reward": 55,"difficulty": "hard"},
+    {"title": "Металлург",             "description": "Прослушай 15 метал-треков",                "quest_type": "listen_genre",   "target_value": 15, "target_ref": "Метал","ecoin_reward": 55,"difficulty": "hard"},
+    {"title": "Джазмен",               "description": "Прослушай 15 джазовых треков",             "quest_type": "listen_genre",   "target_value": 15, "target_ref": "Джаз", "ecoin_reward": 55,"difficulty": "hard"},
+    {"title": "R&B адепт",             "description": "Прослушай 15 R&B треков",                  "quest_type": "listen_genre",   "target_value": 15, "target_ref": "R&B",  "ecoin_reward": 55,"difficulty": "hard"},
     {"title": "Коллекционер",          "description": "Купи 3 предмета в магазине",               "quest_type": "buy_items",      "target_value": 3,  "ecoin_reward": 80, "difficulty": "hard"},
     {"title": "Квестовый марафон",     "description": "Выполни 10 квестов за месяц",              "quest_type": "complete_quests","target_value": 10, "ecoin_reward": 100,"difficulty": "hard"},
     {"title": "Фанат альбомов",        "description": "Прослушай полный альбом",                  "quest_type": "listen_album",   "target_value": 1,  "ecoin_reward": 40, "difficulty": "hard"},
     {"title": "Многоплейлистник",      "description": "Создай 3 плейлиста",                       "quest_type": "add_playlist",   "target_value": 3,  "ecoin_reward": 45, "difficulty": "hard"},
     {"title": "Преданный слушатель",   "description": "Слушай музыку 7 дней подряд",              "quest_type": "listen_days",    "target_value": 7,  "ecoin_reward": 120,"difficulty": "hard"},
-    {"title": "Латинский ритм",        "description": "Прослушай 10 латиноамериканских треков",   "quest_type": "listen_genre",   "target_value": 10, "target_ref": "latin","ecoin_reward": 50,"difficulty": "hard"},
-    {"title": "Кантри-вечер",          "description": "Прослушай 10 кантри треков",               "quest_type": "listen_genre",   "target_value": 10, "target_ref": "country","ecoin_reward":50,"difficulty": "hard"},
-    {"title": "Душа акустики",         "description": "Прослушай 10 акустических треков",         "quest_type": "listen_genre",   "target_value": 10, "target_ref": "acoustic","ecoin_reward":50,"difficulty": "hard"},
+    {"title": "Латинский ритм",        "description": "Прослушай 10 латиноамериканских треков",   "quest_type": "listen_genre",   "target_value": 10, "target_ref": "Регги","ecoin_reward": 50,"difficulty": "hard"},
+    {"title": "Кантри-вечер",          "description": "Прослушай 10 кантри треков",               "quest_type": "listen_genre",   "target_value": 10, "target_ref": "Кантри","ecoin_reward":50,"difficulty": "hard"},
+    {"title": "Душа акустики",         "description": "Прослушай 10 акустических треков",         "quest_type": "listen_genre",   "target_value": 10, "target_ref": "Инди","ecoin_reward":50,"difficulty": "hard"},
     {"title": "Мастер плейлистов",     "description": "Добавь 50 треков в плейлисты",             "quest_type": "playlist_tracks","target_value": 50, "ecoin_reward": 90, "difficulty": "hard"},
 ]
 
+# Mapping from old English target_ref values to correct Russian genre names
+TARGET_REF_MIGRATION = {
+    "rock": "Рок",
+    "pop": "Поп",
+    "hiphop": "Хип-хоп",
+    "hip-hop": "Хип-хоп",
+    "classical": "Классическая",
+    "electronic": "Электронная музыка",
+    "jazz": "Джаз",
+    "metal": "Метал",
+    "rnb": "R&B",
+    "r&b": "R&B",
+    "latin": "Регги",
+    "country": "Кантри",
+    "acoustic": "Инди",
+    "rap": "Рэп",
+    "blues": "Блюз",
+    "ambient": "Эмбиент",
+    "techno": "Техно",
+    "house": "Хаус",
+    "lofi": "Лоу-фай",
+    "lo-fi": "Лоу-фай",
+    "indie": "Инди",
+    "punk": "Панк",
+    "reggae": "Регги",
+    "folk": "Фолк",
+    "alternative": "Альтернатива",
+    "rnb": "R&B",
+}
+
+def _migrate_target_refs(db: Session):
+    """Fix old English target_ref values to Russian genre names."""
+    try:
+        quests = db.query(models.Quest).filter(
+            models.Quest.target_ref.isnot(None)
+        ).all()
+        fixed = 0
+        for q in quests:
+            if q.target_ref:
+                normalized = q.target_ref.lower().strip()
+                if normalized in TARGET_REF_MIGRATION:
+                    q.target_ref = TARGET_REF_MIGRATION[normalized]
+                    fixed += 1
+        if fixed:
+            db.commit()
+            print(f"[migration] Fixed {fixed} quest target_ref values to Russian genre names")
+    except Exception as e:
+        db.rollback()
+        print(f"[migration] Could not fix target_refs: {e}")
+
+
 def _seed_shop_and_quests(db: Session):
+    # First migrate any old English target_ref values
+    _migrate_target_refs(db)
+
     try:
         if db.query(models.ShopItem).count() == 0:
             for item in DEFAULT_SHOP_ITEMS:
@@ -172,7 +226,7 @@ def add_listen_time(
     current_user: models.User = Depends(dependencies.get_current_active_user)
 ):
     """Добавить время прослушивания (вызывается с фронта по окончании трека)."""
-    if seconds <= 0 or seconds > 3600:
+    if seconds < 1 or seconds > 7200:
         raise HTTPException(400, "Недопустимое значение секунд")
     p = _get_or_create_progress(db, current_user.id)
     old_level = _level_from_seconds(p.total_listen_seconds)
@@ -202,7 +256,11 @@ def add_listen_time(
             dq.progress = min(dq.progress + minutes_listened, dq.quest.target_value)
             updated = True
         elif qt == 'listen_genre' and genre and dq.quest.target_ref:
-            if genre.lower() == dq.quest.target_ref.lower():
+            # Compare genre name against target_ref (both normalized)
+            genre_norm = genre.lower().strip()
+            ref_norm = dq.quest.target_ref.lower().strip()
+            # Direct match OR partial match (e.g. "Классическая" contains "классич")
+            if genre_norm == ref_norm or ref_norm in genre_norm or genre_norm in ref_norm:
                 dq.progress = min(dq.progress + 1, dq.quest.target_value)
                 updated = True
 
