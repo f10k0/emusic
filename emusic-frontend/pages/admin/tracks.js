@@ -21,7 +21,8 @@ export default function AdminTracks() {
     duration: '',
     album_id: '',
     cover: '',
-    genre_ids: []
+    genre_ids: [],
+    is_adult: false,
   });
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
@@ -81,7 +82,8 @@ export default function AdminTracks() {
       duration: track.duration || '',
       album_id: track.album_id || '',
       cover: track.cover || '',
-      genre_ids: track.genres?.map(g => g.id) || []
+      genre_ids: track.genres?.map(g => g.id) || [],
+      is_adult: track.is_adult || false,
     });
     setSelectedGenres(track.genres?.map(g => g.id) || []);
     setGenreSearch('');
@@ -116,7 +118,8 @@ export default function AdminTracks() {
         duration: parseInt(editForm.duration) || 0,
         album_id: editForm.album_id ? parseInt(editForm.album_id) : null,
         cover: editForm.cover || null,
-        genre_ids: selectedGenres
+        genre_ids: selectedGenres,
+        is_adult: editForm.is_adult,
       };
       
       await api.put(`/admin/tracks/${editingTrack.id}`, dataToSend);
@@ -199,6 +202,11 @@ export default function AdminTracks() {
                           <strong> ID:</strong> {track.id} | 
                           <strong> Статус:</strong> {track.is_published ? 'Опубликован' : 'Не опубликован'} | 
                           <strong> Жанры:</strong> {track.genres?.map(g => g.name).join(', ') || '—'}
+                          {track.is_adult && (
+                            <span style={{ marginLeft: 8, background: 'rgba(220,53,69,0.12)', color: '#dc3545', fontSize: '0.72rem', padding: '2px 8px', borderRadius: 8, fontWeight: 600, border: '1px solid rgba(220,53,69,0.25)' }}>
+                              18+
+                            </span>
+                          )}
                         </p>
                       </div>
                     </div>
@@ -317,6 +325,21 @@ export default function AdminTracks() {
                 ))}
               </div>
               <small>Выберите один или несколько жанров для трека</small>
+            </div>
+
+            <div className="form-group" style={{ marginTop: '16px' }}>
+              <label style={{ display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer', userSelect: 'none' }}>
+                <input
+                  type="checkbox"
+                  checked={!!editForm.is_adult}
+                  onChange={e => setEditForm(prev => ({ ...prev, is_adult: e.target.checked }))}
+                  style={{ width: 16, height: 16, accentColor: 'var(--accent)', cursor: 'pointer' }}
+                />
+                <span style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <i className="fas fa-ban" style={{ color: 'var(--accent)', fontSize: '0.85rem' }}></i>
+                  Контент 18+ (будет скрыт у пользователей с фильтром)
+                </span>
+              </label>
             </div>
 
             <div style={{ display: 'flex', gap: '10px', justifyContent: 'flex-end', marginTop: '20px' }}>

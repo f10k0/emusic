@@ -143,7 +143,11 @@ def admin_update_track(
             genre = db.query(models.Genre).filter(models.Genre.id == gid).first()
             if genre:
                 track.genres.append(genre)
-    
+    if track_data.is_adult is not None:
+        track.is_adult = track_data.is_adult
+    if track_data.lyrics is not None:
+        track.lyrics = track_data.lyrics
+
     db.commit()
     db.refresh(track)
     add_admin_log(current_admin.username, "Редактирование", f"Отредактирован трек '{track.title}' (ID: {track_id})")
