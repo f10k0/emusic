@@ -1,0 +1,5606 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    --bg-primary: #0a0a0f;
+    --bg-secondary: #12121a;
+    --bg-elevated: #1c1c28;
+    --accent: #8833ff;
+    --accent-light: #b377ff;
+    --accent-gradient: linear-gradient(135deg, #8833ff, #b377ff);
+    --text-primary: #ffffff;
+    --text-secondary: #b0b0c0;
+    --text-muted: #70707e;
+    --border: #2a2a3a;
+    --hover: #252533;
+    --player-bg: rgba(18, 18, 26, 0.95);
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    --card-hover: 0 15px 35px rgba(136, 51, 255, 0.2);
+    --like-active: #ff4d6d;
+}
+
+body {
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.5;
+}
+
+/* Общий transition для всех интерактивных элементов */
+a, button, i, .card, .track-item, .btn, .btn-secondary {
+    transition: all 0.2s ease-in-out;
+}
+
+.app-container {
+    display: grid;
+    grid-template-columns: 260px 1fr;
+    grid-template-rows: 1fr auto;
+    min-height: 100vh;
+}
+
+/* Sidebar */
+.sidebar {
+    background: var(--bg-secondary);
+    padding: 28px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    border-right: 1px solid var(--border);
+    grid-row: 1 / span 2;
+    overflow-y: auto;
+    backdrop-filter: blur(10px);
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.5rem;
+    font-weight: 600;
+    padding-left: 8px;
+}
+
+.logo i {
+    color: var(--accent);
+    font-size: 1.8rem;
+    filter: drop-shadow(0 0 8px var(--accent));
+}
+
+.logo span {
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    font-weight: 700;
+}
+
+.nav-links {
+    list-style: none;
+}
+
+.nav-links li,
+.sidebar-section ul li {
+    margin-bottom: 8px; /* увеличен отступ */
+}
+
+.nav-links li:last-child,
+.sidebar-section ul li:last-child {
+    margin-bottom: 0;
+}
+
+/* Единый стиль для всех ссылок в сайдбаре */
+.nav-links a,
+.sidebar-section ul li a {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px !important;
+    margin: 0 !important;
+    color: var(--text-secondary);
+    text-decoration: none;
+    border-radius: 12px !important;
+    transition: background-color 0.2s, color 0.2s;
+    font-weight: 500;
+    width: 100%;
+    box-sizing: border-box;
+    border: none !important;
+    outline: none !important;
+    line-height: 1.2;
+    transform: none !important;
+    scale: none !important;
+}
+
+.nav-links a i,
+.sidebar-section ul li a i {
+    width: 24px;
+    font-size: 1.2rem;
+    filter: drop-shadow(0 2px 4px rgba(136, 51, 255, 0.2));
+    transition: filter 0.2s;
+}
+
+.nav-links a:hover i,
+.sidebar-section ul li a:hover i {
+    filter: drop-shadow(0 0 8px var(--accent));
+}
+
+.nav-links a:hover,
+.sidebar-section ul li a:hover {
+    background-color: var(--hover) !important;
+    color: var(--text-primary) !important;
+    transform: none !important;
+    scale: none !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.nav-links a.active,
+.sidebar-section ul li a.active {
+    background: var(--accent-gradient) !important;
+    color: white !important;
+    box-shadow: 0 4px 15px rgba(136, 51, 255, 0.4) !important;
+    padding: 12px 16px !important;
+    border: none !important;
+}
+
+.nav-links a.active i,
+.sidebar-section ul li a.active i {
+    color: white !important;
+    filter: drop-shadow(0 0 8px white);
+}
+
+.sidebar-divider {
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-light), transparent);
+    margin: 16px 0;
+}
+
+.sidebar-section h3 {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding-left: 16px;
+    margin-bottom: 16px;
+}
+
+.sidebar-section ul {
+    list-style: none;
+}
+
+/* Main Content */
+.main-content {
+    background: radial-gradient(circle at 10% 20%, #1a1a2a, #0c0c14);
+    padding: 24px 32px 100px 32px;
+    overflow-y: auto;
+}
+
+.content-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.header-left h1 {
+    font-size: 2.2rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #fff, #d0b0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    margin-bottom: 4px;
+}
+
+.header-date {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* Search bar */
+.search-bar {
+    background-color: var(--bg-elevated);
+    padding: 12px 20px;
+    border-radius: 40px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 300px;
+    border: 1px solid var(--border);
+    transition: all 0.3s;
+    cursor: pointer;
+}
+
+.search-bar:hover {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(136, 51, 255, 0.2);
+}
+
+.search-bar i {
+    color: var(--text-muted);
+}
+
+.search-bar input {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.95rem;
+    width: 100%;
+    outline: none;
+    cursor: pointer;
+}
+
+.search-bar input::placeholder {
+    color: var(--text-muted);
+}
+
+/* Auth buttons */
+.auth-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.btn-login, .btn-register {
+    padding: 10px 24px;
+    border-radius: 40px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    border: 1px solid transparent;
+}
+
+.btn-login {
+    background-color: transparent;
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+.btn-login:hover {
+    background-color: var(--accent);
+    color: white;
+    transform: scale(1.02);
+}
+
+.btn-login.active {
+    background: var(--accent-gradient);
+    color: white;
+    border-color: transparent;
+}
+
+.btn-register {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 4px 15px rgba(136, 51, 255, 0.3);
+}
+
+.btn-register:hover {
+    transform: scale(1.02);
+    box-shadow: 0 6px 20px rgba(136, 51, 255, 0.5);
+}
+
+.btn-register.active {
+    background: var(--accent-gradient);
+    box-shadow: 0 4px 15px rgba(136, 51, 255, 0.4);
+}
+
+/* User menu */
+.user-menu {
+    position: relative;
+    cursor: pointer;
+}
+
+.user-menu-trigger {
+    padding: 8px 20px;
+    background-color: var(--bg-elevated);
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.user-menu-trigger:hover {
+    border-color: var(--accent);
+    background-color: var(--hover);
+}
+
+.user-menu-trigger span {
+    font-weight: 500;
+    color: var(--text-primary);
+}
+
+.user-menu-trigger img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    min-width: 200px;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+    overflow: hidden;
+}
+
+.dropdown a, .dropdown button {
+    display: block;
+    padding: 12px 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background 0.2s;
+    text-align: left;
+    width: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+}
+
+.dropdown a:hover, .dropdown button:hover {
+    background-color: var(--hover);
+    color: var(--text-primary);
+}
+
+.dropdown button {
+    color: #ff6b6b;
+}
+
+/* Sections */
+.section {
+    margin-bottom: 48px;
+}
+
+.section h2 {
+    font-size: 1.5rem;
+    margin-bottom: 20px;
+    font-weight: 600;
+    background: linear-gradient(135deg, #fff, #e0b0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: inline-block;
+    position: relative;
+}
+
+.section h2::after {
+    content: '';
+    position: absolute;
+    bottom: -4px;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    border-radius: 2px;
+}
+
+/* Cards */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 20px;
+}
+
+.card {
+    background: linear-gradient(145deg, var(--bg-elevated), #1e1e2a);
+    border-radius: 20px;
+    padding: 16px;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+    border: 1px solid transparent;
+    text-decoration: none;
+    color: inherit;
+    display: block;
+    position: relative;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    border-color: var(--accent);
+    box-shadow: 0 20px 40px rgba(136, 51, 255, 0.3);
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--accent-gradient);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+    border-radius: 0 0 20px 20px;
+}
+
+.card:hover::after {
+    transform: scaleX(1);
+}
+
+.card-image {
+    position: relative;
+    margin-bottom: 12px;
+    overflow: hidden;
+    border-radius: 16px;
+}
+
+.card-image img {
+    width: 100%;
+    aspect-ratio: 1;
+    border-radius: 16px;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+}
+
+.card:hover .card-image img {
+    transform: scale(1.05);
+}
+
+.play-btn-small {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--accent-gradient);
+    border: none;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    opacity: 0;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.6);
+}
+
+.card:hover .play-btn-small {
+    opacity: 1;
+}
+
+.play-btn-small i {
+    font-size: 1.2rem;
+}
+
+.card-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.card-sub {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.card-play-count {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-top: 6px;
+}
+
+.card-play-count i {
+    font-size: 0.7rem;
+}
+
+/* Track List */
+.track-list {
+    background-color: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 8px;
+    border: 1px solid var(--border);
+}
+
+.track-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-radius: 14px;
+    transition: background-color 0.2s;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+.track-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 3px;
+    background: var(--accent-gradient);
+    transform: scaleY(0);
+    transition: transform 0.2s;
+}
+
+.track-item:hover::before {
+    transform: scaleY(1);
+}
+
+.track-item:hover {
+    background-color: var(--hover);
+}
+
+.track-info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex: 1;
+    cursor: pointer;
+}
+
+.track-number {
+    color: var(--text-muted);
+    width: 32px;
+    text-align: right;
+    font-size: 0.9rem;
+    font-weight: 500;
+}
+
+.track-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    object-fit: cover;
+}
+
+.track-name {
+    font-weight: 500;
+    margin-bottom: 4px;
+}
+
+.track-artist {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
+.track-play-count {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.track-play-count i {
+    margin-right: 4px;
+    font-size: 0.7rem;
+}
+
+.track-actions {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.track-actions i {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: transform 0.2s, color 0.2s;
+}
+
+.track-actions i:hover {
+    transform: translateY(-2px) scale(1.1);
+}
+
+/* Лайки */
+.fa-heart {
+    transition: color 0.2s, transform 0.2s;
+}
+
+.fa-heart:hover {
+    color: var(--like-active) !important;
+    transform: scale(1.1);
+}
+
+.fa-heart.active {
+    color: var(--like-active) !important;
+    animation: heartPop 0.3s ease;
+}
+
+@keyframes heartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Скачивание */
+.fa-download:hover {
+    color: var(--accent-light);
+    transform: scale(1.1);
+}
+
+/* Добавление в плейлист */
+.fa-plus-circle {
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.fa-plus-circle:hover {
+    transform: rotate(90deg) scale(1.2);
+    color: var(--accent);
+}
+
+.track-duration {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    min-width: 45px;
+    text-align: right;
+}
+
+/* Compact track list (опционально) */
+.track-list.compact .track-item {
+    padding: 8px 16px;
+}
+
+.track-list.compact .track-number {
+    width: 24px;
+}
+
+/* Playlist hero */
+.playlist-hero {
+    display: flex;
+    gap: 30px;
+    margin-bottom: 40px;
+    background: linear-gradient(135deg, #222233, #15151e);
+    padding: 30px;
+    border-radius: 30px;
+    border: 1px solid var(--border);
+    flex-wrap: wrap;
+}
+
+.playlist-cover {
+    width: 180px;
+    height: 180px;
+    background: var(--accent-gradient);
+    border-radius: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: var(--shadow);
+}
+
+.playlist-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 30px;
+}
+
+.playlist-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.playlist-badge {
+    color: var(--accent-light);
+    text-transform: uppercase;
+    font-size: 0.8rem;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+}
+
+.playlist-info h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff, #e0c0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.2;
+}
+
+.playlist-stats {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.playlist-desc {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Profile page */
+.profile-container {
+    max-width: 1000px;
+}
+
+.profile-header {
+    display: flex;
+    gap: 40px;
+    margin-bottom: 40px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+/* Исправленный аватар */
+.profile-avatar {
+    position: relative;
+    width: 180px;
+    height: 180px;
+    border: none !important;
+    outline: none !important;
+    background: transparent;
+}
+
+.profile-avatar img {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--accent) !important;
+    box-shadow: 0 0 20px rgba(136, 51, 255, 0.3);
+    outline: none !important;
+}
+
+.avatar-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0,0,0,0.7);
+    color: white;
+    text-align: center;
+    padding: 8px;
+    border-radius: 0 0 50% 50%;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    backdrop-filter: blur(2px);
+    border: none !important;
+    outline: none !important;
+}
+
+.profile-avatar:hover .avatar-overlay {
+    opacity: 1;
+}
+
+.avatar-overlay i {
+    font-size: 1.5rem;
+}
+
+.profile-info {
+    flex: 1;
+}
+
+.profile-info h2 {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    background: linear-gradient(135deg, #fff, #e0b0ff);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.profile-info p {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+#role-badge {
+    display: inline-block;
+    background: var(--accent-gradient);
+    padding: 4px 16px;
+    border-radius: 40px;
+    color: white;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    font-weight: 600;
+}
+
+.profile-stats {
+    display: flex;
+    gap: 40px;
+    margin: 20px 0;
+}
+
+.stat {
+    text-align: center;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    display: block;
+    color: var(--accent-light);
+}
+
+.stat-label {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.edit-profile-form {
+    background: var(--bg-elevated);
+    padding: 30px;
+    border-radius: 30px;
+    margin-bottom: 40px;
+    border: 1px solid var(--border);
+}
+
+.edit-profile-form h3 {
+    margin-bottom: 20px;
+}
+
+/* Forms */
+.form-container {
+    max-width: 500px;
+    margin: 2rem auto;
+    background-color: var(--bg-elevated);
+    padding: 2.5rem;
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+.form-group input,
+.form-group textarea,
+.form-group select {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    outline: none;
+    transition: border 0.2s;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+    border-color: var(--accent);
+}
+
+.form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+.form-group small {
+    display: block;
+    margin-top: 4px;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+.btn {
+    background: var(--accent-gradient);
+    color: white;
+    border: none;
+    padding: 0.75rem 2rem;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    font-size: 1rem;
+    box-shadow: 0 4px 15px rgba(136, 51, 255, 0.3);
+}
+
+.btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 0 20px rgba(136, 51, 255, 0.6), 0 6px 20px rgba(136, 51, 255, 0.5);
+}
+
+.btn-secondary {
+    background-color: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 0.75rem 2rem;
+    border-radius: 40px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.btn-secondary:hover {
+    border-color: var(--accent);
+    color: var(--text-primary);
+}
+
+/* Стили для ссылок под формами */
+.form-footer {
+    text-align: center;
+    margin-top: 1.5rem;
+    color: var(--text-secondary);
+}
+
+.form-footer a {
+    color: var(--accent-light);
+    text-decoration: none;
+    font-weight: 600;
+    transition: color 0.2s;
+}
+
+.form-footer a:hover {
+    color: var(--accent);
+    text-decoration: underline;
+}
+
+/* Player Bar */
+.player-bar {
+    background-color: var(--player-bg);
+    border-top: 1px solid var(--border);
+    padding: 12px 24px;
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    align-items: center;
+    position: sticky;
+    bottom: 0;
+    width: 100%;
+    grid-column: 2 / 3;
+    backdrop-filter: blur(20px);
+    gap: 20px;
+    z-index: 5;
+}
+
+.player-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    min-width: 180px;
+    position: relative;
+}
+
+.now-playing-img {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+    animation: spin 10s linear infinite;
+    animation-play-state: paused;
+}
+
+.player-left.is-playing .now-playing-img {
+    animation-play-state: running;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Пульсирующий индикатор "сейчас играет" */
+.player-left::after {
+    content: '';
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    width: 10px;
+    height: 10px;
+    background: var(--accent);
+    border-radius: 50%;
+    box-shadow: 0 0 10px var(--accent);
+    animation: pulse 1.5s infinite;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.player-left:hover::after {
+    opacity: 1;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 0.7; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(1); opacity: 0.7; }
+}
+
+.now-playing-info .song-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.now-playing-info .song-artist {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.now-playing-info .song-artist a {
+    color: var(--accent-light);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.now-playing-info .song-artist a:hover {
+    color: var(--accent);
+    text-shadow: 0 0 8px var(--accent);
+}
+
+.player-center {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+}
+
+.player-controls {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+}
+
+.player-controls i {
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.player-controls i:hover {
+    color: var(--accent);
+    transform: scale(1.2);
+}
+
+.player-controls .play-btn {
+    font-size: 3rem;
+    color: var(--accent);
+}
+
+.player-controls .play-btn:hover {
+    color: var(--accent-light);
+    transform: scale(1.05);
+}
+
+.control-btn {
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.control-btn:hover {
+    color: var(--text-primary);
+    transform: scale(1.1);
+}
+
+.control-btn.active {
+    color: var(--accent);
+}
+
+.repeat-one {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    font-size: 0.7rem;
+    background: var(--accent);
+    color: white;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.progress-area {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+.progress-bar {
+    flex: 1;
+    height: 5px;
+    background-color: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.progress {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
+
+.player-right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+}
+
+.player-right i {
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: color 0.2s;
+}
+
+.player-right i:hover {
+    color: var(--accent);
+}
+
+.volume-control {
+    width: 100px;
+}
+
+.volume-bar {
+    height: 5px;
+    background-color: var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.volume-level {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-light));
+    border-radius: 10px;
+}
+
+/* Admin submissions */
+.submission-item {
+    padding: 1rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.submission-item:last-child {
+    border-bottom: none;
+}
+
+.submission-item button {
+    margin-left: 0.5rem;
+}
+
+/* Tabs (для страницы избранного) */
+.tabs {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+}
+
+.tabs button {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-size: 1rem;
+}
+
+.tabs button:hover {
+    color: var(--text-primary);
+    background-color: var(--hover);
+}
+
+.tabs button.active {
+    background: var(--accent-gradient);
+    color: white;
+    box-shadow: 0 4px 10px rgba(136, 51, 255, 0.3);
+}
+
+/* Scrollbar */
+.main-content::-webkit-scrollbar {
+    width: 8px;
+}
+
+.main-content::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.main-content::-webkit-scrollbar-thumb {
+    background: var(--border);
+    border-radius: 4px;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+    .app-container {
+        grid-template-columns: 1fr;
+    }
+    .sidebar {
+        display: none;
+    }
+    .player-bar {
+        grid-column: 1;
+    }
+    .playlist-hero {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .playlist-info h2 {
+        font-size: 2rem;
+    }
+    .content-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    .search-bar {
+        width: 100%;
+    }
+    .profile-header {
+        justify-content: center;
+        text-align: center;
+    }
+    .profile-stats {
+        justify-content: center;
+    }
+    .player-bar {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto auto;
+        gap: 10px;
+    }
+    .player-left, .player-right {
+        justify-content: center;
+    }
+    .player-center {
+        order: -1;
+    }
+}
+
+/* Анимации */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Дополнительные классы для модального окна */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease;
+}
+
+.modal-content {
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: var(--bg-elevated);
+    border-radius: 30px;
+    padding: 2rem;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px var(--accent), 0 0 30px var(--accent);
+    border: 1px solid var(--border);
+    animation: scaleIn 0.3s ease;
+}
+
+/* Яркие имена артистов (ссылки) */
+.card-sub a,
+.track-artist a,
+.song-artist a,
+.artist-name {
+    color: var(--accent-light) !important;
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.2s, text-shadow 0.2s;
+}
+
+.card-sub a:hover,
+.track-artist a:hover,
+.song-artist a:hover,
+.artist-name:hover {
+    color: var(--accent) !important;
+    text-shadow: 0 0 8px var(--accent);
+}
+
+/* Кнопка лайка артиста на странице артиста */
+.artist-like-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--bg-elevated);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.artist-like-button:hover {
+    transform: scale(1.1);
+    border-color: var(--accent);
+}
+
+.artist-like-button i {
+    font-size: 1.2rem;
+    color: var(--text-secondary);
+}
+
+.artist-like-button i.active {
+    color: var(--like-active);
+}
+
+/* Дропдаун для добавления в плейлист */
+.playlist-dropdown {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    z-index: 2000;
+}
+
+.playlist-dropdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    width: 100%;
+    background: none;
+    border: none;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-primary);
+    cursor: pointer;
+    transition: background-color 0.2s;
+    text-align: left;
+}
+
+.playlist-dropdown-item:hover {
+    background-color: var(--hover);
+}
+
+.playlist-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.playlist-dropdown-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    object-fit: cover;
+}
+
+.playlist-dropdown-item .playlist-info {
+    flex: 1;
+}
+
+.playlist-dropdown-item .playlist-name {
+    font-weight: 600;
+}
+
+.playlist-dropdown-item .playlist-meta {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+}
+
+/* Стили для загрузки обложки в форме создания плейлиста */
+.cover-upload-container {
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+.cover-preview {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+    border: 3px solid var(--accent);
+}
+
+.cover-placeholder {
+    width: 200px;
+    height: 200px;
+    border-radius: 12px;
+    border: 3px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    margin: 0 auto;
+}
+
+.cover-upload-button {
+    margin-top: 10px;
+}
+
+/* Карточки действий */
+.card-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    justify-content: space-between;
+}
+
+/* ===== ДИНАМИЧНЫЙ ФОН ОСНОВНОЙ ОБЛАСТИ ===== */
+.main-content {
+    position: relative;
+    background: radial-gradient(circle at 10% 20%, #1a1a2a, #0c0c14);
+    overflow: hidden;
+}
+
+.main-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: radial-gradient(circle at 30% 40%, rgba(136, 51, 255, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 70% 60%, rgba(179, 119, 255, 0.15) 0%, transparent 30%),
+                radial-gradient(circle at 20% 80%, rgba(136, 51, 255, 0.1) 0%, transparent 40%),
+                radial-gradient(circle at 90% 20%, rgba(179, 119, 255, 0.1) 0%, transparent 40%);
+    filter: blur(40px);
+    animation: aurora 20s ease-in-out infinite alternate;
+    pointer-events: none;
+    z-index: 0;
+}
+
+@keyframes aurora {
+    0% {
+        opacity: 0.5;
+        transform: scale(1) translate(0, 0);
+    }
+    50% {
+        opacity: 0.8;
+        transform: scale(1.2) translate(2%, 1%);
+    }
+    100% {
+        opacity: 0.5;
+        transform: scale(1) translate(0, 0);
+    }
+}
+
+/* Контент поверх фона */
+.main-content > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* ===== УЛУЧШЕННЫЕ СТИЛИ ДЛЯ ВСЕХ ЭЛЕМЕНТОВ ===== */
+
+/* Выделение текста */
+::selection {
+    background: var(--accent);
+    color: white;
+    text-shadow: none;
+}
+
+/* Placeholder'ы */
+::placeholder {
+    color: var(--text-muted);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+}
+
+input:focus::placeholder,
+textarea:focus::placeholder {
+    opacity: 0.4;
+}
+
+/* Чекбоксы и радио (кастомные) */
+input[type="checkbox"],
+input[type="radio"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background-color: var(--bg-secondary);
+    border: 2px solid var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    transition: all 0.2s;
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--accent);
+    border-color: var(--accent);
+}
+
+input[type="checkbox"]:checked::after {
+    content: '\f00c';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 12px;
+}
+
+input[type="radio"] {
+    border-radius: 50%;
+}
+
+input[type="radio"]:checked {
+    border-color: var(--accent);
+    background-color: var(--accent);
+    box-shadow: inset 0 0 0 3px var(--bg-secondary);
+}
+
+input[type="checkbox"]:hover,
+input[type="radio"]:hover {
+    border-color: var(--accent);
+}
+
+/* Селекты (выпадающие списки) */
+select {
+    appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23b0b0c0' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    background-size: 16px;
+    padding-right: 40px !important;
+}
+
+/* Дизаблд элементы */
+button:disabled,
+input:disabled,
+textarea:disabled,
+select:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+}
+
+/* Фокус на интерактивных элементах */
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+/* Ссылки в тексте */
+a {
+    color: var(--accent-light);
+    text-decoration: none;
+    transition: color 0.2s, text-shadow 0.2s;
+}
+
+a:hover {
+    color: var(--accent);
+    text-shadow: 0 0 8px var(--accent);
+}
+
+/* Кнопки и интерактивные элементы в состоянии active (нажатие) */
+button:active,
+.btn:active,
+.btn-secondary:active,
+.nav-links a:active,
+.sidebar-section ul li a:active {
+    transform: translateY(1px);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+/* Улучшенный скроллбар (дополнение) */
+.main-content::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+    box-shadow: 0 0 10px var(--accent);
+}
+
+/* Стили для уведомлений/алертов (если появятся) */
+.alert {
+    padding: 12px 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    animation: slideDown 0.3s ease;
+}
+
+.alert-success {
+    background: rgba(40, 167, 69, 0.15);
+    border: 1px solid #28a745;
+    color: #28a745;
+}
+
+.alert-error {
+    background: rgba(220, 53, 69, 0.15);
+    border: 1px solid #dc3545;
+    color: #dc3545;
+}
+
+.alert-warning {
+    background: rgba(255, 193, 7, 0.15);
+    border: 1px solid #ffc107;
+    color: #ffc107;
+}
+
+.alert-info {
+    background: rgba(23, 162, 184, 0.15);
+    border: 1px solid #17a2b8;
+    color: #17a2b8;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Стили для загрузчиков (лоадеров) */
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+.spinner-small {
+    width: 20px;
+    height: 20px;
+    border-width: 2px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Стили для тегов, бейджей */
+.badge {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.badge-primary {
+    background: var(--accent-gradient);
+    color: white;
+}
+
+.badge-secondary {
+    background: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+}
+
+/* Стили для прогресс-баров (если где-то используются) */
+.progress-bar-custom {
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.progress-bar-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 4px;
+    transition: width 0.3s ease;
+}
+
+/* Стили для всплывающих подсказок (tooltips) */
+[data-tooltip] {
+    position: relative;
+    cursor: help;
+}
+
+[data-tooltip]:before {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 6px 12px;
+    background: var(--bg-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.8rem;
+    white-space: nowrap;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s, visibility 0.2s;
+    box-shadow: var(--shadow);
+    z-index: 100;
+    pointer-events: none;
+}
+
+[data-tooltip]:hover:before {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Стили для модальных окон (дополнение) */
+.modal-overlay {
+    backdrop-filter: blur(5px);
+}
+
+.modal-content {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+/* Улучшенные стили для дропдаунов (например, добавление в плейлист) */
+.playlist-dropdown {
+    animation: fadeInScale 0.2s ease;
+    transform-origin: top right;
+}
+
+.playlist-dropdown-item {
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.playlist-dropdown-item:active {
+    transform: scale(0.98);
+}
+
+/* Стили для пустых состояний (нет данных) */
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-state i {
+    font-size: 4rem;
+    margin-bottom: 16px;
+    opacity: 0.5;
+}
+
+.empty-state h3 {
+    margin-bottom: 8px;
+    color: var(--text-secondary);
+}
+
+.empty-state p {
+    margin-bottom: 24px;
+}
+
+/* Анимация для появления карточек (задержка уже есть, но добавим общую) */
+.card, .track-item {
+    animation: fadeInUp 0.5s ease forwards;
+}
+
+/* Адаптация для мобильных (дополнение) */
+@media (max-width: 600px) {
+    .form-container {
+        padding: 1.5rem;
+    }
+    
+    .profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .profile-info h2 {
+        font-size: 2rem;
+    }
+    
+    .tabs {
+        flex-wrap: wrap;
+    }
+    
+    .tabs button {
+        flex: 1 1 auto;
+    }
+}
+
+/* ===== ВЫПАДАЮЩЕЕ МЕНЮ ПОЛЬЗОВАТЕЛЯ ===== */
+.dropdown {
+    position: absolute;
+    top: calc(100% + 5px);
+    right: 0;
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    min-width: 240px;
+    box-shadow: var(--shadow);
+    z-index: 2000 !important;
+    overflow: hidden;
+    animation: dropdownFade 0.2s ease;
+    transform-origin: top right;
+    pointer-events: auto !important;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.dropdown a, .dropdown button {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 0.95rem;
+    transition: background-color 0.2s, color 0.2s;
+    text-align: left;
+    width: 100%;
+    border: none;
+    background: none;
+    cursor: pointer;
+    pointer-events: auto !important;
+    border-bottom: 1px solid var(--border);
+    font-weight: 500;
+}
+
+.dropdown a:last-of-type, 
+.dropdown button:last-of-type {
+    border-bottom: none;
+}
+
+.dropdown a i, 
+.dropdown button i {
+    width: 20px;
+    color: var(--accent-light);
+    font-size: 1rem;
+    transition: color 0.2s;
+}
+
+.dropdown a:hover, 
+.dropdown button:hover {
+    background-color: var(--hover);
+    color: var(--text-primary);
+}
+
+.dropdown a:hover i, 
+.dropdown button:hover i {
+    color: var(--accent);
+}
+
+/* Специально для кнопки выхода */
+.dropdown button:last-child {
+    color: #ff6b6b;
+}
+
+.dropdown button:last-child i {
+    color: #ff6b6b;
+}
+
+.dropdown button:last-child:hover {
+    background-color: rgba(255, 107, 107, 0.1);
+    color: #ff8a8a;
+}
+
+.dropdown button:last-child:hover i {
+    color: #ff8a8a;
+}
+
+/* Улучшенный поиск */
+.search-bar {
+    cursor: text; /* меняем курсор на текстовый */
+}
+
+.search-bar input {
+    cursor: text; /* поле ввода должно иметь текстовый курсор */
+    outline: none !important; /* убираем стандартный outline */
+}
+
+/* Убираем outline при фокусе, добавляем свой */
+.search-bar:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(136, 51, 255, 0.2);
+}
+
+/* Делаем placeholder более читаемым */
+.search-bar input::placeholder {
+    color: var(--text-muted);
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.search-bar input:focus::placeholder {
+    opacity: 0.5;
+}
+
+/* Лайк - убираем красный при наведении */
+.fa-heart:hover {
+    color: var(--text-primary) !important; /* меняем на яркий, но не красный */
+    transform: scale(1.1);
+}
+
+.fa-heart.active {
+    color: var(--like-active) !important;
+}
+
+/* Анимация активного лайка */
+.fa-heart.active {
+    animation: heartPop 0.3s ease;
+}
+
+@keyframes heartPop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* ===== УЛУЧШЕННОЕ ВЫДЕЛЕНИЕ АКТИВНЫХ КНОПОК ПЛЕЕРА С АНИМАЦИЕЙ ===== */
+.control-btn {
+    transition: all 0.2s ease;
+    position: relative;
+    outline: none;
+}
+
+.control-btn.active {
+    color: white !important;
+    text-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
+    animation: buttonActivate 0.3s ease;
+}
+
+@keyframes buttonActivate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.control-btn.active i {
+    filter: drop-shadow(0 0 8px var(--accent));
+}
+
+/* Цифра 1 при повторе одного трека */
+.repeat-one {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--accent);
+    color: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.control-btn.active .repeat-one {
+    background: var(--accent-light);
+    box-shadow: 0 0 15px var(--accent);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* ===== КНОПКИ ПЛЕЕРА С УЛУЧШЕННЫМ ВЫДЕЛЕНИЕМ ===== */
+.control-btn {
+    transition: all 0.2s ease;
+    position: relative;
+    outline: none;
+}
+
+/* Активное состояние (любой режим) */
+.control-btn.active {
+    color: white !important;
+    text-shadow: 0 0 15px var(--accent), 0 0 30px var(--accent);
+    animation: buttonActivate 0.3s ease;
+}
+
+@keyframes buttonActivate {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+.control-btn.active i {
+    filter: drop-shadow(0 0 8px var(--accent));
+}
+
+/* Обводка для режима "повтор плейлиста" (repeat = 'all') */
+.control-btn.repeat-all {
+    box-shadow: 0 0 0 2px var(--accent), 0 0 15px var(--accent);
+    border-radius: 50%;
+}
+
+/* Цифра 1 для режима "повтор одного трека" */
+.repeat-one {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--accent);
+    color: white;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    font-weight: bold;
+    transition: all 0.2s ease;
+    pointer-events: none;
+}
+
+.control-btn.active .repeat-one {
+    background: var(--accent-light);
+    box-shadow: 0 0 15px var(--accent);
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.2); opacity: 0.9; }
+    100% { transform: scale(1); opacity: 1; }
+}
+
+/* Тонкая обводка для режима "повтор плейлиста" с большим отступом */
+.control-btn.repeat-all {
+    outline: 2px solid var(--accent);
+    outline-offset: 8px;
+    border-radius: 50%;
+    transition: outline 0.2s ease, outline-offset 0.2s ease;
+}
+
+/* ===== КНОПКИ УПРАВЛЕНИЯ ПЛЕЕРОМ ===== */
+.player-controls {
+    gap: 30px; /* немного увеличим расстояние между кнопками */
+}
+
+/* Основные кнопки (next, prev) */
+.player-controls i:not(.play-btn) {
+    font-size: 1.6rem; /* чуть крупнее */
+    color: var(--text-secondary);
+    transition: all 0.2s ease;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+}
+
+.player-controls i:not(.play-btn):hover {
+    color: var(--text-primary);
+    transform: scale(1.15);
+    filter: drop-shadow(0 0 8px var(--accent));
+}
+
+.player-controls i:not(.play-btn):active {
+    transform: scale(0.95);
+}
+
+/* Кнопка play/pause */
+.player-controls .play-btn {
+    font-size: 3.5rem; /* ещё крупнее */
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    filter: drop-shadow(0 4px 12px rgba(136, 51, 255, 0.4));
+}
+
+.player-controls .play-btn:hover {
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 20px var(--accent));
+}
+
+.player-controls .play-btn:active {
+    transform: scale(0.95);
+}
+
+/* Анимация пульсации при паузе (опционально) */
+.player-controls .play-btn.fa-play {
+    animation: gentlePulse 2s infinite ease-in-out;
+}
+
+@keyframes gentlePulse {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.9; transform: scale(1.02); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+/* ===== ПОЛЗУНКИ С КРУЖКАМИ ===== */
+
+/* Прогресс-бар */
+.progress-bar {
+    position: relative;
+    height: 5px;
+    background-color: var(--border);
+    border-radius: 10px;
+    overflow: visible; /* чтобы кружок не обрезался */
+    cursor: pointer;
+}
+
+.progress-bar .progress {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    width: var(--progress);
+    transition: width 0.1s linear;
+}
+
+/* Кружок на прогрессе */
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: var(--progress);
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none; /* чтобы не мешал кликам */
+}
+
+.progress-bar:hover::after,
+.progress-bar:active::after {
+    opacity: 1;
+}
+
+.progress-bar:active::after {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Регулятор громкости */
+.volume-bar {
+    position: relative;
+    height: 5px;
+    background-color: var(--border);
+    border-radius: 10px;
+    overflow: visible;
+    cursor: pointer;
+}
+
+.volume-bar .volume-level {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    width: var(--volume);
+    transition: width 0.1s linear;
+}
+
+/* Кружок на громкости */
+.volume-bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: var(--volume);
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+.volume-bar:hover::after,
+.volume-bar:active::after {
+    opacity: 1;
+}
+
+.volume-bar:active::after {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Прогресс-бар с кружком */
+.progress-bar {
+    position: relative;
+    height: 5px;
+    background-color: var(--border);
+    border-radius: 10px;
+    overflow: visible;
+    cursor: pointer;
+}
+
+.progress-bar .progress {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    width: var(--progress);
+    transition: width 0.1s linear;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: var(--progress);
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+.progress-bar:hover::after,
+.progress-bar:active::after {
+    opacity: 1;
+}
+
+.progress-bar:active::after {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Регулятор громкости с кружком */
+.volume-bar {
+    position: relative;
+    height: 5px;
+    background-color: var(--border);
+    border-radius: 10px;
+    overflow: visible;
+    cursor: pointer;
+}
+
+.volume-bar .volume-level {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    width: var(--volume);
+    transition: width 0.1s linear;
+}
+
+.volume-bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: var(--volume);
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+.volume-bar:hover::after,
+.volume-bar:active::after {
+    opacity: 1;
+}
+
+.volume-bar:active::after {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Усиливаем z-index и убираем ограничения */
+.dropdown {
+    z-index: 999999 !important;
+    pointer-events: auto !important;
+    position: absolute;
+    /* Остальные стили остаются */
+}
+
+/* Убедимся, что контейнер меню не создаёт препятствий */
+.user-menu {
+    position: relative;
+    z-index: 100; /* дополнительно */
+}
+
+/* Поднимаем выпадающее меню над всем контентом */
+.dropdown {
+    z-index: 10000 !important;
+    pointer-events: auto !important;
+}
+
+/* Убеждаемся, что родительский контейнер меню не ограничивает z-index */
+.user-menu {
+    position: relative;
+    z-index: 10001; /* ещё выше, чтобы дочерний dropdown не был ограничен */
+}
+
+/* Понижаем z-index секций, если они создают контекст наложения */
+.section {
+    position: relative;
+    z-index: 1; /* или убрать позиционирование, если оно не нужно */
+}
+
+/* Дополнительно: если какие-то другие элементы на главной перекрывают меню, можно временно задать им меньший z-index */
+.main-content {
+    position: relative;
+    z-index: 1;
+}
+
+.dropdown {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    min-width: 240px;
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    animation: dropdownFade 0.2s ease;
+    transform-origin: top right;
+    pointer-events: auto !important;
+}
+
+/* Стили для карточек жанров (только для ссылок на /genre) */
+a.card[href^="/genre/"] .card-image,
+a.card[href="/genres"] .card-image {
+    background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+a.card[href^="/genre/"] .card-image img,
+a.card[href="/genres"] .card-image img {
+    display: none;
+}
+
+a.card[href^="/genre/"] .card-image::before,
+a.card[href="/genres"] .card-image::before {
+    content: '\f001';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 3rem;
+    color: white;
+    opacity: 0.9;
+    transition: transform 0.3s ease;
+    display: block;
+    text-align: center;
+    line-height: 1;
+}
+
+a.card[href^="/genre/"]:hover .card-image::before,
+a.card[href="/genres"]:hover .card-image::before {
+    transform: scale(1.1);
+}
+
+/* Для страницы всех жанров, где карточки могут быть без атрибута href с /genre */
+.genre-card .card-image {
+    background: linear-gradient(135deg, var(--accent), var(--accent-light)) !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 150px;
+    border-radius: 16px;
+    overflow: hidden;
+}
+
+.genre-card .card-image img {
+    display: none;
+}
+
+.genre-card .card-image::before {
+    content: '\f001';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    font-size: 3rem;
+    color: white;
+    opacity: 0.9;
+    transition: transform 0.3s ease;
+}
+
+.genre-card:hover .card-image::before {
+    transform: scale(1.1);
+}
+
+/* ===== СТИЛИ ДЛЯ КНОПКИ НОВОСТЕЙ ===== */
+.news-button {
+    position: relative;
+    cursor: pointer;
+    padding: 8px 16px;
+    background-color: var(--bg-elevated);
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.news-button:hover {
+    border-color: var(--accent);
+    background-color: var(--hover);
+    transform: translateY(-2px);
+}
+
+.news-button i {
+    color: var(--accent-light);
+    font-size: 1rem;
+}
+
+.news-button span {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.news-button .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--accent-gradient);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 5px var(--accent);
+}
+
+/* ===== МОДАЛЬНОЕ ОКНО НОВОСТЕЙ ===== */
+.news-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    background-color: var(--bg-elevated);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 2000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: fadeInScale 0.2s ease-out;
+}
+
+.news-modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, var(--bg-secondary), var(--bg-elevated));
+}
+
+.news-modal-header h3 {
+    margin: 0;
+    font-size: 1.2rem;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.news-modal-header i {
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.news-modal-header i:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+}
+
+.news-list {
+    overflow-y: auto;
+    padding: 16px;
+}
+
+.news-item {
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 12px;
+    margin: 0 -8px;
+    padding: 12px 8px;
+}
+
+.news-item:hover {
+    background-color: var(--hover);
+    transform: translateX(4px);
+}
+
+.news-item-content {
+    display: flex;
+    gap: 12px;
+}
+
+.news-item-image {
+    width: 60px;
+    height: 60px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--bg-secondary);
+}
+
+.news-item-info {
+    flex: 1;
+}
+
+.news-item-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+    font-size: 1rem;
+    color: var(--text-primary);
+}
+
+.news-item-date {
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (МОДАЛКА ДЕТАЛИ) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.2s ease;
+}
+
+.news-detail-modal {
+    max-width: 600px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    background-color: var(--bg-elevated);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+    animation: scaleIn 0.2s ease;
+}
+
+.news-detail-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    cursor: pointer;
+    font-size: 1.2rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.news-detail-close:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 12px;
+    margin-bottom: 20px;
+}
+
+.news-detail-title {
+    font-size: 1.5rem;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 16px;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.news-detail-content {
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.news-detail-content p {
+    margin-bottom: 12px;
+}
+
+/* ===== СТИЛИ ДЛЯ СТРАНИЦЫ АДМИНА (НОВОСТИ) ===== */
+.news-admin-card {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 10px;
+}
+
+.news-admin-image {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--bg-secondary);
+}
+
+.news-admin-info {
+    flex: 1;
+}
+
+.news-admin-title {
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.news-admin-meta {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    margin-bottom: 8px;
+}
+
+.news-admin-preview {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.news-admin-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+/* Анимации для новостей */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: translate(-50%, -50%) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (ПОЛНОРАЗМЕРНОЕ МОДАЛЬНОЕ ОКНО) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    animation: fadeIn 0.3s ease;
+}
+
+.news-detail-modal {
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 28px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    padding: 32px;
+    position: relative;
+    animation: scaleIn 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+}
+
+/* Стилизация скроллбара внутри модалки */
+.news-detail-modal::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-detail-modal::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.news-detail-modal::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+.news-detail-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.news-detail-close:hover {
+    color: var(--accent);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(136, 51, 255, 0.2);
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--border);
+}
+
+.news-detail-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.3;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-detail-date i {
+    color: var(--accent-light);
+}
+
+.news-detail-content {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+.news-detail-content p {
+    margin-bottom: 20px;
+}
+
+.news-detail-content h1, 
+.news-detail-content h2, 
+.news-detail-content h3 {
+    color: var(--text-primary);
+    margin: 24px 0 12px;
+}
+
+.news-detail-content h2 {
+    font-size: 1.5rem;
+}
+
+.news-detail-content blockquote {
+    border-left: 4px solid var(--accent);
+    padding-left: 20px;
+    margin: 20px 0;
+    color: var(--text-primary);
+    font-style: italic;
+}
+
+.news-detail-content ul, 
+.news-detail-content ol {
+    margin: 16px 0 16px 24px;
+}
+
+.news-detail-content li {
+    margin-bottom: 8px;
+}
+
+.news-detail-content a {
+    color: var(--accent-light);
+    text-decoration: none;
+}
+
+.news-detail-content a:hover {
+    text-decoration: underline;
+    color: var(--accent);
+}
+
+/* Кнопка поделиться (опционально) */
+.news-share-button {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}
+
+.news-share-button button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 8px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.news-share-button button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+/* ===== МОДАЛЬНОЕ ОКНО НОВОСТЕЙ (СПИСОК) ===== */
+.news-modal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    background-color: var(--bg-elevated);
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 2000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (НЕ ЗАКРЫВАЕТСЯ ПО КЛИКУ НА ОВЕРЛЕЙ) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    /* Убираем pointer-events: auto, чтобы клик на оверлей не закрывал окно */
+    pointer-events: none;
+}
+
+.news-detail-modal {
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 28px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    padding: 32px;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+    pointer-events: auto; /* Модальное окно кликабельно */
+}
+
+/* Остальные стили для новостей остаются без изменений */
+
+/* ===== ДРОПДАУН НОВОСТЕЙ ===== */
+.news-dropdown {
+    position: fixed;
+    width: 320px;
+    max-height: 400px;
+    background-color: var(--bg-elevated);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow);
+    z-index: 2000;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    animation: dropdownFade 0.2s ease;
+}
+
+@keyframes dropdownFade {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.news-dropdown-header {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-secondary);
+}
+
+.news-dropdown-header h3 {
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 600;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.news-dropdown-header i {
+    cursor: pointer;
+    color: var(--text-muted);
+    transition: all 0.2s;
+}
+
+.news-dropdown-header i:hover {
+    color: var(--accent);
+    transform: scale(1.1);
+}
+
+.news-dropdown-list {
+    overflow-y: auto;
+    max-height: 350px;
+}
+
+.news-dropdown-item {
+    display: flex;
+    gap: 12px;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-dropdown-item:last-child {
+    border-bottom: none;
+}
+
+.news-dropdown-item:hover {
+    background-color: var(--hover);
+}
+
+.news-dropdown-image {
+    width: 48px;
+    height: 48px;
+    border-radius: 8px;
+    object-fit: cover;
+    background: var(--bg-secondary);
+}
+
+.news-dropdown-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.news-dropdown-title {
+    font-weight: 600;
+    font-size: 0.9rem;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--text-primary);
+}
+
+.news-dropdown-date {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.news-dropdown-date i {
+    font-size: 0.7rem;
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.news-detail-modal {
+    max-width: 800px;
+    width: 90%;
+    max-height: 85vh;
+    overflow-y: auto;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 28px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    padding: 32px;
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+    pointer-events: auto;
+}
+
+.news-detail-close {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    z-index: 10;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.news-detail-close:hover {
+    color: var(--accent);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(136, 51, 255, 0.2);
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 400px;
+    object-fit: cover;
+    border-radius: 20px;
+    margin-bottom: 28px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.news-detail-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.3;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-detail-content {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-size: 1.05rem;
+}
+
+.news-detail-content p {
+    margin-bottom: 20px;
+}
+
+.news-share-button {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}
+
+.news-share-button button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 8px 20px;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.news-share-button button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+}
+
+/* ===== КНОПКА НОВОСТЕЙ (ДЛЯ ХЕДЕРА) ===== */
+.news-button {
+    position: relative;
+    cursor: pointer;
+    padding: 8px 16px;
+    background-color: var(--bg-elevated);
+    border-radius: 40px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.3s;
+}
+
+.news-button:hover {
+    border-color: var(--accent);
+    background-color: var(--hover);
+    transform: translateY(-2px);
+}
+
+.news-button i {
+    color: var(--accent-light);
+    font-size: 1rem;
+}
+
+.news-button span {
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.news-button .badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: var(--accent-gradient);
+    color: white;
+    border-radius: 50%;
+    width: 18px;
+    height: 18px;
+    font-size: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 0 5px var(--accent);
+}
+
+/* ===== ПОЛНОЭКРАННЫЙ ПРОСМОТР ИЗОБРАЖЕНИЯ ===== */
+.fullscreen-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.95);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 4000;
+    cursor: pointer;
+    animation: fadeIn 0.2s ease;
+}
+
+.fullscreen-container {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+    cursor: default;
+}
+
+.fullscreen-image {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0, 0, 0, 0.5);
+    animation: scaleIn 0.2s ease;
+}
+
+.fullscreen-close {
+    position: absolute;
+    top: -40px;
+    right: -40px;
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: white;
+    transition: all 0.2s;
+    background: rgba(0, 0, 0, 0.5);
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    backdrop-filter: blur(4px);
+}
+
+.fullscreen-close:hover {
+    color: var(--accent);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(136, 51, 255, 0.3);
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .fullscreen-close {
+        top: 10px;
+        right: 10px;
+        font-size: 1.4rem;
+        width: 40px;
+        height: 40px;
+    }
+    
+    .fullscreen-image {
+        max-width: 95vw;
+        max-height: 85vh;
+    }
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (УВЕЛИЧЕННОЕ ОКНО) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.news-detail-modal-large {
+    max-width: 1200px;
+    width: 90%;
+    height: 85vh;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 32px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+    pointer-events: auto;
+    overflow: hidden;
+}
+
+.news-detail-scroll {
+    height: 100%;
+    overflow-y: auto;
+    padding: 32px 48px;
+}
+
+.news-detail-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+.news-detail-image-wrapper {
+    width: 100%;
+    max-height: 450px;
+    overflow: hidden;
+    border-radius: 24px;
+    margin-bottom: 32px;
+    background: var(--bg-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+    border-radius: 24px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+}
+
+.news-detail-image:hover {
+    transform: scale(1.02);
+}
+
+.news-detail-content-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.news-detail-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-detail-content {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.news-detail-content p {
+    margin-bottom: 24px;
+}
+
+.news-detail-content h1,
+.news-detail-content h2,
+.news-detail-content h3 {
+    color: var(--text-primary);
+    margin: 32px 0 16px;
+}
+
+.news-detail-content h2 {
+    font-size: 1.8rem;
+}
+
+.news-detail-content h3 {
+    font-size: 1.4rem;
+}
+
+.news-detail-content blockquote {
+    border-left: 4px solid var(--accent);
+    padding-left: 24px;
+    margin: 24px 0;
+    color: var(--text-primary);
+    font-style: italic;
+    background: rgba(136, 51, 255, 0.05);
+    padding: 16px 24px;
+    border-radius: 16px;
+}
+
+.news-detail-content ul,
+.news-detail-content ol {
+    margin: 20px 0 20px 28px;
+}
+
+.news-detail-content li {
+    margin-bottom: 10px;
+}
+
+.news-detail-content a {
+    color: var(--accent-light);
+    text-decoration: none;
+}
+
+.news-detail-content a:hover {
+    text-decoration: underline;
+    color: var(--accent);
+}
+
+.news-share-button {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}
+
+.news-share-button button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 10px 24px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.news-share-button button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.2);
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 1024px) {
+    .news-detail-modal-large {
+        width: 95%;
+        height: 90vh;
+    }
+    
+    .news-detail-scroll {
+        padding: 24px 32px;
+    }
+    
+    .news-detail-title {
+        font-size: 2rem;
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .news-detail-modal-large {
+        width: 98%;
+        height: 95vh;
+        border-radius: 20px;
+    }
+    
+    .news-detail-scroll {
+        padding: 20px 24px;
+    }
+    
+    .news-detail-title {
+        font-size: 1.6rem;
+    }
+    
+    .news-detail-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .news-detail-image-wrapper {
+        max-height: 250px;
+        margin-bottom: 24px;
+    }
+    
+    .news-detail-image {
+        max-height: 250px;
+    }
+    
+    .news-share-button {
+        margin-top: 32px;
+        padding-top: 24px;
+    }
+    
+    .news-share-button button {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Анимация для появления */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.news-detail-modal-large {
+    animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (УВЕЛИЧЕННОЕ ОКНО) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.news-detail-modal-large {
+    max-width: 1200px;
+    width: 90%;
+    height: 85vh;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 32px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+    pointer-events: auto;
+    overflow: hidden;
+}
+
+.news-detail-scroll {
+    height: 100%;
+    overflow-y: auto;
+    padding: 32px 48px;
+}
+
+.news-detail-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+/* ИСПРАВЛЕННЫЙ БЛОК С ИЗОБРАЖЕНИЕМ */
+.news-detail-image-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    background: var(--bg-secondary);
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+}
+
+.news-detail-image {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 24px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    display: block;
+    margin: 0 auto;
+}
+
+.news-detail-image:hover {
+    transform: scale(1.02);
+}
+
+.news-detail-content-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+}
+
+.news-detail-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-detail-content {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.news-detail-content p {
+    margin-bottom: 24px;
+}
+
+.news-share-button {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}
+
+.news-share-button button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 10px 24px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.news-share-button button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.2);
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 1024px) {
+    .news-detail-modal-large {
+        width: 95%;
+        height: 90vh;
+    }
+    
+    .news-detail-scroll {
+        padding: 24px 32px;
+    }
+    
+    .news-detail-title {
+        font-size: 2rem;
+    }
+    
+    .news-detail-image {
+        max-height: 400px;
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .news-detail-modal-large {
+        width: 98%;
+        height: 95vh;
+        border-radius: 20px;
+    }
+    
+    .news-detail-scroll {
+        padding: 20px 24px;
+    }
+    
+    .news-detail-title {
+        font-size: 1.6rem;
+    }
+    
+    .news-detail-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .news-detail-image-wrapper {
+        margin-bottom: 20px;
+    }
+    
+    .news-detail-image {
+        max-height: 250px;
+    }
+    
+    .news-share-button {
+        margin-top: 32px;
+        padding-top: 24px;
+    }
+    
+    .news-share-button button {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+    }
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (ПОЛНОЕ ЗАПОЛНЕНИЕ ОКНА) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.news-detail-modal-large {
+    max-width: 1200px;
+    width: 90%;
+    height: 85vh;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 32px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+    pointer-events: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Содержимое новости с прокруткой */
+.news-detail-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+}
+
+.news-detail-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+/* Внутренний контейнер с отступами */
+.news-detail-inner {
+    padding: 40px 48px;
+}
+
+/* Изображение */
+.news-detail-image-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    background: var(--bg-secondary);
+    border-radius: 24px;
+    overflow: hidden;
+    position: relative;
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    border-radius: 24px;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    display: block;
+    background: var(--bg-secondary);
+}
+
+.news-detail-image:hover {
+    transform: scale(1.02);
+}
+
+/* Контент */
+.news-detail-content-wrapper {
+    max-width: 900px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.news-detail-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-detail-content {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.news-detail-content p {
+    margin-bottom: 24px;
+}
+
+/* Кнопка поделиться */
+.news-share-button {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}
+
+.news-share-button button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 10px 24px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.news-share-button button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.2);
+}
+
+/* Кнопка закрытия */
+.news-detail-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.news-detail-close:hover {
+    color: var(--accent);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(136, 51, 255, 0.2);
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 1024px) {
+    .news-detail-modal-large {
+        width: 95%;
+        height: 90vh;
+    }
+    
+    .news-detail-inner {
+        padding: 32px 32px;
+    }
+    
+    .news-detail-title {
+        font-size: 2rem;
+    }
+    
+    .news-detail-image {
+        max-height: 400px;
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .news-detail-modal-large {
+        width: 98%;
+        height: 95vh;
+        border-radius: 20px;
+    }
+    
+    .news-detail-inner {
+        padding: 20px 24px;
+    }
+    
+    .news-detail-title {
+        font-size: 1.6rem;
+    }
+    
+    .news-detail-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .news-detail-image-wrapper {
+        margin-bottom: 20px;
+    }
+    
+    .news-detail-image {
+        max-height: 250px;
+    }
+    
+    .news-share-button {
+        margin-top: 32px;
+        padding-top: 24px;
+    }
+    
+    .news-share-button button {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+    }
+    
+    .news-detail-close {
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+}
+
+/* Анимация */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.news-detail-modal-large {
+    animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (ПОЛНОЕ ЗАПОЛНЕНИЕ БЕЗ ЛИШНИХ ПОЛОСОК) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.news-detail-modal-large {
+    max-width: 1200px;
+    width: 90%;
+    height: 85vh;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 32px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+    pointer-events: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Содержимое новости с прокруткой */
+.news-detail-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+}
+
+.news-detail-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+/* Убираем лишние отступы – делаем контент на всю ширину */
+.news-detail-inner {
+    padding: 32px 0 40px 0;
+    width: 100%;
+}
+
+/* Изображение на всю ширину */
+.news-detail-image-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 32px;
+    background: var(--bg-secondary);
+    overflow: hidden;
+    position: relative;
+    border-radius: 0;
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    display: block;
+    background: var(--bg-secondary);
+}
+
+.news-detail-image:hover {
+    transform: scale(1.02);
+}
+
+/* Контент – максимальная ширина, но без боковых отступов внутри */
+.news-detail-content-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 90%;
+}
+
+.news-detail-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 32px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-detail-content {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+.news-detail-content p {
+    margin-bottom: 24px;
+}
+
+.news-share-button {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+}
+
+.news-share-button button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 10px 24px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.news-share-button button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.2);
+}
+
+/* Кнопка закрытия */
+.news-detail-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.news-detail-close:hover {
+    color: var(--accent);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(136, 51, 255, 0.2);
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 1024px) {
+    .news-detail-modal-large {
+        width: 95%;
+        height: 90vh;
+    }
+    
+    .news-detail-title {
+        font-size: 2rem;
+    }
+    
+    .news-detail-content-wrapper {
+        width: 85%;
+    }
+    
+    .news-detail-image {
+        max-height: 400px;
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .news-detail-modal-large {
+        width: 98%;
+        height: 95vh;
+        border-radius: 20px;
+    }
+    
+    .news-detail-inner {
+        padding: 20px 0 32px 0;
+    }
+    
+    .news-detail-title {
+        font-size: 1.6rem;
+    }
+    
+    .news-detail-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .news-detail-content-wrapper {
+        width: 92%;
+    }
+    
+    .news-detail-image-wrapper {
+        margin-bottom: 20px;
+    }
+    
+    .news-detail-image {
+        max-height: 250px;
+    }
+    
+    .news-share-button {
+        margin-top: 32px;
+        padding-top: 24px;
+    }
+    
+    .news-share-button button {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+    }
+    
+    .news-detail-close {
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+}
+
+/* Анимация */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.news-detail-modal-large {
+    animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (РАСТЯГИВАЕМ НА ВСЮ ВЫСОТУ, УБИРАЕМ НИЖНЮЮ ПОЛОСКУ) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.news-detail-modal-large {
+    max-width: 1200px;
+    width: 90%;
+    height: 85vh;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 32px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+    pointer-events: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Содержимое новости с прокруткой – растягиваем на всю высоту */
+.news-detail-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+.news-detail-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+/* Внутренний контейнер – растягиваем и убираем лишние отступы */
+.news-detail-inner {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    width: 100%;
+}
+
+/* Изображение на всю ширину, без отступов сверху */
+.news-detail-image-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    overflow: hidden;
+    position: relative;
+    border-radius: 0;
+    margin: 0;
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    display: block;
+    background: var(--bg-secondary);
+}
+
+.news-detail-image:hover {
+    transform: scale(1.02);
+}
+
+/* Контент – растягиваем, чтобы кнопка была внизу */
+.news-detail-content-wrapper {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 90%;
+    padding: 24px 0 0 0;
+}
+
+.news-detail-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+/* Текст новости – занимает оставшееся пространство */
+.news-detail-content {
+    flex: 1;
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    overflow-y: auto;
+}
+
+.news-detail-content p {
+    margin-bottom: 24px;
+}
+
+/* Кнопка поделиться – прижата к низу */
+.news-share-button {
+    margin-top: 24px;
+    padding-top: 20px;
+    padding-bottom: 24px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    background: var(--bg-elevated);
+}
+
+.news-share-button button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 10px 24px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.news-share-button button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.2);
+}
+
+/* Кнопка закрытия */
+.news-detail-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.news-detail-close:hover {
+    color: var(--accent);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(136, 51, 255, 0.2);
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 1024px) {
+    .news-detail-modal-large {
+        width: 95%;
+        height: 90vh;
+    }
+    
+    .news-detail-title {
+        font-size: 2rem;
+    }
+    
+    .news-detail-content-wrapper {
+        width: 85%;
+    }
+    
+    .news-detail-image {
+        max-height: 400px;
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .news-detail-modal-large {
+        width: 98%;
+        height: 95vh;
+        border-radius: 20px;
+    }
+    
+    .news-detail-title {
+        font-size: 1.6rem;
+    }
+    
+    .news-detail-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .news-detail-content-wrapper {
+        width: 92%;
+        padding: 16px 0 0 0;
+    }
+    
+    .news-detail-image {
+        max-height: 250px;
+    }
+    
+    .news-share-button {
+        margin-top: 16px;
+        padding-top: 16px;
+        padding-bottom: 16px;
+    }
+    
+    .news-share-button button {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+    }
+    
+    .news-detail-close {
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+}
+
+/* Анимация */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.news-detail-modal-large {
+    animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* ===== ПОЛНАЯ НОВОСТЬ (БЕЗ БЕЛОГО ПРЯМОУГОЛЬНИКА И ПОЛОСОК) ===== */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    pointer-events: none;
+}
+
+.news-detail-modal-large {
+    max-width: 1200px;
+    width: 90%;
+    height: 85vh;
+    background: linear-gradient(145deg, var(--bg-elevated), var(--bg-secondary));
+    border-radius: 32px;
+    border: 1px solid rgba(136, 51, 255, 0.3);
+    position: relative;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(136, 51, 255, 0.2);
+    pointer-events: auto;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Содержимое новости с прокруткой */
+.news-detail-scroll {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0;
+    margin: 0;
+}
+
+.news-detail-scroll::-webkit-scrollbar {
+    width: 6px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-track {
+    background: var(--bg-secondary);
+    border-radius: 3px;
+}
+
+.news-detail-scroll::-webkit-scrollbar-thumb {
+    background: var(--accent);
+    border-radius: 3px;
+}
+
+/* Внутренний контейнер – без лишних отступов */
+.news-detail-inner {
+    width: 100%;
+    padding: 0;
+}
+
+/* Изображение на всю ширину */
+.news-detail-image-wrapper {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--bg-secondary);
+    overflow: hidden;
+    position: relative;
+    border-radius: 0;
+    margin: 0;
+}
+
+.news-detail-image {
+    width: 100%;
+    max-height: 500px;
+    object-fit: contain;
+    transition: transform 0.3s ease;
+    cursor: pointer;
+    display: block;
+    background: var(--bg-secondary);
+}
+
+.news-detail-image:hover {
+    transform: scale(1.02);
+}
+
+/* Контент – без лишних фонов */
+.news-detail-content-wrapper {
+    max-width: 1000px;
+    margin: 0 auto;
+    width: 90%;
+    padding: 24px 0 0 0;
+    background: transparent;
+}
+
+.news-detail-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 20px;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    line-height: 1.3;
+    letter-spacing: -0.02em;
+}
+
+.news-detail-date {
+    color: var(--text-muted);
+    margin-bottom: 24px;
+    font-size: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+}
+
+.news-detail-content {
+    line-height: 1.8;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    margin-bottom: 0;
+}
+
+.news-detail-content p {
+    margin-bottom: 24px;
+}
+
+/* Кнопка поделиться – без отдельного фона, прилегает к тексту */
+.news-share-button {
+    margin-top: 8px;
+    padding-top: 20px;
+    padding-bottom: 32px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    gap: 16px;
+    justify-content: flex-end;
+    background: transparent;
+}
+
+.news-share-button button {
+    background: var(--bg-secondary);
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 10px 24px;
+    border-radius: 40px;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.95rem;
+}
+
+.news-share-button button:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.2);
+}
+
+/* Кнопка закрытия */
+.news-detail-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: var(--text-muted);
+    transition: all 0.2s;
+    z-index: 20;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.news-detail-close:hover {
+    color: var(--accent);
+    transform: rotate(90deg) scale(1.1);
+    background: rgba(136, 51, 255, 0.2);
+}
+
+/* Адаптация для планшетов */
+@media (max-width: 1024px) {
+    .news-detail-modal-large {
+        width: 95%;
+        height: 90vh;
+    }
+    
+    .news-detail-title {
+        font-size: 2rem;
+    }
+    
+    .news-detail-content-wrapper {
+        width: 85%;
+    }
+    
+    .news-detail-image {
+        max-height: 400px;
+    }
+}
+
+/* Адаптация для мобильных устройств */
+@media (max-width: 768px) {
+    .news-detail-modal-large {
+        width: 98%;
+        height: 95vh;
+        border-radius: 20px;
+    }
+    
+    .news-detail-title {
+        font-size: 1.6rem;
+    }
+    
+    .news-detail-content {
+        font-size: 1rem;
+        line-height: 1.6;
+    }
+    
+    .news-detail-content-wrapper {
+        width: 92%;
+        padding: 16px 0 0 0;
+    }
+    
+    .news-detail-image {
+        max-height: 250px;
+    }
+    
+    .news-share-button {
+        padding-bottom: 24px;
+    }
+    
+    .news-share-button button {
+        padding: 8px 18px;
+        font-size: 0.85rem;
+    }
+    
+    .news-detail-close {
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+        font-size: 1.2rem;
+    }
+}
+
+/* Анимация */
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.news-detail-modal-large {
+    animation: slideUp 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+}
+
+/* ===== СТИЛИ ДЛЯ КНОПОК В МОДАЛЬНОМ ОКНЕ ЗАЯВКИ ===== */
+.modal-audio-player {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+}
+
+.modal-audio-player .audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.modal-audio-player .play-pause-btn {
+    background: var(--accent-gradient);
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.3);
+}
+
+.modal-audio-player .play-pause-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(136, 51, 255, 0.5);
+}
+
+.modal-audio-player .play-pause-btn:active {
+    transform: scale(0.98);
+}
+
+.modal-audio-player .progress-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.modal-audio-player .time {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-width: 45px;
+}
+
+.modal-audio-player .progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.modal-audio-player .progress-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+}
+
+.modal-audio-player .info-note {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+/* Стили для кнопок в карточках заявок */
+.submission-card {
+    padding: 20px;
+    background: var(--bg-elevated);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submission-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.submission-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.submission-title {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.submission-badge {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.submission-info {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.submission-info strong {
+    color: var(--text-primary);
+}
+
+.submission-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 8px;
+}
+
+.submission-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* ===== СТРАНИЦА ЗАЯВОК ===== */
+.empty-state {
+    background: var(--bg-secondary);
+    border-radius: 20px;
+    padding: 60px;
+    text-align: center;
+    border: 1px solid var(--border);
+}
+
+.empty-state i {
+    font-size: 48px;
+    color: #28a745;
+    margin-bottom: 16px;
+}
+
+.empty-state h3 {
+    margin-bottom: 8px;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+}
+
+.submissions-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.submission-card {
+    padding: 20px;
+    background: var(--bg-elevated);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.submission-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+}
+
+.submission-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.submission-title {
+    margin: 0;
+    font-size: 1.2rem;
+    color: var(--text-primary);
+}
+
+.submission-badge {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.submission-info {
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+}
+
+.submission-info strong {
+    color: var(--text-primary);
+}
+
+.submission-bio {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 8px;
+    line-height: 1.5;
+}
+
+.submission-meta {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-top: 8px;
+}
+
+.submission-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+}
+
+.approve-btn {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+}
+
+.reject-btn {
+    color: #ff6b6b !important;
+    border-color: #ff6b6b !important;
+}
+
+.reject-btn:hover {
+    background: rgba(255, 107, 107, 0.1) !important;
+    color: #ff8a8a !important;
+}
+
+/* ===== МОДАЛЬНОЕ ОКНО ЗАЯВКИ ===== */
+.submission-detail-modal {
+    max-width: 700px;
+    width: 100%;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 0;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 1.5rem;
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.status-badge {
+    background: rgba(255, 193, 7, 0.1);
+    color: #ffc107;
+    padding: 4px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.status-pending {
+    color: #ffc107;
+}
+
+.detail-section {
+    margin-bottom: 24px;
+}
+
+.detail-section h3 {
+    margin-bottom: 12px;
+    color: var(--accent-light);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 1.1rem;
+}
+
+.detail-card {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 20px;
+}
+
+.detail-card p {
+    margin-bottom: 12px;
+}
+
+.detail-card p:last-child {
+    margin-bottom: 0;
+}
+
+.bio-text {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    white-space: pre-wrap;
+    margin-top: 8px;
+}
+
+.image-preview {
+    margin-top: 12px;
+}
+
+.image-preview strong {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.image-preview img {
+    width: 100px;
+    height: 100px;
+    border-radius: 8px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.image-preview img:hover {
+    transform: scale(1.05);
+}
+
+.image-preview.avatar img {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 15px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* ===== АУДИОПЛЕЕР ===== */
+.modal-audio-player {
+    background: var(--bg-secondary);
+    border-radius: 16px;
+    padding: 20px;
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+}
+
+.audio-controls {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.play-pause-btn {
+    background: var(--accent-gradient);
+    border: none;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 4px 12px rgba(136, 51, 255, 0.3);
+}
+
+.play-pause-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 6px 20px rgba(136, 51, 255, 0.5);
+}
+
+.play-pause-btn:active {
+    transform: scale(0.98);
+}
+
+.progress-container {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.time {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    min-width: 45px;
+}
+
+.progress-bar {
+    flex: 1;
+    height: 4px;
+    background: var(--border);
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 4px;
+    transition: width 0.1s linear;
+}
+
+.info-note {
+    margin-top: 12px;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: var(--progress);
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+/* Принудительно исправляем кружок прогресса */
+.progress-bar::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: var(--progress) !important;
+    width: 14px !important;
+    height: 14px !important;
+    background: white !important;
+    border: 2px solid var(--accent) !important;
+    border-radius: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+    opacity: 0 !important;
+    transition: opacity 0.2s, transform 0.2s !important;
+    pointer-events: none !important;
+    aspect-ratio: auto !important; /* отключаем */
+}
+
+.progress-bar {
+    position: relative !important;
+    height: 5px !important;
+    background-color: var(--border) !important;
+    border-radius: 10px !important;
+    overflow: visible !important;
+    cursor: pointer !important;
+}
+
+.progress-bar .progress {
+    height: 100% !important;
+    background: var(--accent-gradient) !important;
+    border-radius: 10px !important;
+    width: var(--progress) !important;
+    transition: width 0.1s linear !important;
+}
+
+.progress-bar::after {
+    content: '' !important;
+    position: absolute !important;
+    top: 50% !important;
+    left: var(--progress) !important;
+    width: 14px !important;
+    height: 14px !important;
+    background: white !important;
+    border: 2px solid var(--accent) !important;
+    border-radius: 50% !important;
+    transform: translate(-50%, -50%) !important;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
+    opacity: 1 !important;  /* для теста */
+    transition: opacity 0.2s, transform 0.2s !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+}
+
+/* Прогресс-бар */
+.progress-bar {
+    position: relative;
+    height: 5px;
+    background-color: var(--border);
+    border-radius: 10px;
+    overflow: visible;   /* чтобы кружок не обрезался */
+    cursor: pointer;
+}
+
+.progress-bar .progress {
+    height: 100%;
+    background: var(--accent-gradient);
+    border-radius: 10px;
+    width: var(--progress);
+    transition: width 0.1s linear;
+}
+
+/* Кружок на прогрессе */
+.progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: var(--progress);
+    width: 14px;
+    height: 14px;
+    background: white;
+    border: 2px solid var(--accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.2s, transform 0.2s;
+    pointer-events: none;
+}
+
+.progress-bar:hover::after,
+.progress-bar:active::after {
+    opacity: 1;
+}
+
+.progress-bar:active::after {
+    transform: translate(-50%, -50%) scale(1.2);
+}
+
+/* Явно скрываем кружок прогресса по умолчанию */
+.progress-bar::after {
+    opacity: 0 !important;
+}
+
+/* Показываем только при наведении или активном перетаскивании */
+.progress-bar:hover::after,
+.progress-bar:active::after {
+    opacity: 1 !important;
+}
+
+/* ===== СТИЛИ ДЛЯ КНОПКИ ОТКЛОНИТЬ В АДМИН-ПАНЕЛИ ===== */
+.reject-btn {
+    background: transparent !important;
+    border: 1px solid #ff6b6b !important;
+    color: #ff6b6b !important;
+    transition: all 0.3s ease !important;
+}
+
+.reject-btn:hover {
+    background: rgba(255, 107, 107, 0.15) !important;
+    color: #ff8a8a !important;
+    border-color: #ff8a8a !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+}
+
+.reject-btn:active {
+    transform: translateY(1px) !important;
+}
+
+/* Если кнопка отключена (disabled) */
+.reject-btn:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Стили для кнопки "Отклонить" (усиленные) */
+button.reject-btn,
+.submission-actions .reject-btn,
+.submission-card .reject-btn {
+    background: transparent !important;
+    border: 1px solid #ff6b6b !important;
+    color: #ff6b6b !important;
+    transition: all 0.3s ease !important;
+}
+
+button.reject-btn:hover,
+.submission-actions .reject-btn:hover,
+.submission-card .reject-btn:hover {
+    background: rgba(255, 107, 107, 0.15) !important;
+    color: #ff8a8a !important;
+    border-color: #ff8a8a !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+}
+
+button.reject-btn:active,
+.submission-actions .reject-btn:active,
+.submission-card .reject-btn:active {
+    transform: translateY(1px) !important;
+}
+
+button.reject-btn:disabled,
+.submission-actions .reject-btn:disabled,
+.submission-card .reject-btn:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* === КНОПКА "ОТКЛОНИТЬ" (ФИНАЛЬНЫЙ ФИКС) === */
+button.btn-secondary.reject-btn,
+button.reject-btn,
+.submission-actions button.reject-btn,
+.submission-card button.reject-btn {
+    background: transparent !important;
+    border: 1px solid #ff6b6b !important;
+    color: #ff6b6b !important;
+    transition: all 0.3s ease !important;
+    border-radius: 40px !important;
+    padding: 8px 20px !important;
+    font-weight: 600 !important;
+}
+
+button.btn-secondary.reject-btn:hover,
+button.reject-btn:hover,
+.submission-actions button.reject-btn:hover,
+.submission-card button.reject-btn:hover {
+    background: rgba(255, 107, 107, 0.15) !important;
+    color: #ff8a8a !important;
+    border-color: #ff8a8a !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3) !important;
+}
+
+button.btn-secondary.reject-btn:active,
+button.reject-btn:active,
+.submission-actions button.reject-btn:active,
+.submission-card button.reject-btn:active {
+    transform: translateY(1px) !important;
+}
+
+button.btn-secondary.reject-btn:disabled,
+button.reject-btn:disabled,
+.submission-actions button.reject-btn:disabled,
+.submission-card button.reject-btn:disabled {
+    opacity: 0.5 !important;
+    cursor: not-allowed !important;
+    transform: none !important;
+}
+
+/* Запрет взаимодействия с фоном при открытой новости */
+.news-detail-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3000;
+    backdrop-filter: blur(8px);
+    pointer-events: auto; /* важно: запрещает клики на фон */
+    cursor: default;
+}
+
+/* Блокировка прокрутки страницы */
+body.modal-open {
+    overflow: hidden;
+}

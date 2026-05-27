@@ -165,8 +165,9 @@ export default function TrackPage() {
               </div>
             </div>
           </div>
+        </div>{/* /maxWidth */}
 
-          {/* Нижний блок: текст + похожие */}
+        {/* Нижний блок: текст + похожие */}
           {(track.lyrics || related.length > 0) && (
             <div style={{
               display: 'grid',
@@ -217,7 +218,7 @@ export default function TrackPage() {
           )}
 
         </div>
-      </div>
+      </div>{/* /outer */}
     </Layout>
   );
 }

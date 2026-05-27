@@ -83,12 +83,23 @@ export default function PlaylistDetail() {
     <Layout>
       <div className="playlist-hero">
         <div className="playlist-cover">
-          <img 
-            src={playlist.cover_image ? `${process.env.NEXT_PUBLIC_API_URL}/${playlist.cover_image}` : '/default-playlist.png'} 
-            alt={playlist.name}
-            style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '30px' }}
-            onError={(e) => { e.target.src = '/default-playlist.png'; }}
-          />
+          {playlist.cover_image ? (
+            <img
+              src={`${process.env.NEXT_PUBLIC_API_URL}/${playlist.cover_image}`}
+              alt={playlist.name}
+              style={{ width:'100%', height:'100%', objectFit:'cover', borderRadius:'30px' }}
+              onError={e => { e.target.style.display='none'; }}
+            />
+          ) : (
+            <div style={{
+              width:'100%', height:'100%',
+              background:'var(--accent-gradient)',
+              borderRadius:'30px',
+              display:'flex', alignItems:'center', justifyContent:'center',
+            }}>
+              <i className="fas fa-music" style={{ fontSize:'4rem', color:'rgba(255,255,255,0.8)' }}></i>
+            </div>
+          )}
         </div>
         <div className="playlist-info">
           <div className="playlist-badge">Плейлист</div>

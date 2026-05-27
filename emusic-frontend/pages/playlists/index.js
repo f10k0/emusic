@@ -13,11 +13,23 @@ const PlaylistCard = React.memo(({ playlist, onTogglePublic, onDelete }) => {
     <div className="card" style={{ position: 'relative' }}>
       <Link href={`/playlists/${playlist.id}`} style={{ textDecoration: 'none', color: 'inherit' }}>
         <div className="card-image">
-          <img 
-            src={playlist.cover_image ? `${process.env.NEXT_PUBLIC_API_URL}/${playlist.cover_image}` : '/default-playlist.png'} 
-            alt={playlist.name}
-            onError={(e) => { e.target.src = '/default-playlist.png'; }}
-          />
+          {playlist.cover_image ? (
+            <img
+              src={`${process.env.NEXT_PUBLIC_API_URL}/${playlist.cover_image}`}
+              alt={playlist.name}
+              onError={e => { e.target.style.display='none'; }}
+              style={{ width:'100%', aspectRatio:'1', objectFit:'cover', borderRadius:'inherit', display:'block' }}
+            />
+          ) : (
+            <div style={{
+              width:'100%', aspectRatio:'1',
+              background:'var(--accent-gradient)',
+              display:'flex', alignItems:'center', justifyContent:'center',
+              borderRadius: 'inherit',
+            }}>
+              <i className="fas fa-music" style={{ fontSize:'2.5rem', color:'rgba(255,255,255,0.8)' }}></i>
+            </div>
+          )}
         </div>
         <div className="card-title">{playlist.name}</div>
         <div className="card-sub">
