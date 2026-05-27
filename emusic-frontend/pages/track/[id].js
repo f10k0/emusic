@@ -54,6 +54,22 @@ export default function TrackPage() {
       .finally(() => setLoading(false));
   }, [id]);
 
+  // Compute activeLine before useEffect (track may be null, handle safely)
+  const _lyrics = track ? parseLyrics(track.lyrics) : [];
+  const _isCurrentTrack = track ? currentTrack?.id === track.id : false;
+  const activeLine = _isCurrentTrack
+    ? _lyrics.reduce((acc, line, i) => (line.time <= currentTime ? i : acc), -1)
+    : -1;
+
+  // Auto-scroll active lyric line into view — must be before any early returns
+  useEffect(() => {
+    if (activeLine < 0) return;
+    const el = document.getElementById(`lyric-line-${activeLine}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [activeLine]);
+
   if (loading) {
     return (
       <Layout>
@@ -74,23 +90,10 @@ export default function TrackPage() {
     );
   }
 
-  const lyrics = parseLyrics(track.lyrics);
-  const isCurrentTrackPlaying = currentTrack?.id === track?.id;
-
-  const activeLine = isCurrentTrackPlaying
-    ? lyrics.reduce((acc, line, i) => (line.time <= currentTime ? i : acc), -1)
-    : -1;
-
-  // Auto-scroll active lyric line into view
-  useEffect(() => {
-    if (activeLine < 0) return;
-    const el = document.getElementById(`lyric-line-${activeLine}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [activeLine]);
-  const isCurrentTrack = currentTrack?.id === track.id;
+  const isCurrentTrack = _isCurrentTrack;
   const isPlaying = isCurrentTrack && storeIsPlaying;
+  const lyrics = _lyrics;
+  const isCurrentTrackPlaying = isCurrentTrack;
 
   return (
     <Layout>
