@@ -182,27 +182,34 @@ function ClipSlide({ video: initialVideo, isActive }) {
       v.currentTime = 0;
       v.muted = true;
       setMuted(true);
+      let cancelled = false;
       const tryPlay = () => {
+        if (cancelled) return; // Guard: if already deactivated, don't play
         v.play()
           .then(() => {
+            if (cancelled) { v.pause(); return; }
             setPlaying(true);
             setTimeout(() => {
+              if (cancelled) return;
               v.muted = false;
               v.volume = volume;
               setMuted(false);
             }, 200);
           })
           .catch(() => {
+            if (cancelled) return;
             v.muted = true;
-            v.play().then(() => setPlaying(true)).catch(() => {});
+            v.play().then(() => { if (!cancelled) setPlaying(true); }).catch(() => {});
           });
       };
       if (v.readyState >= 2) tryPlay();
       else v.addEventListener('canplay', tryPlay, { once: true });
       api.post(`/videos/${video.id}/view`).catch(() => {});
+      return () => { cancelled = true; }; // Cleanup: mark as cancelled
     } else {
       v.pause();
       v.currentTime = 0;
+      v.muted = true;
       setPlaying(false);
       setShowPauseIcon(false);
     }
@@ -462,18 +469,32 @@ export default function Clips() {
       .finally(() => setLoading(false));
   }, []);
 
+  // Reset activeIndex when search changes — prevents stale index pointing to wrong slide
+  useEffect(() => {
+    setActiveIndex(0);
+    // Scroll container back to top
+    if (containerRef.current) {
+      containerRef.current.scrollTop = 0;
+    }
+  }, [search]);
+
+  // Re-observe slides whenever filtered list changes (videos or search)
   useEffect(() => {
     const el = containerRef.current;
-    if (!el || !videos.length) return;
-    const observer = new IntersectionObserver(
-      entries => entries.forEach(e => {
-        if (e.isIntersecting) setActiveIndex(parseInt(e.target.dataset.idx, 10));
-      }),
-      { root: el, threshold: 0.55 }
-    );
-    el.querySelectorAll('[data-idx]').forEach(s => observer.observe(s));
-    return () => observer.disconnect();
-  }, [videos]);
+    if (!el) return;
+    // Small delay to let DOM update after search filter
+    const timer = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        entries => entries.forEach(e => {
+          if (e.isIntersecting) setActiveIndex(parseInt(e.target.dataset.idx, 10));
+        }),
+        { root: el, threshold: 0.55 }
+      );
+      el.querySelectorAll('[data-idx]').forEach(s => observer.observe(s));
+      return () => observer.disconnect();
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [videos, search]);
 
   return (
     <Layout fullscreen>

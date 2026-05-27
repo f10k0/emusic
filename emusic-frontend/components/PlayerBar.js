@@ -29,6 +29,15 @@ export default function PlayerBar() {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
+  // Handle seek from lyrics click
+  useEffect(() => {
+    if (seekTo !== null && seekTo !== undefined && audioRef.current) {
+      audioRef.current.currentTime = seekTo;
+      setCurrentTime(seekTo);
+      clearSeekTo();
+    }
+  }, [seekTo]);
+
   // Подключаем Web Audio API для EQ и dB-громкости
   useEffect(() => {
     if (audioRef.current) {

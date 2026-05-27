@@ -7729,3 +7729,72 @@ button[style*="border-radius:24"]:hover {
 }
 .lyrics-scroll::-webkit-scrollbar { width: 4px; }
 .lyrics-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ══════════════════════════════════════════════════════════════════════
+   LIGHT THEME — Track page specific fixes
+══════════════════════════════════════════════════════════════════════ */
+
+/* Background blur overlay — in light theme: very subtle, high brightness */
+[data-theme="light"] .track-blur-bg {
+    filter: blur(80px) brightness(1.2) saturate(0.3) !important;
+    opacity: 0.18 !important;
+}
+
+/* Text on track page */
+[data-theme="light"] .track-page-label {
+    color: #6a649a !important;
+}
+[data-theme="light"] h1 {
+    color: #1e1b3a !important;
+}
+[data-theme="light"] .track-page-meta {
+    color: #6a649a !important;
+}
+
+/* Mood badges on track page — already use inline colors, fine */
+
+/* Lyrics block */
+[data-theme="light"] .lyrics-block {
+    background: #ffffff !important;
+    border-color: #e8e5f8 !important;
+}
+[data-theme="light"] .lyrics-block h3 {
+    color: #1e1b3a !important;
+}
+
+/* Related tracks block */
+[data-theme="light"] .related-block {
+    background: #ffffff !important;
+    border-color: #e8e5f8 !important;
+}
+[data-theme="light"] .related-block h3 {
+    color: #1e1b3a !important;
+}
+[data-theme="light"] .related-track-item:hover {
+    background: #f5f2ff !important;
+}
+[data-theme="light"] .related-track-title {
+    color: #1e1b3a !important;
+}
+[data-theme="light"] .related-track-artist {
+    color: #6a649a !important;
+}
+
+/* Action icons (LikeButton, DownloadButton etc) on track page */
+[data-theme="light"] .fa-heart { color: #9990c0; }
+[data-theme="light"] .fa-heart.active { color: var(--like-active) !important; }
+[data-theme="light"] .fa-download { color: #9990c0; }
+[data-theme="light"] .fa-download:hover { color: var(--accent) !important; }
+[data-theme="light"] .fa-plus-circle { color: var(--accent); }
+
+/* btn-secondary on track page */
+[data-theme="light"] .btn-secondary {
+    background: #ffffff;
+    border-color: #dddaf8;
+    color: #3d3770;
+}
+[data-theme="light"] .btn-secondary:hover {
+    background: #f0eeff;
+    border-color: var(--accent);
+    color: var(--accent);
+}

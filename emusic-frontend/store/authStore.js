@@ -80,13 +80,16 @@ const useAuthStore = create((set, get) => ({
       set({ user: response.data, token });
       return response.data;
     } catch (error) {
-      console.error('Failed to fetch user:', error);
       if (error.response?.status === 401) {
+        // Token expired or invalid — clear silently, no throw
         localStorage.removeItem('access_token');
         delete api.defaults.headers.common['Authorization'];
         set({ user: null, token: null });
+        return null;
       }
-      throw error;
+      // Other errors (network etc) — also don't crash the app
+      console.warn('fetchUser error:', error.message);
+      return null;
     }
   },
 }));

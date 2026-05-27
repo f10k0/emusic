@@ -90,7 +90,7 @@ export default function TrackPage() {
     <Layout>
       {/* Атмосферный блюр-фон из обложки */}
       {track.cover && (
-        <div style={{
+        <div className="track-blur-bg" style={{
           position: 'fixed', inset: 0, zIndex: 0, pointerEvents: 'none',
           backgroundImage: `url(${API}/${track.cover})`,
           backgroundSize: 'cover', backgroundPosition: 'center',
@@ -244,7 +244,7 @@ export default function TrackPage() {
               gap: 28,
             }}>
               {track.lyrics && (
-                <div style={{ background: 'var(--bg-elevated)', borderRadius: 18, padding: 28, border: '1px solid var(--border)', position: 'relative' }}>
+                <div className="lyrics-block" style={{ background: 'var(--bg-elevated)', borderRadius: 18, padding: 28, border: '1px solid var(--border)', position: 'relative' }}>
                   <h3 style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontSize: '1rem', fontWeight: 700 }}>
                     <i className="fas fa-align-left" style={{ color: 'var(--accent)' }}></i>
                     Текст трека
@@ -293,7 +293,7 @@ export default function TrackPage() {
                 </div>
               )}
               {related.length > 0 && (
-                <div style={{ background: 'var(--bg-elevated)', borderRadius: 18, padding: 28, border: '1px solid var(--border)' }}>
+                <div className="related-block" style={{ background: 'var(--bg-elevated)', borderRadius: 18, padding: 28, border: '1px solid var(--border)' }}>
                   <h3 style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontSize: '1rem', fontWeight: 700 }}>
                     <i className="fas fa-music" style={{ color: 'var(--accent)' }}></i>
                     Похожие треки
@@ -301,7 +301,7 @@ export default function TrackPage() {
                   <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
                     {related.map(t => (
                       <div key={t.id}
-                        style={{ display: 'flex', gap: 12, alignItems: 'center', cursor: 'pointer', padding: '8px', borderRadius: 10, transition: 'background 0.15s' }}
+                        className='related-track-item' style={{ display: 'flex', gap: 12, alignItems: 'center', cursor: 'pointer', padding: '8px', borderRadius: 10, transition: 'background 0.15s' }}
                         onClick={() => playTrack(t, related)}
                         onMouseEnter={e => e.currentTarget.style.background = 'var(--hover)'}
                         onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
