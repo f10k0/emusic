@@ -128,7 +128,7 @@ export default function Home() {
               <div className="card-play-count">
                 <i className="fas fa-headphones"></i> {track.play_count || 0}
               </div>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center', justifyContent: 'center' }}>
                 <LikeButton item={track} type="tracks" initialState={track.liked} />
                 <DownloadButton trackId={track.id} trackTitle={track.title} />
                 <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
@@ -136,9 +136,23 @@ export default function Home() {
                   onClick={(e) => { e.stopPropagation(); addToQueue(track); }} title="В очередь">
                   <i className="fas fa-list-ol"></i>
                 </button>
+              </div>
+              <div style={{ textAlign: 'center', marginTop: '8px' }}>
                 <Link href={`/track/${track.id}`} onClick={e => e.stopPropagation()}
-                  style={{ color: 'var(--text-muted)', padding: '4px 8px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center' }} title="Страница трека">
-                  <i className="fas fa-info-circle"></i>
+                  style={{
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    color: 'var(--text-muted)', fontSize: '0.78rem',
+                    padding: '4px 14px', borderRadius: 12,
+                    border: '1px solid var(--border)',
+                    background: 'var(--bg-secondary)',
+                    textDecoration: 'none',
+                    transition: 'all 0.15s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
+                  title="Страница трека"
+                >
+                  <i className="fas fa-info-circle"></i> Подробнее
                 </Link>
               </div>
             </div>

@@ -163,7 +163,8 @@ export default function ArtistPage() {
                 </div>
                 <div className="track-actions">
                   <Link href={`/track/${track.id}`} onClick={e => e.stopPropagation()}
-                    style={{ color: 'var(--text-muted)', padding: '4px 8px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center' }}
+                    className="btn-secondary"
+                    style={{ padding: '4px 10px', fontSize: '0.78rem', display: 'inline-flex', alignItems: 'center', gap: 4, textDecoration: 'none' }}
                     title="Страница трека">
                     <i className="fas fa-info-circle"></i>
                   </Link>

@@ -64,26 +64,26 @@ export default function TrackPage() {
         display: 'flex',
         flexDirection: 'column',
         justifyContent: 'center',
-        padding: '40px 24px',
+        padding: '24px 24px 48px',
       }}>
-        <div style={{maxWidth: 960, margin: '0 auto', width: '100%'}}>
+        <div style={{maxWidth: 1060, margin: '0 auto', width: '100%'}}>
 
           {/* Шапка трека */}
           <div style={{
             display: 'flex',
-            gap: 48,
+            gap: 56,
             alignItems: 'center',
-            marginBottom: 48,
+            marginBottom: 44,
             flexWrap: 'wrap',
           }}>
-            {/* Обложка — увеличена */}
+            {/* Обложка */}
             <div style={{
-              width: 280,
-              height: 280,
+              width: 340,
+              height: 340,
               flexShrink: 0,
-              borderRadius: 20,
+              borderRadius: 24,
               overflow: 'hidden',
-              boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
+              boxShadow: '0 20px 60px rgba(0,0,0,0.5)',
               background: 'var(--bg-elevated)',
             }}>
               <img
@@ -95,24 +95,24 @@ export default function TrackPage() {
             </div>
 
             {/* Инфо */}
-            <div style={{flex:1, minWidth: 260}}>
+            <div style={{flex:1, minWidth: 300}}>
               <div style={{
                 fontSize: '0.72rem', color: 'var(--text-muted)',
-                marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600,
+                marginBottom: 12, textTransform: 'uppercase', letterSpacing: '0.14em', fontWeight: 700,
               }}>Трек</div>
 
               <h1 style={{
-                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+                fontSize: 'clamp(2rem, 5vw, 3.4rem)',
                 fontWeight: 900,
-                marginBottom: 12,
-                lineHeight: 1.15,
+                marginBottom: 14,
+                lineHeight: 1.1,
                 color: 'var(--text-primary)',
               }}>{track.title}</h1>
 
               <Link href={`/artist/${track.artist_id}`} style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 color: 'var(--accent)', textDecoration: 'none',
-                marginBottom: 20, fontSize: '1rem', fontWeight: 600,
+                marginBottom: 22, fontSize: '1.1rem', fontWeight: 700,
               }}>
                 <i className="fas fa-microphone-alt"></i>{track.artist_name}
               </Link>
@@ -151,7 +151,7 @@ export default function TrackPage() {
               {/* Действия */}
               <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
                 <button className="btn" onClick={()=>playTrack(track,[track])}
-                  style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',fontSize:'0.95rem'}}>
+                  style={{display:'inline-flex',alignItems:'center',gap:9,padding:'13px 32px',fontSize:'1rem',fontWeight:700}}>
                   <i className={`fas ${isPlaying?'fa-pause':'fa-play'}`}></i>
                   {isPlaying ? 'Сейчас играет' : 'Слушать'}
                 </button>

@@ -730,11 +730,14 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
     display: flex;
     gap: 30px;
     margin-bottom: 40px;
-    background: linear-gradient(135deg, #222233, #15151e);
+    background: var(--bg-elevated);
     padding: 30px;
     border-radius: 30px;
     border: 1px solid var(--border);
     flex-wrap: wrap;
+}
+[data-theme="dark"] .playlist-hero {
+    background: linear-gradient(135deg, #222233, #15151e);
 }
 
 .playlist-cover {
@@ -1589,11 +1592,14 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
     justify-content: space-between;
 }
 
-/* ===== ДИНАМИЧНЫЙ ФОН ОСНОВНОЙ ОБЛАСТИ ===== */
+/* ===== ФОН ОСНОВНОЙ ОБЛАСТИ ===== */
 .main-content {
     position: relative;
-    background: radial-gradient(circle at 10% 20%, #1a1a2a, #0c0c14);
+    background: var(--bg-primary);
     overflow: hidden;
+}
+[data-theme="dark"] .main-content {
+    background: radial-gradient(circle at 10% 20%, #1a1a2a, #0c0c14);
 }
 
 .main-content::before {
@@ -6748,3 +6754,56 @@ body.modal-open {
 }
 [data-theme="dark"] .card-title { color: inherit; }
 [data-theme="dark"] .track-name { color: inherit; }
+
+/* ══ LIGHT THEME ADDITIONAL FIXES (session 2) ═══════════════════════════ */
+
+/* Genre/mood selector pills in upload form */
+[data-theme="light"] .form-group button[style*="border-radius"] {
+    border-color: #d0d0e0 !important;
+}
+
+/* Playlist hero and genre hero */
+[data-theme="light"] .playlist-hero {
+    background: #ffffff !important;
+    border: 1px solid #e0e0ec;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+}
+[data-theme="light"] .playlist-badge { color: var(--accent); }
+[data-theme="light"] .playlist-stats { color: #5a5a7a; }
+[data-theme="light"] .playlist-desc { color: #7a7a9a; }
+[data-theme="light"] .playlist-info h2 { color: #1a1a2e !important; }
+
+/* Section h3 */
+[data-theme="light"] h3 { color: #1a1a2e; }
+[data-theme="light"] h4 { color: #1a1a2e; }
+[data-theme="light"] p { color: var(--text-secondary); }
+[data-theme="light"] strong { color: var(--text-primary); }
+[data-theme="light"] label { color: #3a3a5a; }
+
+/* Small text / meta */
+[data-theme="light"] small { color: var(--text-muted); }
+
+/* Track page */
+[data-theme="light"] .track-page-cover { box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+
+/* Admin inner section blocks */
+[data-theme="light"] div[style*="var(--bg-secondary)"] { background: #f8f8fc !important; }
+[data-theme="light"] div[style*="var(--bg-elevated)"] { background: #ffffff !important; }
+
+/* Submissions modal sections */
+[data-theme="light"] .modal-content div[style*="bg-secondary"] { background: #f0f0f8 !important; }
+
+/* Artist page tabs */
+[data-theme="light"] button[style*="background: activeTab"] { color: var(--text-primary); }
+
+/* Section underlines */
+[data-theme="light"] .section h2::after { background: var(--accent-gradient); }
+
+/* Events cards */
+[data-theme="light"] div[class*="event"] { color: var(--text-primary); }
+
+/* Fix any remaining dark text that becomes invisible */
+[data-theme="light"] .text-primary-force { color: #1a1a2e !important; }
+
+/* Ensure dark theme keeps gradients on headings */
+[data-theme="dark"] h1, [data-theme="dark"] h2.section-title { color: inherit; }

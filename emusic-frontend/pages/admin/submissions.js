@@ -287,9 +287,7 @@ export default function AdminSubmissions() {
                       style={{
                         margin: 0,
                         fontSize: '1.5rem',
-                        background: 'linear-gradient(135deg, #fff, var(--accent-light))',
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
+                        color: 'var(--text-primary)',
                       }}
                     >
                       Детали заявки
