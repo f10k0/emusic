@@ -105,6 +105,6 @@ const QueuePanel = forwardRef(function QueuePanel(_, ref) {
       )}
     </div>
   );
-}
+});
 
 export default QueuePanel;

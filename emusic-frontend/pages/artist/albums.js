@@ -19,6 +19,7 @@ export default function ArtistAlbums() {
     cover_image: ''
   });
   const [creating, setCreating] = useState(false);
+  const [formError, setFormError] = useState('');
   const [coverFile, setCoverFile] = useState(null);
   const [coverPreview, setCoverPreview] = useState(null);
 
@@ -41,13 +42,24 @@ export default function ArtistAlbums() {
 
   const handleCreate = async (e) => {
     e.preventDefault();
+    setFormError('');
     if (!newAlbum.title.trim()) {
-      alert('Введите название альбома');
+      setFormError('Введите название альбома');
+      return;
+    }
+    if (!newAlbum.release_date) {
+      setFormError('Введите дату создания альбома');
       return;
     }
     setCreating(true);
     try {
-      const res = await api.post('/albums', newAlbum);
+      const albumData = {
+        title: newAlbum.title.trim(),
+        type: newAlbum.type || 'album',
+        release_date: new Date(newAlbum.release_date).toISOString(),
+      };
+      // cover_image оставляем пустым — загрузим файлом отдельно
+      const res = await api.post('/albums', albumData);
       // Загружаем обложку если выбрана
       if (coverFile && res.data?.id) {
         const fd = new FormData();
@@ -57,13 +69,14 @@ export default function ArtistAlbums() {
         }).catch(() => {});
       }
       setShowCreateForm(false);
+      setFormError('');
       setNewAlbum({ title: '', type: 'album', release_date: '', cover_image: '' });
       setCoverFile(null);
       setCoverPreview(null);
       fetchAlbums();
     } catch (err) {
       console.error('Ошибка создания альбома:', err);
-      alert('Не удалось создать альбом');
+      setFormError('Не удалось создать альбом. Попробуйте ещё раз.');
     } finally {
       setCreating(false);
     }
@@ -186,11 +199,22 @@ export default function ArtistAlbums() {
                     </div>
                   </div>
                 </div>
+                {formError && (
+                  <div style={{
+                    background: 'rgba(220,53,69,0.1)', border: '1px solid rgba(220,53,69,0.4)',
+                    borderRadius: 10, padding: '10px 14px', color: '#dc3545',
+                    fontSize: '0.88rem', marginBottom: 4,
+                    display: 'flex', alignItems: 'center', gap: 8,
+                  }}>
+                    <i className="fas fa-exclamation-circle"></i>
+                    {formError}
+                  </div>
+                )}
                 <div style={{ display: 'flex', gap: '10px' }}>
                   <button type="submit" className="btn" disabled={creating}>
                     {creating ? 'Создание...' : 'Создать'}
                   </button>
-                  <button type="button" className="btn-secondary" onClick={() => setShowCreateForm(false)}>Отмена</button>
+                  <button type="button" className="btn-secondary" onClick={() => { setShowCreateForm(false); setFormError(''); }}>Отмена</button>
                 </div>
               </form>
             </div>

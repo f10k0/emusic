@@ -52,7 +52,7 @@ class AlbumBase(BaseModel):
     title: str
     release_date: Optional[datetime] = None
     cover_image: Optional[str] = None
-    type: str
+    type: str = "album"
 
 
 class AlbumCreate(AlbumBase):
