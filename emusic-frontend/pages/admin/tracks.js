@@ -26,6 +26,8 @@ export default function AdminTracks() {
   });
   const [genres, setGenres] = useState([]);
   const [selectedGenres, setSelectedGenres] = useState([]);
+  const [selectedMoods, setSelectedMoods] = useState([]);
+  const [moods, setMoods] = useState([]);
   const [genreSearch, setGenreSearch] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -33,6 +35,7 @@ export default function AdminTracks() {
     if (user?.role === 'admin') {
       fetchTracks();
       fetchGenres();
+      fetchMoods();
     }
   }, [user]);
 
@@ -47,6 +50,13 @@ export default function AdminTracks() {
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchMoods = async () => {
+    try {
+      const r = await api.get('/moods/');
+      setMoods(r.data || []);
+    } catch {}
   };
 
   const fetchGenres = async () => {
@@ -86,6 +96,7 @@ export default function AdminTracks() {
       is_adult: track.is_adult || false,
     });
     setSelectedGenres(track.genres?.map(g => g.id) || []);
+    setSelectedMoods(track.moods?.map(m => m.id) || []);
     setGenreSearch('');
   };
 
@@ -99,6 +110,7 @@ export default function AdminTracks() {
       genre_ids: []
     });
     setSelectedGenres([]);
+    setSelectedMoods([]);
     setGenreSearch('');
   };
 
@@ -120,6 +132,7 @@ export default function AdminTracks() {
         cover: editForm.cover || null,
         genre_ids: selectedGenres,
         is_adult: editForm.is_adult,
+        mood_ids: selectedMoods,
       };
       
       await api.put(`/admin/tracks/${editingTrack.id}`, dataToSend);
@@ -325,6 +338,28 @@ export default function AdminTracks() {
                 ))}
               </div>
               <small>Выберите один или несколько жанров для трека</small>
+            </div>
+
+            <div className="form-group" style={{ marginTop: '12px' }}>
+              <label style={{ marginBottom: 8, display: 'block' }}>Настроения трека</label>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>
+                {moods.map(mood => (
+                  <button key={mood.id} type="button"
+                    onClick={() => setSelectedMoods(prev => prev.includes(mood.id) ? prev.filter(id => id !== mood.id) : [...prev, mood.id])}
+                    style={{
+                      padding: '5px 12px', borderRadius: 20, fontSize: '0.8rem', cursor: 'pointer',
+                      border: selectedMoods.includes(mood.id) ? '1px solid var(--accent)' : '1px solid var(--border)',
+                      background: selectedMoods.includes(mood.id) ? 'rgba(136,51,255,0.18)' : 'var(--bg-secondary)',
+                      color: selectedMoods.includes(mood.id) ? 'var(--accent-light)' : 'var(--text-secondary)',
+                      transition: 'all 0.15s',
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                    }}
+                  >
+                    {mood.emoji && <i className={`fas ${mood.emoji}`} style={{ fontSize: '0.7rem' }}></i>}
+                    {mood.name}
+                  </button>
+                ))}
+              </div>
             </div>
 
             <div className="form-group" style={{ marginTop: '16px' }}>

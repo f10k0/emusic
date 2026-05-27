@@ -12,6 +12,8 @@ export default function PlayerBar() {
   const [isDraggingVolume, setIsDraggingVolume] = useState(false);
   const progressBarRef = useRef(null);
   const volumeBarRef = useRef(null);
+  const queuePanelRef = useRef(null);
+  const queueBtnRef = useRef(null);
   const [showLyrics, setShowLyrics] = useState(false);
 
   const {
@@ -121,6 +123,21 @@ export default function PlayerBar() {
     if (audioRef.current) setDuration(audioRef.current.duration);
   };
 
+  // Закрывать очередь при клике вне панели
+  useEffect(() => {
+    if (!showQueue) return;
+    const handleClickOutside = (e) => {
+      if (
+        queuePanelRef.current && !queuePanelRef.current.contains(e.target) &&
+        queueBtnRef.current && !queueBtnRef.current.contains(e.target)
+      ) {
+        toggleShowQueue();
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [showQueue]);
+
   // Expose seekTo for lyrics
   useEffect(() => {
     window.__playerSeekTo = (time) => {
@@ -181,9 +198,34 @@ export default function PlayerBar() {
             <i className="fas fa-step-backward" onClick={playPrev}></i>
             <i className={`fas ${isPlaying ? 'fa-pause-circle' : 'fa-play-circle'} play-btn`} onClick={togglePlay}></i>
             <i className="fas fa-step-forward" onClick={playNext}></i>
-            <button className={`control-btn ${repeat !== 'off' ? 'active' : ''}`} onClick={toggleRepeat} title="Повтор">
+            <button
+              className={`control-btn ${repeat !== 'off' ? 'active' : ''}`}
+              onClick={toggleRepeat}
+              title={repeat === 'off' ? 'Повтор выкл' : repeat === 'all' ? 'Повтор плейлиста' : 'Повтор трека'}
+              style={{ position: 'relative' }}
+            >
               <i className="fas fa-repeat"></i>
-              {repeat === 'one' && <span className="repeat-one">1</span>}
+              {repeat === 'one' && (
+                <span className="repeat-one" style={{
+                  position: 'absolute', top: -4, right: -4,
+                  background: 'var(--accent)', color: 'white',
+                  borderRadius: '50%', width: 14, height: 14,
+                  fontSize: '0.6rem', fontWeight: 800,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  lineHeight: 1,
+                }}>1</span>
+              )}
+              {repeat === 'all' && (
+                <span style={{
+                  position: 'absolute', top: -4, right: -4,
+                  background: 'var(--accent)', color: 'white',
+                  borderRadius: '50%', width: 14, height: 14,
+                  fontSize: '0.55rem', fontWeight: 800,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                }}>
+                  <i className="fas fa-infinity" style={{ fontSize: '0.5rem' }}></i>
+                </span>
+              )}
             </button>
           </div>
           <div className="progress-area">
@@ -213,6 +255,7 @@ export default function PlayerBar() {
             </div>
           </div>
           <button
+            ref={queueBtnRef}
             className={`control-btn queue-btn ${showQueue ? 'active' : ''}`}
             onClick={toggleShowQueue}
             title="Очередь"
@@ -230,7 +273,7 @@ export default function PlayerBar() {
         />
       )}
 
-      {showQueue && <QueuePanel />}
+      {showQueue && <QueuePanel ref={queuePanelRef} />}
     </>
   );
 }

@@ -1,6 +1,7 @@
+import { forwardRef } from 'react';
 import usePlayerStore from '../store/playerStore';
 
-export default function QueuePanel() {
+const QueuePanel = forwardRef(function QueuePanel(_, ref) {
   const { dynamicQueue, queue, currentTrack, removeFromQueue, reorderQueue, clearDynamicQueue, setTrack } = usePlayerStore();
 
   const handleDragStart = (e, idx) => e.dataTransfer.setData('text/plain', idx);
@@ -12,7 +13,7 @@ export default function QueuePanel() {
   const handleDragOver = (e) => e.preventDefault();
 
   return (
-    <div className="queue-panel">
+    <div className="queue-panel" ref={ref}>
       <div className="queue-panel-header">
         <span>Очередь воспроизведения</span>
         {dynamicQueue.length > 0 && (
@@ -105,3 +106,5 @@ export default function QueuePanel() {
     </div>
   );
 }
+
+export default QueuePanel;
