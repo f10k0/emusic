@@ -220,11 +220,11 @@ def get_notifications(
         # Новые треки (за последние 30 дней)
         if notify_tracks:
             from datetime import datetime, timedelta
-            since = datetime.utcnow() - timedelta(days=30)
+            # Get latest published tracks (last 10 by id, newest first)
             new_tracks = db.query(models.Track).filter(
                 models.Track.artist_id == artist.id,
                 models.Track.is_published == True,
-            ).order_by(models.Track.id.desc()).limit(3).all()
+            ).order_by(models.Track.id.desc()).limit(5).all()
             for t in new_tracks:
                 notifications.append({
                     "id": f"track_{t.id}",

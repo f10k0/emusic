@@ -65,11 +65,7 @@ export default function NotificationsButton() {
 
   return (
     <>
-      <button ref={buttonRef} onClick={handleOpen} className="news-button" style={{
-        position: 'relative',
-        display: 'flex', alignItems: 'center', gap: 6,
-        cursor: 'pointer',
-      }}>
+      <div ref={buttonRef} onClick={handleOpen} className="news-button" style={{ position: 'relative', cursor: 'pointer' }}>
         <i className="fas fa-bell"></i>
         <span>Уведомления</span>
         {unread > 0 && (
@@ -84,7 +80,7 @@ export default function NotificationsButton() {
             {unread > 9 ? '9+' : unread}
           </span>
         )}
-      </button>
+      </div>
 
       {open && createPortal(
         <div ref={dropdownRef} style={{

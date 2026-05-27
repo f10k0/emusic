@@ -125,6 +125,7 @@ class Track(Base):
     is_published = Column(Boolean, default=False)
     is_adult = Column(Boolean, default=False)
     lyrics = Column(Text, nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     album = relationship('Album', back_populates='tracks')
     artist = relationship('Artist', back_populates='tracks')

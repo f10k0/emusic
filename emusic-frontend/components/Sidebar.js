@@ -12,10 +12,10 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
-      <div className="logo">
+      <Link href="/" className="logo" style={{ textDecoration: "none", cursor: "pointer" }}>
         <i className="fas fa-headphones-alt"></i>
         <span>eMusic</span>
-      </div>
+      </Link>
 
       <ul className="nav-links">
         <li>

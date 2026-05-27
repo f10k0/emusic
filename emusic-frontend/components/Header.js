@@ -98,17 +98,11 @@ export default function Header() {
 
         <Link
           href="/clips"
-          style={{
-            display: 'inline-flex', alignItems: 'center', gap: 6,
-            background: router.pathname === '/clips' ? 'var(--accent)' : 'var(--bg-elevated)',
-            border: '1px solid var(--border)',
-            borderRadius: 20, padding: '7px 16px',
-            color: router.pathname === '/clips' ? 'white' : 'var(--text-secondary)',
-            textDecoration: 'none', fontSize: '0.88rem', fontWeight: 600,
-            transition: 'all 0.2s', whiteSpace: 'nowrap',
-          }}
+          className={`news-button${router.pathname === '/clips' ? ' news-button--active' : ''}`}
+          style={{ textDecoration: 'none' }}
         >
-          <i className="fas fa-film"></i> Клипы
+          <i className="fas fa-film"></i>
+          <span>Клипы</span>
         </Link>
         <NewsButton />
         <NotificationsButton />
