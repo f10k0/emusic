@@ -6486,7 +6486,7 @@ body.modal-open {
     border-color: var(--border);
 }
 [data-theme="light"] .profile-container {
-    background: transparent;
+    background: transparent !important;
 }
 [data-theme="light"] .section h2,
 [data-theme="light"] .section h3 {
@@ -6650,9 +6650,24 @@ body.modal-open {
 
 /* --- Forms --- */
 [data-theme="light"] .form-group label, [data-theme="light"] .form-label { color: #3a3a5a; }
-[data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] textarea,
-[data-theme="light"] .form-control, [data-theme="light"] .settings-select {
+[data-theme="light"] input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+[data-theme="light"] select,
+[data-theme="light"] textarea,
+[data-theme="light"] .form-control,
+[data-theme="light"] .settings-select {
     background: #ffffff !important; border-color: #d0d0e0 !important; color: #1a1a2e !important;
+}
+/* Checkboxes in light theme */
+[data-theme="light"] input[type="checkbox"] {
+    background-color: #f0f0f8;
+    border-color: #c0c0d8;
+}
+[data-theme="light"] input[type="checkbox"]:checked {
+    background-color: var(--accent) !important;
+    border-color: var(--accent) !important;
+}
+[data-theme="light"] input[type="checkbox"]:checked::after {
+    color: white !important;
 }
 [data-theme="light"] input::placeholder, [data-theme="light"] textarea::placeholder { color: #9a9ab0 !important; }
 
@@ -6683,7 +6698,7 @@ body.modal-open {
 
 /* --- Profile page --- */
 [data-theme="light"] .profile-container { background: transparent; }
-[data-theme="light"] .profile-header { background: #ffffff; border-color: #e0e0ec; }
+[data-theme="light"] .profile-header { background: transparent !important; border: none !important; box-shadow: none !important; }
 [data-theme="light"] .profile-username, [data-theme="light"] .profile-info h2 { color: #1a1a2e; }
 [data-theme="light"] .profile-info p { color: #5a5a7a; }
 
@@ -6764,9 +6779,9 @@ body.modal-open {
 
 /* Playlist hero and genre hero */
 [data-theme="light"] .playlist-hero {
-    background: #ffffff !important;
-    border: 1px solid #e0e0ec;
-    box-shadow: 0 2px 16px rgba(0,0,0,0.06);
+    background: rgba(136,51,255,0.04);
+    border: 1px solid rgba(136,51,255,0.12);
+    box-shadow: 0 2px 16px rgba(0,0,0,0.04);
 }
 [data-theme="light"] .playlist-badge { color: var(--accent); }
 [data-theme="light"] .playlist-stats { color: #5a5a7a; }
