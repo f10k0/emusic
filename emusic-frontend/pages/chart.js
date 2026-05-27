@@ -85,8 +85,9 @@ export default function ChartPage() {
           <div key={track.id} className="track-item">
             <div className="track-info" onClick={() => handlePlay(track)}>
               <span className="track-number" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                {getRankIcon(track.rank)}
-                {track.rank}
+                {currentTrack?.id === track.id && storeIsPlaying
+                  ? <i className="fas fa-volume-up playing-indicator"></i>
+                  : <>{getRankIcon(track.rank)} {track.rank}</>}
               </span>
               <img 
                 src={track.cover ? `${process.env.NEXT_PUBLIC_API_URL}/${track.cover}` : '/default-cover.png'} 

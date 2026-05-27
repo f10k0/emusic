@@ -99,7 +99,7 @@ export default function GenrePage() {
             {tracks.map((track, idx) => (
               <div key={track.id} className="track-item">
                 <div className="track-info" onClick={() => handlePlay(track)}>
-                  <span className="track-number">{idx + 1}</span>
+                  <span className="track-number">{currentTrack?.id === track.id && storeIsPlaying ? <i className="fas fa-volume-up playing-indicator"></i> : idx + 1}</span>
                   <img 
                     src={track.cover ? `${process.env.NEXT_PUBLIC_API_URL}/${track.cover}` : '/default-cover.png'} 
                     className="track-thumb" 
@@ -127,6 +127,7 @@ export default function GenrePage() {
                   <LikeButton item={track} type="tracks" initialState={track.liked} />
                   <DownloadButton trackId={track.id} trackTitle={track.title} />
                   <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                  <Link href={`/track/${track.id}`} onClick={e=>e.stopPropagation()} className="card-action-icon" style={{ textDecoration: 'none' }} title="Страница трека"><i className="fas fa-info-circle"></i></Link>
                 </div>
               </div>
             ))}

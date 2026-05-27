@@ -3,6 +3,7 @@ from sqlalchemy.orm import Session
 from typing import List, Optional
 import os
 import shutil
+import uuid
 from datetime import datetime
 
 from database import get_db
@@ -92,7 +93,14 @@ def get_playlist(
     if not playlist.is_public and (not current_user or current_user.id != playlist.user_id):
         raise HTTPException(status_code=403, detail="Private playlist")
     
-    playlist.tracks
+    # Set liked state for each track based on current user's favorites
+    if current_user:
+        for track in playlist.tracks:
+            track.liked = track in current_user.favorite_tracks
+    else:
+        for track in playlist.tracks:
+            track.liked = False
+    
     return playlist
 
 
@@ -123,6 +131,34 @@ def update_playlist(
     db.refresh(playlist)
     return playlist
 
+
+
+@router.post("/{playlist_id}/cover", response_model=schemas.PlaylistOut)
+async def upload_playlist_cover(
+    playlist_id: int,
+    file: UploadFile = File(...),
+    current_user: models.User = Depends(dependencies.get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    playlist = db.query(models.Playlist).filter(models.Playlist.id == playlist_id).first()
+    if not playlist:
+        raise HTTPException(status_code=404, detail="Playlist not found")
+    if playlist.user_id != current_user.id:
+        raise HTTPException(status_code=403, detail="Not your playlist")
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(status_code=400, detail="File must be an image")
+
+    os.makedirs("uploads/playlist_covers", exist_ok=True)
+    ext = os.path.splitext(file.filename)[1]
+    file_name = f"{uuid.uuid4()}{ext}"
+    file_path = os.path.join("uploads/playlist_covers", file_name)
+    with open(file_path, "wb") as buffer:
+        shutil.copyfileobj(file.file, buffer)
+
+    playlist.cover_image = file_path
+    db.commit()
+    db.refresh(playlist)
+    return playlist
 
 @router.post("/{playlist_id}/tracks/{track_id}")
 def add_track_to_playlist(

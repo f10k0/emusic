@@ -7,12 +7,15 @@ import useAuthStore from '../../store/authStore';
 import usePlayerStore from '../../store/playerStore';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import Link from 'next/link';
+import LikeButton from '../../components/LikeButton';
+import DownloadButton from '../../components/DownloadButton';
+import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 
 export default function MyTracks() {
   const toast = useToast();
   const router = useRouter();
   const { user } = useAuthStore();
-  const { setTrack } = usePlayerStore();
+  const { setTrack, addToQueue, dynamicQueue, currentTrack, isPlaying: storeIsPlaying } = usePlayerStore();
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -154,7 +157,8 @@ export default function MyTracks() {
                         onError={(e) => { e.target.src = '/default-cover.png'; }}
                       />
                       <div style={{ flex: 1 }}>
-                        <h4 style={{ marginBottom: '4px', cursor: 'pointer' }} onClick={() => handlePlay(track)}>
+                        <h4 style={{ marginBottom: '4px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 8 }} onClick={() => handlePlay(track)}>
+                          {currentTrack?.id === track.id && storeIsPlaying && <i className="fas fa-volume-up playing-indicator"></i>}
                           {track.title}
                         </h4>
                         <p style={{ color: 'var(--text-secondary)', fontSize: '0.9rem' }}>
@@ -163,8 +167,15 @@ export default function MyTracks() {
                         </p>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                      <button className="card-action-icon" onClick={e=>{e.stopPropagation();addToQueue(track);}} title="В очередь">
+                        <i className={`fas fa-list-ol ${dynamicQueue.some(t=>t.id===track.id)?'in-queue':''}`}></i>
+                      </button>
+                      <LikeButton item={track} type="tracks" initialState={track.liked} />
+                      <DownloadButton trackId={track.id} trackTitle={track.title} />
+                      <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
                       {getStatusBadge(track.is_published)}
+                      <Link href={`/track/${track.id}`} onClick={e=>e.stopPropagation()} className="card-action-icon" style={{ textDecoration: 'none' }} title="Страница трека"><i className="fas fa-info-circle"></i></Link>
                       <Link href={`/artist/edit-track/${track.id}`} style={{ color: 'var(--text-secondary)' }}>
                         <i className="fas fa-edit" title="Редактировать"></i>
                       </Link>

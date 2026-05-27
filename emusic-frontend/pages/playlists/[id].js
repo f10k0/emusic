@@ -222,6 +222,7 @@ export default function PlaylistDetail() {
                   <LikeButton item={track} type="tracks" initialState={track.liked} />
                   <DownloadButton trackId={track.id} trackTitle={track.title} />
                   <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                  <Link href={`/track/${track.id}`} onClick={e=>e.stopPropagation()} className="card-action-icon" style={{ textDecoration: 'none' }} title="Страница трека"><i className="fas fa-info-circle"></i></Link>
                   {isOwner && (
                     <i 
                       className="fas fa-times" 

@@ -17,7 +17,7 @@ export default function Favorites() {
   const [tracks, setTracks] = useState([]);
   const [albums, setAlbums] = useState([]);
   const [artists, setArtists] = useState([]);
-  const { setTrack, updateQueue } = usePlayerStore();
+  const { setTrack, updateQueue, addToQueue, dynamicQueue, currentTrack, isPlaying: storeIsPlaying } = usePlayerStore();
 
   useEffect(() => {
     if (user) {
@@ -76,7 +76,7 @@ export default function Favorites() {
                 tracks.map(track => (
                   <div key={track.id} className="track-item">
                     <div className="track-info" onClick={() => handlePlayTrack(track)}>
-                      <span className="track-number">▶</span>
+                      <span className="track-number">{currentTrack?.id === track.id && storeIsPlaying ? <i className="fas fa-volume-up playing-indicator"></i> : <i className="fas fa-play" style={{fontSize:'0.7rem'}}></i>}</span>
                       <img 
                         src={track.cover ? `${process.env.NEXT_PUBLIC_API_URL}/${track.cover}` : '/default-cover.png'} 
                         className="track-thumb" 
@@ -96,14 +96,13 @@ export default function Favorites() {
                       </div>
                     </div>
                     <div className="track-actions">
-                      <LikeButton 
-                        item={track} 
-                        type="tracks" 
-                        initialState={true} 
-                        onToggle={(newState) => handleToggle('tracks', track.id, newState)}
-                      />
+                      <button className="card-action-icon" onClick={e=>{e.stopPropagation();addToQueue(track);}} title="В очередь">
+                        <i className={`fas fa-list-ol ${dynamicQueue.some(t=>t.id===track.id)?'in-queue':''}`}></i>
+                      </button>
+                      <LikeButton item={track} type="tracks" initialState={true} onToggle={(newState) => handleToggle('tracks', track.id, newState)} />
                       <DownloadButton trackId={track.id} trackTitle={track.title} />
                       <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                      <Link href={`/track/${track.id}`} onClick={e=>e.stopPropagation()} className="card-action-icon" style={{ textDecoration: 'none' }} title="Страница трека"><i className="fas fa-info-circle"></i></Link>
                     </div>
                   </div>
                 ))

@@ -155,10 +155,7 @@ export default function SearchPage() {
                     <LikeButton item={track} type="tracks" initialState={track.liked}/>
                     <DownloadButton trackId={track.id} trackTitle={track.title}/>
                     <AddToPlaylistButton trackId={track.id} trackTitle={track.title}/>
-                    <button className="btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: 6 }}
-                      onClick={e => { e.stopPropagation(); addToQueue(track); }} title="В очередь">
-                      <i className="fas fa-list-ol"></i>
-                    </button>
+                    <button className="card-action-icon" onClick={e=>{e.stopPropagation();addToQueue(track);}} title="В очередь"><i className={`fas fa-list-ol ${dynamicQueue.some(t=>t.id===track.id)?'in-queue':''}`}></i></button>
                     <button className="btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: 6 }}
                       onClick={e => { e.stopPropagation(); addNext(track); }} title="Следующим">
                       <i className="fas fa-step-forward"></i>

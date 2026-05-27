@@ -207,9 +207,19 @@ export default function TrackPage() {
                   <i className={`fas ${isCurrentTrack && storeIsPlaying ? 'fa-pause' : 'fa-play'}`}></i>
                   {isCurrentTrack && storeIsPlaying ? 'Сейчас играет' : isCurrentTrack ? 'На паузе' : 'Слушать'}
                 </button>
-                <button className="btn-secondary" onClick={() => addToQueue(track)}
-                  style={{ padding: '16px 24px', fontSize: '1.15rem' }} title="Добавить в очередь">
-                  <i className="fas fa-list-ol"></i>
+                <button
+                  className="btn-secondary"
+                  onClick={() => addToQueue(track)}
+                  style={{
+                    padding: '16px 24px',
+                    fontSize: '1.15rem',
+                    color: dynamicQueue.some(t => t.id === track.id) ? 'var(--accent)' : undefined,
+                    borderColor: dynamicQueue.some(t => t.id === track.id) ? 'var(--accent)' : undefined,
+                    boxShadow: dynamicQueue.some(t => t.id === track.id) ? '0 0 12px rgba(136,51,255,0.3)' : undefined,
+                  }}
+                  title={dynamicQueue.some(t => t.id === track.id) ? 'В очереди' : 'Добавить в очередь'}
+                >
+                  <i className={`fas fa-list-ol ${dynamicQueue.some(t => t.id === track.id) ? 'in-queue' : ''}`}></i>
                 </button>
                 <LikeButton item={track} type="tracks" initialState={track.liked} />
                 <DownloadButton trackId={track.id} trackTitle={track.title} />

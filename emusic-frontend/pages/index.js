@@ -163,17 +163,15 @@ export default function Home() {
                 </div>
               </div>
               <div className="track-actions">
+                <button className="card-action-icon" onClick={(e)=>{e.stopPropagation();addToQueue(track);}} title="В очередь">
+                  <i className={`fas fa-list-ol ${dynamicQueue.some(t=>t.id===track.id)?'in-queue':''}`}></i>
+                </button>
                 <LikeButton item={track} type="tracks" initialState={track.liked} />
                 <DownloadButton trackId={track.id} trackTitle={track.title} />
-                                <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
-                <button
-                  className="btn-secondary"
-                  style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                  onClick={(e) => { e.stopPropagation(); addToQueue(track); }}
-                  title="Добавить в очередь"
-                >
-                  <i className="fas fa-list-ol"></i>
-                </button>
+                <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                <Link href={`/track/${track.id}`} onClick={e=>e.stopPropagation()} className="card-action-icon" style={{ textDecoration: 'none' }} title="Страница трека">
+                  <i className="fas fa-info-circle"></i>
+                </Link>
               </div>
             </div>
           ))}
@@ -226,10 +224,12 @@ export default function Home() {
                     </div>
                   </div>
                   <div className="track-actions">
-                    <LikeButton item={track} type="tracks" initialState={track.liked}/>
-                    <button className="btn-secondary" style={{padding:'4px 10px',fontSize:'0.75rem',borderRadius:6}} onClick={e=>{e.stopPropagation();addToQueue(track);}} title="В очередь">
-                      <i className="fas fa-list-ol"></i>
+                    <button className="card-action-icon" onClick={e=>{e.stopPropagation();addToQueue(track);}} title="В очередь">
+                      <i className={`fas fa-list-ol ${dynamicQueue.some(t=>t.id===track.id)?'in-queue':''}`}></i>
                     </button>
+                    <LikeButton item={track} type="tracks" initialState={track.liked}/>
+                    <DownloadButton trackId={track.id} trackTitle={track.title} />
+                    <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
                   </div>
                 </div>
               ))}
