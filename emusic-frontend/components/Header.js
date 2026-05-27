@@ -111,6 +111,7 @@ export default function Header() {
           <i className="fas fa-film"></i> Клипы
         </Link>
         <NewsButton />
+        <NotificationsButton />
 
         {!user ? (
           <div className="auth-buttons">
