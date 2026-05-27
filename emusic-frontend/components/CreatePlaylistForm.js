@@ -99,16 +99,21 @@ export default function CreatePlaylistForm({ onClose, onSuccess }) {
                 width: '200px',
                 height: '200px',
                 borderRadius: '12px',
-                border: '3px solid var(--accent)',
+                border: '2px dashed var(--accent)',
                 display: 'flex',
+                flexDirection: 'column',
                 alignItems: 'center',
                 justifyContent: 'center',
-                backgroundColor: 'var(--bg-secondary)',
+                gap: 10,
+                background: 'rgba(136,51,255,0.06)',
                 color: 'var(--text-muted)',
                 margin: '0 auto',
+                cursor: 'pointer',
               }}
+              onClick={() => fileInputRef.current?.click()}
             >
-              Нет обложки
+              <i className="fas fa-image" style={{ fontSize: '2.5rem', color: 'var(--accent)', opacity: 0.5 }}></i>
+              <span style={{ fontSize: '0.82rem' }}>Выбрать обложку</span>
             </div>
           )}
           <div style={{ marginTop: '10px' }}>
