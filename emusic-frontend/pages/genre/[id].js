@@ -6,7 +6,6 @@ import usePlayerStore from '../../store/playerStore';
 import LikeButton from '../../components/LikeButton';
 import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 import DownloadButton from '../../components/DownloadButton';
-import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 import Link from 'next/link';
 
 export default function GenrePage() {
