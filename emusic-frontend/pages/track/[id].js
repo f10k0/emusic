@@ -36,7 +36,7 @@ export default function TrackPage() {
   const [track, setTrack] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setTrack: playTrack, currentTrack, isPlaying: storeIsPlaying, addToQueue, dynamicQueue } = usePlayerStore();
+  const { setTrack: playTrack, currentTrack, isPlaying: storeIsPlaying, addToQueue, dynamicQueue, currentTime } = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
@@ -75,6 +75,19 @@ export default function TrackPage() {
   }
 
   const lyrics = parseLyrics(track.lyrics);
+  const isCurrentTrackPlaying = currentTrack?.id === track?.id;
+  // Auto-scroll active lyric line into view
+  useEffect(() => {
+    if (activeLine < 0) return;
+    const el = document.getElementById(`lyric-line-${activeLine}`);
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [activeLine]);
+
+  const activeLine = isCurrentTrackPlaying
+    ? lyrics.reduce((acc, line, i) => (line.time <= currentTime ? i : acc), -1)
+    : -1;
   const isCurrentTrack = currentTrack?.id === track.id;
   const isPlaying = isCurrentTrack && storeIsPlaying;
 
@@ -236,20 +249,52 @@ export default function TrackPage() {
               gap: 28,
             }}>
               {track.lyrics && (
-                <div style={{ background: 'var(--bg-elevated)', borderRadius: 18, padding: 28, border: '1px solid var(--border)' }}>
+                <div style={{ background: 'var(--bg-elevated)', borderRadius: 18, padding: 28, border: '1px solid var(--border)', position: 'relative' }}>
                   <h3 style={{ marginBottom: 16, display: 'flex', alignItems: 'center', gap: 8, fontSize: '1rem', fontWeight: 700 }}>
                     <i className="fas fa-align-left" style={{ color: 'var(--accent)' }}></i>
                     Текст трека
+                    {isCurrentTrackPlaying && (
+                      <span style={{ marginLeft: 'auto', fontSize: '0.72rem', color: 'var(--accent)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
+                        <i className="fas fa-volume-up playing-indicator" style={{ fontSize: '0.7rem' }}></i>
+                        синхронизировано
+                      </span>
+                    )}
                   </h3>
-                  <div style={{ maxHeight: 340, overflowY: 'auto', paddingRight: 4 }}>
-                    {lyrics.map((line, i) => (
-                      <div key={i} style={{
-                        marginBottom: 3, fontSize: '0.9rem', lineHeight: 1.8,
-                        color: line.text ? 'var(--text-primary)' : 'transparent',
-                      }}>
-                        {line.text || '\u00A0'}
-                      </div>
-                    ))}
+                  <div style={{ maxHeight: 380, overflowY: 'auto', paddingRight: 8 }} className="lyrics-scroll">
+                    {lyrics.map((line, i) => {
+                      const isActive = i === activeLine;
+                      const isPast = i < activeLine;
+                      const isFuture = i > activeLine;
+                      return (
+                        <div
+                          key={i}
+                          id={`lyric-line-${i}`}
+                          onClick={() => line.time != null && isCurrentTrackPlaying
+                            ? null
+                            : undefined}
+                          style={{
+                            marginBottom: 2,
+                            padding: '6px 10px',
+                            borderRadius: 10,
+                            fontSize: isActive ? '1.05rem' : '0.9rem',
+                            lineHeight: 1.8,
+                            fontWeight: isActive ? 700 : 400,
+                            color: isActive
+                              ? 'var(--text-primary)'
+                              : isPast
+                              ? 'var(--text-muted)'
+                              : line.text ? 'var(--text-secondary)' : 'transparent',
+                            background: isActive ? 'rgba(136,51,255,0.12)' : 'transparent',
+                            borderLeft: isActive ? '3px solid var(--accent)' : '3px solid transparent',
+                            transform: isActive ? 'scale(1.01)' : 'scale(1)',
+                            transition: 'all 0.3s ease',
+                            cursor: line.time != null ? 'default' : 'default',
+                          }}
+                        >
+                          {line.text || ' '}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               )}

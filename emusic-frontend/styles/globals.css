@@ -7721,3 +7721,11 @@ button[style*="border-radius:24"]:hover {
 
 /* Stat value */
 [data-theme="light"] .stat-value { background: var(--accent-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+/* ── Lyrics scroll ───────────────────────────────────────────────────*/
+.lyrics-scroll {
+    scrollbar-width: thin;
+    scrollbar-color: var(--border) transparent;
+}
+.lyrics-scroll::-webkit-scrollbar { width: 4px; }
+.lyrics-scroll::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
