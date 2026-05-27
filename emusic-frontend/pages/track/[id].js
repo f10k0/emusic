@@ -76,6 +76,11 @@ export default function TrackPage() {
 
   const lyrics = parseLyrics(track.lyrics);
   const isCurrentTrackPlaying = currentTrack?.id === track?.id;
+
+  const activeLine = isCurrentTrackPlaying
+    ? lyrics.reduce((acc, line, i) => (line.time <= currentTime ? i : acc), -1)
+    : -1;
+
   // Auto-scroll active lyric line into view
   useEffect(() => {
     if (activeLine < 0) return;
@@ -84,10 +89,6 @@ export default function TrackPage() {
       el.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }, [activeLine]);
-
-  const activeLine = isCurrentTrackPlaying
-    ? lyrics.reduce((acc, line, i) => (line.time <= currentTime ? i : acc), -1)
-    : -1;
   const isCurrentTrack = currentTrack?.id === track.id;
   const isPlaying = isCurrentTrack && storeIsPlaying;
 
