@@ -60,7 +60,7 @@ export default function AddToPlaylistButton({ trackId }) {
     }
   }, [show]);
 
-  // Закрытие при клике вне
+  // Закрытие при клике вне или скролле
   useEffect(() => {
     const handler = (e) => {
       if (
@@ -71,9 +71,14 @@ export default function AddToPlaylistButton({ trackId }) {
         setShow(false);
       }
     };
+    const handleScroll = () => { if (show) setShow(false); };
     document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handler);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
+  }, [show]);
 
   const fetchPlaylists = async () => {
     try {
@@ -118,6 +123,7 @@ export default function AddToPlaylistButton({ trackId }) {
       {show && createPortal(
         <div
           ref={dropdownRef}
+          className="add-playlist-dropdown"
           style={{
             position: 'fixed',
             top: position.top,
@@ -125,12 +131,11 @@ export default function AddToPlaylistButton({ trackId }) {
             width: '280px',
             maxHeight: '300px',
             overflowY: 'auto',
-            backgroundColor: 'var(--bg-secondary)',
+            backgroundColor: 'var(--bg-elevated)',
             border: '1px solid var(--border)',
-            borderRadius: '12px',
-            boxShadow: 'var(--shadow)',
-            zIndex: 2000,
-            ...(dropdownDirection === 'top' ? { marginTop: '-10px' } : { marginTop: '0' }),
+            borderRadius: '16px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+            zIndex: 10000,
           }}
         >
           {/* Маленькая стрелочка-указатель (опционально) */}

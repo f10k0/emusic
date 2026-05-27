@@ -211,33 +211,25 @@ export default function PlayerBar() {
               className={`control-btn ${repeat !== 'off' ? 'active' : ''}`}
               onClick={toggleRepeat}
               title={repeat === 'off' ? 'Повтор выкл' : repeat === 'all' ? 'Повтор плейлиста' : 'Повтор трека'}
-              style={{ position: 'relative' }}
+              style={{
+                position: 'relative',
+                borderRadius: '50%',
+                border: repeat === 'all' ? '2px solid var(--accent)' : '2px solid transparent',
+                padding: repeat === 'all' ? '4px' : '6px',
+                boxShadow: repeat === 'all' ? '0 0 8px rgba(136,51,255,0.4)' : 'none',
+                transition: 'border-color 0.2s, box-shadow 0.2s, padding 0.2s',
+              }}
             >
               <i className="fas fa-repeat"></i>
               {repeat === 'one' && (
-                <span className="repeat-one" style={{
-                  position: 'absolute', top: -4, right: -4,
-                  background: 'var(--accent)', color: 'white',
-                  borderRadius: '50%', width: 14, height: 14,
-                  fontSize: '0.6rem', fontWeight: 800,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  lineHeight: 1,
-                }}>1</span>
-              )}
-              {repeat === 'all' && (
                 <span style={{
-                  position: 'absolute', top: -6, right: -8,
-                  background: 'var(--accent-gradient)',
-                  color: 'white',
-                  borderRadius: 10,
-                  padding: '1px 5px',
-                  fontSize: '0.7rem',
-                  fontWeight: 900,
-                  lineHeight: '14px',
-                  letterSpacing: '-0.5px',
-                  boxShadow: '0 2px 6px rgba(136,51,255,0.5)',
-                  fontFamily: 'monospace',
-                }}>∞</span>
+                  position: 'absolute', top: -5, right: -5,
+                  background: 'var(--accent)', color: 'white',
+                  borderRadius: '50%', width: 15, height: 15,
+                  fontSize: '0.58rem', fontWeight: 900,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  lineHeight: 1, boxShadow: '0 0 6px rgba(136,51,255,0.5)',
+                }}>1</span>
               )}
             </button>
           </div>

@@ -14,9 +14,10 @@ export default function NewsButton() {
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  // Загружаем новости при старте чтобы показать badge
+  // Загружаем новости с небольшой задержкой чтобы не блокировать рендер страницы
   useEffect(() => {
-    fetchNews();
+    const timer = setTimeout(fetchNews, 500);
+    return () => clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -47,9 +48,9 @@ export default function NewsButton() {
     try {
       const res = await api.get('/news');
       const allNews = res.data || [];
-      setNews(allNews);
-      // Считаем непрочитанные
       const lastSeen = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+      // Batch: single render
+      setNews(allNews);
       setUnread(Math.max(0, allNews.length - lastSeen));
     } catch {} finally { setLoading(false); }
   };

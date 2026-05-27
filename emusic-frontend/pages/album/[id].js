@@ -5,6 +5,7 @@ import api from '../../lib/api';
 import usePlayerStore from '../../store/playerStore';
 import LikeButton from '../../components/LikeButton';
 import DownloadButton from '../../components/DownloadButton';
+import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 import Link from 'next/link';
 
 export default function AlbumPage() {
@@ -13,7 +14,7 @@ export default function AlbumPage() {
   const [album, setAlbum] = useState(null);
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setTrack } = usePlayerStore();
+  const { setTrack, addToQueue, dynamicQueue, currentTrack, isPlaying: storeIsPlaying } = usePlayerStore();
 
   useEffect(() => {
     if (id) {
@@ -96,7 +97,7 @@ export default function AlbumPage() {
             {tracks.map((track, index) => (
               <div key={track.id} className="track-item">
                 <div className="track-info" onClick={() => handlePlayTrack(track)}>
-                  <span className="track-number">{index + 1}</span>
+                  <span className="track-number">{currentTrack?.id === track.id && storeIsPlaying ? <i className="fas fa-volume-up playing-indicator"></i> : index + 1}</span>
                   <img 
                     src={track.cover ? `${process.env.NEXT_PUBLIC_API_URL}/${track.cover}` : '/default-cover.png'} 
                     className="track-thumb" 

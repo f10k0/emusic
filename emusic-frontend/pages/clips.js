@@ -484,6 +484,7 @@ export default function Clips() {
         display: 'flex',
         flexDirection: 'column',
         minHeight: 0,
+        position: 'relative',
       }}>
         {/* Поиск по клипам */}
         <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', zIndex: 30, display: 'flex', alignItems: 'center', gap: 8 }}>

@@ -21,9 +21,11 @@ export default function NotificationsButton() {
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
 
-  // Загружаем при появлении пользователя
+  // Загружаем с задержкой чтобы не блокировать рендер
   useEffect(() => {
-    if (user) fetchNotifications();
+    if (!user) return;
+    const timer = setTimeout(fetchNotifications, 800);
+    return () => clearTimeout(timer);
   }, [user]);
 
   useEffect(() => {
@@ -88,7 +90,7 @@ export default function NotificationsButton() {
       </div>
 
       {open && createPortal(
-        <div ref={dropdownRef} style={{
+        <div ref={dropdownRef} className="notifications-dropdown" style={{
           position: 'fixed',
           top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + 8 : 60,
           right: buttonRef.current ? window.innerWidth - buttonRef.current.getBoundingClientRect().right : 24,

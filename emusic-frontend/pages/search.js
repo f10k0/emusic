@@ -25,7 +25,7 @@ export default function SearchPage() {
   const [moodTracks, setMoodTracks] = useState([]);
   const [loadingMood, setLoadingMood] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
-  const { setTrack, addToQueue, addNext, updateQueue } = usePlayerStore();
+  const { setTrack, addToQueue, addNext, updateQueue, dynamicQueue, currentTrack, isPlaying: storeIsPlaying } = usePlayerStore();
 
   useEffect(() => {
     api.get('/moods/').then(r => setMoods(r.data || [])).catch(() => {});
@@ -135,7 +135,7 @@ export default function SearchPage() {
               {displayTracks.map(track => (
                 <div key={track.id} className="track-item">
                   <div className="track-info" onClick={() => setTrack(track, displayTracks)}>
-                    <span className="track-number"><i className="fas fa-play" style={{ fontSize: '0.75rem' }}></i></span>
+                    <span className="track-number">{currentTrack?.id === track.id && storeIsPlaying ? <i className="fas fa-volume-up playing-indicator"></i> : <i className="fas fa-play" style={{ fontSize: '0.75rem' }}></i>}</span>
                     <img src={track.cover ? `${API}/${track.cover}` : '/default-cover.png'}
                       className="track-thumb" alt={track.title} onError={e => e.target.src = '/default-cover.png'}/>
                     <div>

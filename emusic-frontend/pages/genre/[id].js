@@ -4,6 +4,7 @@ import Layout from '../../components/Layout';
 import api from '../../lib/api';
 import usePlayerStore from '../../store/playerStore';
 import LikeButton from '../../components/LikeButton';
+import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 import DownloadButton from '../../components/DownloadButton';
 import AddToPlaylistButton from '../../components/AddToPlaylistButton';
 import Link from 'next/link';
@@ -14,7 +15,7 @@ export default function GenrePage() {
   const [genre, setGenre] = useState(null);
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setTrack } = usePlayerStore();
+  const { setTrack, addToQueue, dynamicQueue, currentTrack, isPlaying: storeIsPlaying } = usePlayerStore();
 
   useEffect(() => {
     if (id) {
@@ -121,6 +122,9 @@ export default function GenrePage() {
                   </div>
                 </div>
                 <div className="track-actions">
+                  <button className="card-action-icon" onClick={e=>{e.stopPropagation();addToQueue(track);}} title="В очередь">
+                    <i className={`fas fa-list-ol ${dynamicQueue.some(t=>t.id===track.id)?'in-queue':''}`}></i>
+                  </button>
                   <LikeButton item={track} type="tracks" initialState={track.liked} />
                   <DownloadButton trackId={track.id} trackTitle={track.title} />
                   <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />

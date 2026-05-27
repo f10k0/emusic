@@ -36,7 +36,7 @@ export default function TrackPage() {
   const [track, setTrack] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setTrack: playTrack, currentTrack, addToQueue } = usePlayerStore();
+  const { setTrack: playTrack, currentTrack, isPlaying: storeIsPlaying, addToQueue, dynamicQueue } = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
@@ -75,7 +75,8 @@ export default function TrackPage() {
   }
 
   const lyrics = parseLyrics(track.lyrics);
-  const isPlaying = currentTrack?.id === track.id;
+  const isCurrentTrack = currentTrack?.id === track.id;
+  const isPlaying = isCurrentTrack && storeIsPlaying;
 
   return (
     <Layout>
@@ -203,8 +204,8 @@ export default function TrackPage() {
               <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', alignItems: 'center' }}>
                 <button className="btn" onClick={() => playTrack(track, [track])}
                   style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '16px 40px', fontSize: '1.15rem', fontWeight: 700 }}>
-                  <i className={`fas ${isPlaying ? 'fa-pause' : 'fa-play'}`}></i>
-                  {isPlaying ? 'Сейчас играет' : 'Слушать'}
+                  <i className={`fas ${isCurrentTrack && storeIsPlaying ? 'fa-pause' : 'fa-play'}`}></i>
+                  {isCurrentTrack && storeIsPlaying ? 'Сейчас играет' : isCurrentTrack ? 'На паузе' : 'Слушать'}
                 </button>
                 <button className="btn-secondary" onClick={() => addToQueue(track)}
                   style={{ padding: '16px 24px', fontSize: '1.15rem' }} title="Добавить в очередь">

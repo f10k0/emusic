@@ -20,44 +20,28 @@ export default function Home() {
   const [moods, setMoods] = useState([]);
   const [moodTracks, setMoodTracks] = useState({});
   const [selectedMood, setSelectedMood] = useState(null);
-  const { setTrack, updateQueue, addToQueue, addNext } = usePlayerStore();
+  const { setTrack, updateQueue, addToQueue, addNext, dynamicQueue, currentTrack, isPlaying: storeIsPlaying } = usePlayerStore();
 
   useEffect(() => {
-    fetchTopTracks();
-    fetchGenres();
-    fetchChart();
-    fetchMoods();
-  }, []);
-
-  const fetchTopTracks = async () => {
-    try {
-      const res = await api.get('/music/top?limit=20');
-      setTracks(res.data || []);
-      updateQueue(res.data || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const fetchGenres = async () => {
-    try {
-      const res = await api.get('/genres');
-      const allGenres = res.data || [];
-      setGenres(allGenres);
-      // Фильтруем выбранные жанры
+    // Batch all fetches to avoid multiple re-renders
+    Promise.all([
+      api.get('/music/top?limit=20').catch(() => ({ data: [] })),
+      api.get('/genres').catch(() => ({ data: [] })),
+      api.get('/music/chart?limit=5').catch(() => ({ data: { tracks: [] } })),
+      api.get('/moods/').catch(() => ({ data: [] })),
+    ]).then(([topRes, genresRes, chartRes, moodsRes]) => {
+      const topTracks = topRes.data || [];
+      const allGenres = genresRes.data || [];
       const featured = allGenres.filter(g => FEATURED_GENRES.includes(g.name));
+      // Single batched state update — one render only
+      setTracks(topTracks);
+      setGenres(allGenres);
       setFeaturedGenres(featured);
-    } catch (err) {
-      console.error(err);
-    }
-  };
-
-  const fetchMoods = async () => {
-    try {
-      const res = await api.get('/moods/');
-      setMoods(res.data || []);
-    } catch {}
-  };
+      setChartTracks(chartRes.data?.tracks || []);
+      setMoods(moodsRes.data || []);
+      updateQueue(topTracks);
+    });
+  }, []);
 
   const loadMoodTracks = async (mood) => {
     if (moodTracks[mood.slug]) {
@@ -79,14 +63,7 @@ export default function Home() {
     }
   };
 
-  const fetchChart = async () => {
-    try {
-      const res = await api.get('/music/chart?limit=5');
-      setChartTracks(res.data?.tracks || []);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+
 
   const handlePlay = (track) => {
     setTrack(track, tracks);
@@ -128,31 +105,19 @@ export default function Home() {
               <div className="card-play-count">
                 <i className="fas fa-headphones"></i> {track.play_count || 0}
               </div>
-              <div style={{ display: 'flex', gap: '8px', marginTop: '10px', alignItems: 'center', justifyContent: 'center' }}>
+              <div className="card-actions">
                 <LikeButton item={track} type="tracks" initialState={track.liked} />
                 <DownloadButton trackId={track.id} trackTitle={track.title} />
                 <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
-                <button className="btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                  onClick={(e) => { e.stopPropagation(); addToQueue(track); }} title="В очередь">
-                  <i className="fas fa-list-ol"></i>
-                </button>
-              </div>
-              <div style={{ textAlign: 'center', marginTop: '8px' }}>
-                <Link href={`/track/${track.id}`} onClick={e => e.stopPropagation()}
-                  style={{
-                    display: 'inline-flex', alignItems: 'center', gap: 5,
-                    color: 'var(--text-muted)', fontSize: '0.78rem',
-                    padding: '4px 14px', borderRadius: 12,
-                    border: '1px solid var(--border)',
-                    background: 'var(--bg-secondary)',
-                    textDecoration: 'none',
-                    transition: 'all 0.15s',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.color = 'var(--accent)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = 'var(--text-muted)'; e.currentTarget.style.borderColor = 'var(--border)'; }}
-                  title="Страница трека"
+                <button
+                  className="card-action-icon"
+                  onClick={(e) => { e.stopPropagation(); addToQueue(track); }}
+                  title="Добавить в очередь"
                 >
-                  <i className="fas fa-info-circle"></i> Подробнее
+                  <i className={`fas fa-list-ol ${dynamicQueue.some(t => t.id === track.id) ? 'in-queue' : ''}`}></i>
+                </button>
+                <Link href={`/track/${track.id}`} onClick={e => e.stopPropagation()} style={{ textDecoration: 'none', display: 'inline-flex' }} title="Подробнее">
+                  <i className="fas fa-info-circle" style={{ fontSize: '1.1rem', color: 'var(--text-secondary)', cursor: 'pointer' }}></i>
                 </Link>
               </div>
             </div>
@@ -172,9 +137,10 @@ export default function Home() {
           {chartTracks.map(track => (
             <div key={track.id} className="track-item">
               <div className="track-info" onClick={() => handlePlay(track)}>
-                <span className="track-number" style={{ display: 'flex', alignItems: 'center', gap: '5px' }}>
-                  {getRankIcon(track.rank)}
-                  {track.rank}
+                <span className="track-number" style={{ display: 'flex', alignItems: 'center', gap: '5px', minWidth: 40 }}>
+                  {currentTrack?.id === track.id && storeIsPlaying
+                    ? <i className="fas fa-volume-up playing-indicator"></i>
+                    : <>{getRankIcon(track.rank)}{track.rank}</>}
                 </span>
                 <img 
                   src={track.cover ? `${process.env.NEXT_PUBLIC_API_URL}/${track.cover}` : '/default-cover.png'} 

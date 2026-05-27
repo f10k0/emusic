@@ -88,7 +88,7 @@ export default function SettingsPage() {
   return (
     <ProtectedRoute>
       <Layout>
-        <div style={{ padding: '32px 24px' }}>
+        <div>
           <div className="settings-page">
             <div style={{ marginBottom: 28 }}>
               <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: 4 }}>
