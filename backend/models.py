@@ -231,6 +231,36 @@ class VideoComment(Base):
     # replies loaded manually via query in router
 
 
+class VideoLike(Base):
+    __tablename__ = 'video_likes'
+
+    user_id  = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True, nullable=False)
+    video_id = Column(Integer, ForeignKey('videos.id', ondelete='CASCADE'), primary_key=True, nullable=False)
+
+    user  = relationship('User')
+    video = relationship('Video')
+
+
+class VideoDislike(Base):
+    __tablename__ = 'video_dislikes'
+
+    user_id  = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True, nullable=False)
+    video_id = Column(Integer, ForeignKey('videos.id', ondelete='CASCADE'), primary_key=True, nullable=False)
+
+    user  = relationship('User')
+    video = relationship('Video')
+
+
+class VideoCommentLike(Base):
+    __tablename__ = 'video_comment_likes'
+
+    user_id    = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), primary_key=True, nullable=False)
+    comment_id = Column(Integer, ForeignKey('video_comments.id', ondelete='CASCADE'), primary_key=True, nullable=False)
+
+    user    = relationship('User')
+    comment = relationship('VideoComment')
+
+
 class Event(Base):
     __tablename__ = 'events'
 
@@ -258,3 +288,95 @@ class ListeningHistory(Base):
 
     user = relationship('User', back_populates='listening_history')
     track = relationship('Track', back_populates='listening_history')
+
+
+# ─────────────────────────────────────────────────────────────
+# Система уровней, достижений, квестов, магазина
+# ─────────────────────────────────────────────────────────────
+
+class UserProgress(Base):
+    """Прогресс пользователя: уровень, Ecoins, время прослушивания."""
+    __tablename__ = 'user_progress'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), unique=True, nullable=False)
+    level = Column(Integer, default=1)
+    ecoins = Column(Integer, default=0)
+    total_listen_seconds = Column(Integer, default=0)  # накопленное время в секундах
+    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
+
+    user = relationship('User', backref='progress', uselist=False)
+
+
+class ShopItem(Base):
+    """Предмет в магазине внешнего вида."""
+    __tablename__ = 'shop_items'
+
+    id = Column(Integer, primary_key=True, index=True)
+    name = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    item_type = Column(String, nullable=False)   # avatar_frame | bg | theme | nickname_color | badge
+    value = Column(String, nullable=False)        # CSS-класс, цвет, ключ темы и т.д.
+    price = Column(Integer, nullable=False)       # в Ecoins
+    rarity = Column(String, default='common')    # common | rare | epic | legendary
+    unlock_level = Column(Integer, default=0)    # минимальный уровень для показа в магазине
+    preview_css = Column(Text, nullable=True)    # инлайн CSS для превью
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+
+class UserInventory(Base):
+    """Инвентарь пользователя — купленные/полученные предметы."""
+    __tablename__ = 'user_inventory'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    item_id = Column(Integer, ForeignKey('shop_items.id', ondelete='CASCADE'), nullable=False)
+    acquired_at = Column(DateTime(timezone=True), server_default=func.now())
+    is_equipped = Column(Boolean, default=False)
+
+    user = relationship('User', backref='inventory')
+    item = relationship('ShopItem')
+
+
+class Quest(Base):
+    """Определение квеста."""
+    __tablename__ = 'quests'
+
+    id = Column(Integer, primary_key=True, index=True)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    quest_type = Column(String, nullable=False)
+    # listen_minutes | listen_tracks | listen_artist | like_tracks |
+    # add_playlist | listen_genre | complete_daily | ...
+    target_value = Column(Integer, default=1)    # сколько нужно сделать
+    target_ref = Column(String, nullable=True)   # artist_id / genre_slug и т.д.
+    ecoin_reward = Column(Integer, default=10)
+    difficulty = Column(String, default='easy')  # easy | medium | hard
+
+
+class UserDailyQuest(Base):
+    """Ежедневные квесты конкретного пользователя."""
+    __tablename__ = 'user_daily_quests'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    quest_id = Column(Integer, ForeignKey('quests.id', ondelete='CASCADE'), nullable=False)
+    date = Column(String, nullable=False)   # YYYY-MM-DD
+    progress = Column(Integer, default=0)
+    completed = Column(Boolean, default=False)
+    claimed = Column(Boolean, default=False)
+
+    user = relationship('User', backref='daily_quests')
+    quest = relationship('Quest')
+
+
+class UserAchievement(Base):
+    """Постоянные достижения пользователя."""
+    __tablename__ = 'user_achievements'
+
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey('users.id', ondelete='CASCADE'), nullable=False)
+    achievement_key = Column(String, nullable=False)  # уникальный ключ достижения
+    achieved_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship('User', backref='achievements')

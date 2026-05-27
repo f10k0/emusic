@@ -12,7 +12,7 @@ export default function Sidebar() {
 
   return (
     <div className="sidebar">
-      <Link href="/" className="logo" style={{ textDecoration: "none", cursor: "pointer" }}>
+      <Link href="/" className="logo" style={{ textDecoration: 'none', cursor: 'pointer' }}>
         <i className="fas fa-headphones-alt"></i>
         <span>eMusic</span>
       </Link>
@@ -31,6 +31,11 @@ export default function Sidebar() {
         <li>
           <Link href="/events" className={isActive('/events') ? 'active' : ''}>
             <i className="fas fa-calendar-alt"></i> Мероприятия
+          </Link>
+        </li>
+        <li>
+          <Link href="/clips" className={isActive('/clips') ? 'active' : ''}>
+            <i className="fas fa-film"></i> Клипы
           </Link>
         </li>
       </ul>
@@ -73,7 +78,36 @@ export default function Sidebar() {
         </ul>
       </div>
 
-
+      {user && (
+        <>
+          <div className="sidebar-divider"></div>
+          <div className="sidebar-section">
+            <h3>Профиль</h3>
+            <ul>
+              <li>
+                <Link href="/profile" className={isActive('/profile') ? 'active' : ''}>
+                  <i className="fas fa-user"></i> Мой профиль
+                </Link>
+              </li>
+              <li>
+                <Link href="/profile/quests" className={isActive('/profile/quests') ? 'active' : ''}>
+                  <i className="fas fa-scroll"></i> Квесты и магазин
+                </Link>
+              </li>
+              <li>
+                <Link href="/profile/stats" className={isActive('/profile/stats') ? 'active' : ''}>
+                  <i className="fas fa-chart-bar"></i> Статистика
+                </Link>
+              </li>
+              <li>
+                <Link href="/profile/settings" className={isActive('/profile/settings') ? 'active' : ''}>
+                  <i className="fas fa-cog"></i> Настройки
+                </Link>
+              </li>
+            </ul>
+          </div>
+        </>
+      )}
 
       {user && user.role === 'user' && (
         <>
@@ -129,7 +163,7 @@ export default function Sidebar() {
               </li>
               <li>
                 <Link href="/artist/settings" className={isActive('/artist/settings') ? 'active' : ''}>
-                  <i className="fas fa-cog"></i> Настройки профиля
+                  <i className="fas fa-sliders-h"></i> Настройки профиля
                 </Link>
               </li>
               <li>
@@ -146,11 +180,11 @@ export default function Sidebar() {
         <>
           <div className="sidebar-divider"></div>
           <div className="sidebar-section">
-            <h3>Админ</h3>
+            <h3>Администрирование</h3>
             <ul>
               <li>
                 <Link href="/admin/submissions" className={isActive('/admin/submissions') ? 'active' : ''}>
-                  <i className="fas fa-tasks"></i> Модерация
+                  <i className="fas fa-tasks"></i> Модерация треков
                 </Link>
               </li>
               <li>
@@ -160,7 +194,7 @@ export default function Sidebar() {
               </li>
               <li>
                 <Link href="/admin/console" className={isActive('/admin/console') ? 'active' : ''}>
-                  <i className="fas fa-chart-line"></i> Админ-консоль
+                  <i className="fas fa-chart-line"></i> Консоль аналитики
                 </Link>
               </li>
               <li>
@@ -176,6 +210,21 @@ export default function Sidebar() {
               <li>
                 <Link href="/admin/news" className={isActive('/admin/news') ? 'active' : ''}>
                   <i className="fas fa-newspaper"></i> Новости
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin/gamification" className={isActive('/admin/gamification') ? 'active' : ''}>
+                  <i className="fas fa-trophy"></i> Геймификация
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin/quests" className={isActive('/admin/quests') ? 'active' : ''}>
+                  <i className="fas fa-scroll"></i> Управление квестами
+                </Link>
+              </li>
+              <li>
+                <Link href="/admin/shop" className={isActive('/admin/shop') ? 'active' : ''}>
+                  <i className="fas fa-store"></i> Управление магазином
                 </Link>
               </li>
             </ul>

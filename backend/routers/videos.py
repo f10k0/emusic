@@ -414,6 +414,18 @@ def delete_video(
     artist = db.query(models.Artist).filter(models.Artist.user_id == current_user.id).first()
     if current_user.role != "admin" and (not artist or artist.id != v.artist_id):
         raise HTTPException(403)
+    # Clean up related rows before deleting (in case ON DELETE CASCADE not yet applied)
+    try:
+        db.execute(text("DELETE FROM video_likes WHERE video_id=:v"), {"v": video_id})
+        db.execute(text("DELETE FROM video_dislikes WHERE video_id=:v"), {"v": video_id})
+        # Delete comment likes for this video's comments
+        db.execute(text(
+            "DELETE FROM video_comment_likes WHERE comment_id IN "
+            "(SELECT id FROM video_comments WHERE video_id=:v)"
+        ), {"v": video_id})
+        db.flush()
+    except Exception:
+        pass
     db.delete(v)
     db.commit()
     return {"ok": True}

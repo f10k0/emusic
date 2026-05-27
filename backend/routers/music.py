@@ -5,6 +5,7 @@ from sqlalchemy import func as sqlfunc
 from typing import Optional
 import os
 from datetime import datetime, timedelta
+from urllib.parse import quote
 
 from database import get_db
 import models, schemas, dependencies
@@ -120,9 +121,11 @@ def download_track(
     file_path = track.file_path
     if not os.path.exists(file_path):
         raise HTTPException(status_code=404, detail="File not found")
+    safe_filename = quote(f"{track.title}.mp3", safe='')
     return FileResponse(
-        file_path, media_type="audio/mpeg", filename=f"{track.title}.mp3",
-        headers={"Content-Disposition": f"attachment; filename={track.title}.mp3"}
+        file_path,
+        media_type="audio/mpeg",
+        headers={"Content-Disposition": f"attachment; filename*=UTF-8''{safe_filename}"}
     )
 
 

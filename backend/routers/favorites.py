@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from database import get_db
 import models, schemas, dependencies
+from datetime import date as _date
 
 router = APIRouter(prefix="/favorites", tags=["favorites"])
 
@@ -22,6 +23,22 @@ def toggle_favorite_track(
     else:
         current_user.favorite_tracks.append(track)
         db.commit()
+        # ── Auto-update like_tracks quest progress ──
+        try:
+            today = str(_date.today())
+            daily_quests = db.query(models.UserDailyQuest).filter_by(
+                user_id=current_user.id, date=today, claimed=False
+            ).all()
+            total_likes = len(current_user.favorite_tracks)
+            for dq in daily_quests:
+                if dq.completed or dq.quest.quest_type != 'like_tracks':
+                    continue
+                dq.progress = min(total_likes, dq.quest.target_value)
+                if dq.progress >= dq.quest.target_value:
+                    dq.completed = True
+            db.commit()
+        except Exception:
+            pass
         return {"message": "Track added to favorites"}
 
 # Добавление/удаление альбома в избранное

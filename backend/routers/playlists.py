@@ -51,6 +51,25 @@ async def create_playlist(
     db.add(new_playlist)
     db.commit()
     db.refresh(new_playlist)
+
+    # ── Auto-update add_playlist quest progress ──
+    try:
+        from datetime import date as _date
+        today = str(_date.today())
+        total_playlists = db.query(models.Playlist).filter_by(user_id=current_user.id).count()
+        daily_quests = db.query(models.UserDailyQuest).filter_by(
+            user_id=current_user.id, date=today, claimed=False
+        ).all()
+        for dq in daily_quests:
+            if dq.completed or dq.quest.quest_type != 'add_playlist':
+                continue
+            dq.progress = min(total_playlists, dq.quest.target_value)
+            if dq.progress >= dq.quest.target_value:
+                dq.completed = True
+        db.commit()
+    except Exception:
+        pass
+
     return new_playlist
 
 

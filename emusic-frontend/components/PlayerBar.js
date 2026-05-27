@@ -1,14 +1,18 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import api from '../lib/api';
 import useSettingsStore from '../store/settingsStore';
 import usePlayerStore from '../store/playerStore';
+import useAuthStore from '../store/authStore';
 import { formatTime } from '../lib/utils';
 import Link from 'next/link';
 import LyricsModal from './LyricsModal';
 import QueuePanel from './QueuePanel';
+import EqualizerModal from './EqualizerModal';
 
 export default function PlayerBar() {
   const audioRef = useRef(null);
   const { connectAudio, settings } = useSettingsStore();
+  const { playbackRate } = useSettingsStore();
   const prevTrackIdRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggingVolume, setIsDraggingVolume] = useState(false);
@@ -17,6 +21,7 @@ export default function PlayerBar() {
   const queuePanelRef = useRef(null);
   const queueBtnRef = useRef(null);
   const [showLyrics, setShowLyrics] = useState(false);
+  const [showEqualizer, setShowEqualizer] = useState(false);
 
   const {
     currentTrack, isPlaying, volume, currentTime, duration, seekTo, clearSeekTo,
@@ -57,6 +62,7 @@ export default function PlayerBar() {
     prevTrackIdRef.current = trackId;
     audio.src = `${process.env.NEXT_PUBLIC_API_URL}/music/listen/${trackId}`;
     audio.load();
+    audio.playbackRate = playbackRate;
     if (isPlaying) {
       const p = audio.play();
       if (p !== undefined) p.catch(err => {
@@ -128,7 +134,50 @@ export default function PlayerBar() {
     }
   };
 
+  const listenStartRef = useRef(null);
+
+  // Track when playback starts
+  useEffect(() => {
+    if (isPlaying && currentTrack) {
+      if (!listenStartRef.current) listenStartRef.current = Date.now();
+    } else {
+      if (listenStartRef.current && currentTrack) {
+        const seconds = Math.floor((Date.now() - listenStartRef.current) / 1000);
+        listenStartRef.current = null;
+        if (seconds >= 10) reportListenTime(seconds, currentTrack);
+      }
+    }
+  }, [isPlaying, currentTrack?.id]);
+
+  // Report listen time on track change
+  useEffect(() => {
+    return () => {
+      if (listenStartRef.current && currentTrack) {
+        const seconds = Math.floor((Date.now() - listenStartRef.current) / 1000);
+        listenStartRef.current = null;
+        if (seconds >= 10) reportListenTime(seconds, currentTrack);
+      }
+    };
+  }, [currentTrack?.id]);
+
+  const reportListenTime = async (seconds, track) => {
+    try {
+      const { user } = useAuthStore.getState();
+      if (!user) return;
+      const genre = track?.genre_name || track?.genre || null;
+      await api.post('/gamification/progress/add-listen-time', null, {
+        params: { seconds: Math.min(seconds, 3600), ...(genre ? { genre } : {}) }
+      });
+    } catch {}
+  };
+
   const handleEnded = () => {
+    // Report listen time for completed track
+    if (listenStartRef.current && currentTrack) {
+      const seconds = Math.floor((Date.now() - listenStartRef.current) / 1000);
+      listenStartRef.current = null;
+      if (seconds >= 10) reportListenTime(seconds, currentTrack);
+    }
     if (repeat === 'one') {
       if (audioRef.current) { audioRef.current.currentTime = 0; audioRef.current.play().catch(console.error); }
     } else {
@@ -276,6 +325,13 @@ export default function PlayerBar() {
           >
             <i className="fas fa-list-ol"></i>
           </button>
+          <button
+            className={`control-btn ${showEqualizer ? 'active' : ''}`}
+            onClick={() => setShowEqualizer(v => !v)}
+            title="Эквалайзер и звук"
+          >
+            <i className="fas fa-sliders-h"></i>
+          </button>
         </div>
       </div>
 
@@ -286,6 +342,8 @@ export default function PlayerBar() {
           onClose={() => setShowLyrics(false)}
         />
       )}
+
+      {showEqualizer && <EqualizerModal onClose={() => setShowEqualizer(false)} />}
 
       {showQueue && <QueuePanel ref={queuePanelRef} />}
     </>

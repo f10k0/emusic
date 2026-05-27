@@ -300,7 +300,7 @@ function ClipSlide({ video: initialVideo, isActive }) {
           inset: 0,
           width: '100%',
           height: '100%',
-          objectFit: 'contain',   // contain чтобы не обрезать горизонтальное видео
+          objectFit: 'cover',
           cursor: 'pointer',
           zIndex: 1,
         }}

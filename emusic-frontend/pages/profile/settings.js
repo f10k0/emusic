@@ -117,16 +117,7 @@ export default function SettingsPage() {
                     </div>
                     <Toggle checked={settings.hide_adult} onChange={v => set('hide_adult', v)} />
                   </div>
-                  <div className="settings-item">
-                    <div>
-                      <div className="settings-item-label"><i className="fas fa-palette" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Тема оформления</div>
-                    </div>
-                    <select className="settings-select" value={settings.theme} onChange={e => set('theme', e.target.value)}>
-                      <option value="dark">Тёмная</option>
-                      <option value="light">Светлая</option>
-                      <option value="system">Системная</option>
-                    </select>
-                  </div>
+
                 </div>
               </>
             )}

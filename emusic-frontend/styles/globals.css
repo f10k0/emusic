@@ -39,7 +39,7 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
 .app-container {
     display: grid;
     grid-template-columns: 260px 1fr;
-    grid-template-rows: 1fr auto;
+    grid-template-rows: 1fr;
     min-height: 100vh;
 }
 
@@ -5772,14 +5772,14 @@ body.modal-open {
 /* ── Клипы (Clips) ────────────────────────────────────────── */
 .clips-page {
   position: relative;
-  height: calc(100vh - 90px);
+  height: 100vh;
   overflow-y: scroll;
   scroll-snap-type: y mandatory;
   background: #000;
 }
 .clip-slide {
   position: relative;
-  height: calc(100vh - 90px);
+  height: 100vh;
   scroll-snap-align: start;
   display: flex;
   align-items: center;
@@ -6254,8 +6254,36 @@ body.modal-open {
   overflow: hidden !important;
   display: flex;
   flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  background: #000 !important;
+  position: relative;
+  /* Remove any top/bottom gaps */
+  margin: 0;
 }
 .main-content--fullscreen .content-header { display: none; }
+
+/* Clips page: app-container must not scroll and sidebar must be fixed height */
+.clips-layout .app-container {
+  height: 100vh;
+  overflow: hidden;
+}
+.clips-layout .sidebar {
+  height: 100vh;
+  overflow-y: auto;
+}
+
+/* Ensure clips-page fills the entire main-content area with zero gaps */
+.main-content--fullscreen .clips-page {
+  flex: 1;
+  height: 100vh;
+  max-height: 100vh;
+  margin: 0;
+  padding: 0;
+}
+.main-content--fullscreen .clip-slide {
+  height: 100vh;
+}
 
 /* ── Dropdown dividers & section labels ────────────────────── */
 .dropdown-divider {
@@ -7798,3 +7826,319 @@ button[style*="border-radius:24"]:hover {
     border-color: var(--accent);
     color: var(--accent);
 }
+
+/* ================================================================
+   SHOP ITEM VISUAL EFFECTS
+   Applied via data-* attributes on <body> and profile elements
+   ================================================================ */
+
+/* ── Avatar Frames ─────────────────────────────────────────── */
+.avatar-frame-gold img,
+.profile-avatar.frame-gold img {
+    box-shadow: 0 0 0 4px #ffb300, 0 0 20px #ffb30066;
+    border-radius: 50%;
+}
+.avatar-frame-neon img,
+.profile-avatar.frame-neon img {
+    box-shadow: 0 0 0 4px #00e5ff, 0 0 20px #00e5ff66;
+    border-radius: 50%;
+}
+.avatar-frame-silver img,
+.profile-avatar.frame-silver img {
+    box-shadow: 0 0 0 4px #bdbdbd, 0 0 12px #bdbdbd55;
+    border-radius: 50%;
+}
+.avatar-frame-fire img,
+.profile-avatar.frame-fire img {
+    box-shadow: 0 0 0 4px #ff5722, 0 0 24px #ff572288, 0 0 40px #ff572244;
+    border-radius: 50%;
+}
+
+/* ── Nickname Colors ───────────────────────────────────────── */
+.nick-gold {
+    color: #ffb300 !important;
+    -webkit-text-fill-color: #ffb300 !important;
+}
+.nick-neon {
+    color: #00e5ff !important;
+    -webkit-text-fill-color: #00e5ff !important;
+}
+.nick-rainbow {
+    background: linear-gradient(90deg, #f00, #ff7700, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #f00) !important;
+    background-size: 200% auto !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    background-clip: text !important;
+    animation: rainbow-shift 3s linear infinite;
+}
+@keyframes rainbow-shift {
+    to { background-position: 200% center; }
+}
+
+/* ── Profile Backgrounds ───────────────────────────────────── */
+[data-profile-bg="bg-galaxy"] .profile-header {
+    background: radial-gradient(ellipse at 20% 50%, #1a0533 0%, #0d0221 40%, #000510 100%) !important;
+    position: relative;
+    overflow: hidden;
+}
+[data-profile-bg="bg-galaxy"] .profile-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(1px 1px at 20% 30%, white 100%, transparent),
+        radial-gradient(1px 1px at 80% 10%, white 100%, transparent),
+        radial-gradient(1.5px 1.5px at 50% 60%, #b388ff 100%, transparent),
+        radial-gradient(1px 1px at 10% 80%, white 100%, transparent),
+        radial-gradient(2px 2px at 70% 70%, #7c4dff 100%, transparent),
+        radial-gradient(1px 1px at 35% 45%, white 100%, transparent),
+        radial-gradient(1px 1px at 90% 50%, white 100%, transparent),
+        radial-gradient(1.5px 1.5px at 60% 20%, #e040fb 100%, transparent);
+    opacity: 0.8;
+    pointer-events: none;
+}
+
+[data-profile-bg="bg-neoncity"] .profile-header {
+    background: linear-gradient(180deg, #0a0015 0%, #1a0030 40%, #2d0050 70%, #0d1a40 100%) !important;
+    position: relative;
+    overflow: hidden;
+}
+[data-profile-bg="bg-neoncity"] .profile-header::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+        linear-gradient(90deg, transparent 48%, #ff006633 49%, transparent 50%),
+        linear-gradient(90deg, transparent 68%, #00ffff22 69%, transparent 70%),
+        linear-gradient(90deg, transparent 28%, #ff00ff22 29%, transparent 30%);
+    pointer-events: none;
+}
+
+[data-profile-bg="bg-forest"] .profile-header {
+    background: linear-gradient(160deg, #0a1f0a 0%, #1a3a1a 40%, #0d2b0d 100%) !important;
+    box-shadow: inset 0 0 60px rgba(0, 80, 0, 0.3);
+}
+
+[data-profile-bg="bg-ocean"] .profile-header {
+    background: linear-gradient(160deg, #001a33 0%, #003366 40%, #004080 60%, #002244 100%) !important;
+    box-shadow: inset 0 0 60px rgba(0, 100, 200, 0.2);
+}
+
+/* ── Site Themes ───────────────────────────────────────────── */
+[data-theme="theme-space"] {
+    --bg: #050510;
+    --bg-secondary: #0d0d22;
+    --border: #1a1a3a;
+    --accent: #7c4dff;
+    --text: #e0e0ff;
+    --text-secondary: #8888aa;
+    --hover: rgba(124,77,255,0.15);
+}
+[data-theme="theme-space"] body {
+    background: radial-gradient(ellipse at top, #0d0d2b 0%, #050510 60%) !important;
+}
+
+[data-theme="theme-sunset"] {
+    --bg: #1a0510;
+    --bg-secondary: #2d0a1f;
+    --border: #4a1a33;
+    --accent: #ff4081;
+    --text: #ffe0ee;
+    --text-secondary: #cc8899;
+    --hover: rgba(255,64,129,0.15);
+}
+[data-theme="theme-sunset"] body {
+    background: linear-gradient(135deg, #1a0510 0%, #2d0a1f 50%, #1a1020 100%) !important;
+}
+
+/* ── Badges ────────────────────────────────────────────────── */
+.equipped-badge-audiophile::after {
+    content: '♪ Меломан';
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #8833ff, #b377ff);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+.equipped-badge-explorer::after {
+    content: '◎ Первооткрыватель';
+    display: inline-flex;
+    align-items: center;
+    margin-left: 8px;
+    padding: 2px 10px;
+    border-radius: 20px;
+    background: linear-gradient(135deg, #00b4d8, #0077b6);
+    color: white;
+    font-size: 0.72rem;
+    font-weight: 600;
+    vertical-align: middle;
+}
+
+/* ================================================================
+   SHOP THEMES — applied via data-theme on <html>
+   Values: "sunset" | "forest" | "space"
+   ================================================================ */
+
+/* ── Sunset theme: warm orange-pink ─────────────────────────── */
+[data-theme="sunset"] {
+    --bg-primary:    #1a0808;
+    --bg-secondary:  #2d1010;
+    --bg-elevated:   #3d1818;
+    --accent:        #ff6b35;
+    --accent-light:  #ff9a6c;
+    --accent-gradient: linear-gradient(135deg, #ff6b35, #ff4081);
+    --text-primary:  #ffe8e0;
+    --text-secondary: #cc9988;
+    --text-muted:    #995566;
+    --border:        #5a2020;
+    --hover:         #3a1515;
+    --player-bg:     rgba(45, 16, 16, 0.97);
+    --shadow:        0 10px 30px rgba(255, 107, 53, 0.3);
+    --card-hover:    0 15px 35px rgba(255, 107, 53, 0.25);
+    --like-active:   #ff4d6d;
+}
+[data-theme="sunset"] body,
+[data-theme="sunset"] .main-content {
+    background: linear-gradient(160deg, #1a0808 0%, #2a0d0d 50%, #1a0a12 100%) !important;
+}
+[data-theme="sunset"] .sidebar {
+    background: #200c0c !important;
+    border-right-color: #5a2020 !important;
+}
+[data-theme="sunset"] .player-bar {
+    background: rgba(45, 16, 16, 0.97) !important;
+    border-top-color: #5a2020 !important;
+}
+[data-theme="sunset"] .card {
+    background: #2d1010 !important;
+    border-color: #5a2020 !important;
+}
+[data-theme="sunset"] .card:hover {
+    border-color: #ff6b35 !important;
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.2) !important;
+}
+[data-theme="sunset"] .track-item {
+    background: #2d1010 !important;
+    border-color: #5a2020 !important;
+}
+[data-theme="sunset"] .track-item:hover { background: #3a1515 !important; }
+[data-theme="sunset"] .nav-links a.active,
+[data-theme="sunset"] .sidebar-section ul li a.active {
+    background: linear-gradient(135deg, #ff6b35, #ff4081) !important;
+}
+[data-theme="sunset"] .search-bar { background: #2d1010 !important; border-color: #5a2020 !important; }
+[data-theme="sunset"] .search-bar input { color: #ffe8e0 !important; }
+[data-theme="sunset"] #role-badge { background: linear-gradient(135deg, #ff6b35, #ff4081) !important; }
+[data-theme="sunset"] .progress-bar-fill,
+[data-theme="sunset"] .level-progress-bar { background: #ff6b35 !important; }
+
+/* ── Forest theme: deep dark green ──────────────────────────── */
+[data-theme="forest"] {
+    --bg-primary:    #050f08;
+    --bg-secondary:  #0d1f12;
+    --bg-elevated:   #152b1c;
+    --accent:        #2ecc71;
+    --accent-light:  #58d68d;
+    --accent-gradient: linear-gradient(135deg, #27ae60, #2ecc71);
+    --text-primary:  #e0ffe8;
+    --text-secondary: #88bb99;
+    --text-muted:    #557766;
+    --border:        #1a3a22;
+    --hover:         #152b1c;
+    --player-bg:     rgba(13, 31, 18, 0.97);
+    --shadow:        0 10px 30px rgba(46, 204, 113, 0.2);
+    --card-hover:    0 15px 35px rgba(46, 204, 113, 0.2);
+    --like-active:   #ff6b6b;
+}
+[data-theme="forest"] body,
+[data-theme="forest"] .main-content {
+    background: linear-gradient(160deg, #050f08 0%, #0a1f10 50%, #050f0a 100%) !important;
+}
+[data-theme="forest"] .sidebar {
+    background: #061208 !important;
+    border-right-color: #1a3a22 !important;
+}
+[data-theme="forest"] .player-bar {
+    background: rgba(13, 31, 18, 0.97) !important;
+    border-top-color: #1a3a22 !important;
+}
+[data-theme="forest"] .card {
+    background: #0d1f12 !important;
+    border-color: #1a3a22 !important;
+}
+[data-theme="forest"] .card:hover {
+    border-color: #2ecc71 !important;
+    box-shadow: 0 8px 24px rgba(46, 204, 113, 0.15) !important;
+}
+[data-theme="forest"] .track-item {
+    background: #0d1f12 !important;
+    border-color: #1a3a22 !important;
+}
+[data-theme="forest"] .track-item:hover { background: #152b1c !important; }
+[data-theme="forest"] .nav-links a.active,
+[data-theme="forest"] .sidebar-section ul li a.active {
+    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+}
+[data-theme="forest"] .search-bar { background: #0d1f12 !important; border-color: #1a3a22 !important; }
+[data-theme="forest"] .search-bar input { color: #e0ffe8 !important; }
+[data-theme="forest"] #role-badge { background: linear-gradient(135deg, #27ae60, #2ecc71) !important; }
+[data-theme="forest"] .progress-bar-fill,
+[data-theme="forest"] .level-progress-bar { background: #2ecc71 !important; }
+
+/* ── Space theme: deep navy with purple accents ──────────────── */
+[data-theme="space"] {
+    --bg-primary:    #02020d;
+    --bg-secondary:  #07071a;
+    --bg-elevated:   #0e0e2a;
+    --accent:        #7c4dff;
+    --accent-light:  #b39ddb;
+    --accent-gradient: linear-gradient(135deg, #7c4dff, #e040fb);
+    --text-primary:  #e8e8ff;
+    --text-secondary: #8888cc;
+    --text-muted:    #555588;
+    --border:        #141430;
+    --hover:         #0e0e2a;
+    --player-bg:     rgba(7, 7, 26, 0.97);
+    --shadow:        0 10px 30px rgba(124, 77, 255, 0.4);
+    --card-hover:    0 15px 35px rgba(124, 77, 255, 0.3);
+    --like-active:   #e040fb;
+}
+[data-theme="space"] body,
+[data-theme="space"] .main-content {
+    background: radial-gradient(ellipse at top, #0e0e2a 0%, #02020d 60%) !important;
+}
+[data-theme="space"] .sidebar {
+    background: #04041a !important;
+    border-right-color: #141430 !important;
+}
+[data-theme="space"] .player-bar {
+    background: rgba(7, 7, 26, 0.97) !important;
+    border-top-color: #141430 !important;
+}
+[data-theme="space"] .card {
+    background: #07071a !important;
+    border-color: #141430 !important;
+}
+[data-theme="space"] .card:hover {
+    border-color: #7c4dff !important;
+    box-shadow: 0 8px 24px rgba(124, 77, 255, 0.25) !important;
+}
+[data-theme="space"] .track-item {
+    background: #07071a !important;
+    border-color: #141430 !important;
+}
+[data-theme="space"] .track-item:hover { background: #0e0e2a !important; }
+[data-theme="space"] .nav-links a.active,
+[data-theme="space"] .sidebar-section ul li a.active {
+    background: linear-gradient(135deg, #7c4dff, #e040fb) !important;
+}
+[data-theme="space"] .search-bar { background: #07071a !important; border-color: #141430 !important; }
+[data-theme="space"] .search-bar input { color: #e8e8ff !important; }
+[data-theme="space"] #role-badge { background: linear-gradient(135deg, #7c4dff, #e040fb) !important; }
+[data-theme="space"] .progress-bar-fill,
+[data-theme="space"] .level-progress-bar { background: #7c4dff !important; }
