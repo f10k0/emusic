@@ -96,6 +96,7 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
 /* Sidebar */
 .sidebar {
     background: var(--sidebar-bg);
+    border-right: 1px solid var(--border);
     padding: 28px 16px;
     display: flex;
     flex-direction: column;
@@ -240,10 +241,14 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
 .header-left h1 {
     font-size: 2.2rem;
     font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 4px;
+}
+
+[data-theme="dark"] .header-left h1 {
     background: linear-gradient(135deg, #fff, #d0b0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    margin-bottom: 4px;
 }
 
 .header-date {
@@ -424,11 +429,15 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
     font-size: 1.5rem;
     margin-bottom: 20px;
     font-weight: 600;
+    color: var(--text-primary);
+    display: inline-block;
+    position: relative;
+}
+
+[data-theme="dark"] .section h2 {
     background: linear-gradient(135deg, #fff, #e0b0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    display: inline-block;
-    position: relative;
 }
 
 .section h2::after {
@@ -450,17 +459,17 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
 }
 
 .card {
-    background: linear-gradient(145deg, var(--bg-elevated), #1e1e2a);
+    background: var(--bg-card);
     border-radius: 20px;
     padding: 16px;
     transition: all 0.3s ease-in-out;
     cursor: pointer;
-    border: 1px solid transparent;
+    border: 1px solid var(--border);
     text-decoration: none;
-    color: inherit;
+    color: var(--text-primary);
     display: block;
     position: relative;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    box-shadow: var(--shadow);
     animation: fadeInUp 0.5s ease forwards;
 }
 
@@ -539,10 +548,12 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    color: var(--text-primary);
 }
 
 .card-sub {
     font-size: 0.8rem;
+    color: var(--text-secondary);
     color: var(--text-secondary);
 }
 
@@ -625,6 +636,7 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
 .track-name {
     font-weight: 500;
     margin-bottom: 4px;
+    color: var(--text-primary);
 }
 
 .track-artist {
@@ -761,10 +773,13 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
     font-size: 3rem;
     font-weight: 700;
     margin-bottom: 12px;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+[data-theme="dark"] .playlist-info h2 {
     background: linear-gradient(135deg, #fff, #e0c0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
-    line-height: 1.2;
 }
 
 .playlist-stats {
@@ -848,6 +863,9 @@ a, button, i, .card, .track-item, .btn, .btn-secondary {
 .profile-info h2 {
     font-size: 2.5rem;
     margin-bottom: 8px;
+    color: var(--text-primary);
+}
+[data-theme="dark"] .profile-info h2 {
     background: linear-gradient(135deg, #fff, #e0b0ff);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -6551,3 +6569,182 @@ body.modal-open {
     border-color: var(--border);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
+
+/* ══════════════════════════════════════════════════════════════════════════
+   LIGHT THEME — COMPREHENSIVE OVERRIDES
+   Covers every element that has hardcoded dark styling
+══════════════════════════════════════════════════════════════════════════ */
+
+/* --- Page background & body --- */
+[data-theme="light"] body { background: var(--bg-primary); color: var(--text-primary); }
+
+/* --- Sidebar --- */
+[data-theme="light"] .sidebar { background: #ffffff; border-right: 1px solid #e0e0ec; }
+[data-theme="light"] .sidebar-logo h1 { color: var(--accent); }
+[data-theme="light"] .sidebar-section h3 { color: var(--text-muted); }
+[data-theme="light"] .sidebar-section ul li a { color: #3a3a5a; }
+[data-theme="light"] .sidebar-section ul li a:hover { background: rgba(136,51,255,0.07); color: var(--accent); }
+[data-theme="light"] .sidebar-section ul li a.active { background: var(--accent-gradient) !important; color: white !important; }
+[data-theme="light"] .sidebar-section ul li a.active i { color: white !important; filter: none; }
+[data-theme="light"] .sidebar-divider { background: linear-gradient(90deg, transparent, #d0d0e8, transparent); }
+
+/* --- Main content area --- */
+[data-theme="light"] .main-content { background: #f0f0f5; }
+[data-theme="light"] .content-header h1,
+[data-theme="light"] .header-left h1 { color: var(--text-primary); }
+
+/* --- Header right --- */
+[data-theme="light"] .search-bar { background: #ffffff; border-color: #d0d0e0; }
+[data-theme="light"] .search-bar:hover { border-color: var(--accent); }
+[data-theme="light"] .search-bar input { color: var(--text-primary); }
+[data-theme="light"] .search-bar i { color: var(--text-muted); }
+[data-theme="light"] .news-button { background: #ffffff; border: 1px solid #d0d0e0; color: #3a3a5a; }
+[data-theme="light"] .news-button:hover { border-color: var(--accent); color: var(--accent); }
+[data-theme="light"] .user-menu-trigger { background: #ffffff; border: 1px solid #d0d0e0; color: #3a3a5a; }
+[data-theme="light"] .user-menu-trigger:hover { border-color: var(--accent); }
+
+/* --- Cards --- */
+[data-theme="light"] .card { background: #ffffff; border-color: #e0e0ec; box-shadow: 0 2px 10px rgba(0,0,0,0.07); color: #1a1a2e; }
+[data-theme="light"] .card:hover { box-shadow: 0 8px 24px rgba(136,51,255,0.15); border-color: var(--accent); }
+[data-theme="light"] .card-title { color: #1a1a2e; }
+[data-theme="light"] .card-sub { color: #5a5a7a; }
+[data-theme="light"] .card-play-count { color: var(--text-muted); }
+
+/* --- Track list --- */
+[data-theme="light"] .track-item { background: #ffffff; border: 1px solid #e8e8f0; }
+[data-theme="light"] .track-item:hover { background: #f0f0fa; }
+[data-theme="light"] .track-name { color: #1a1a2e; }
+[data-theme="light"] .track-artist a { color: var(--accent); }
+[data-theme="light"] .track-play-count { color: var(--text-muted); }
+[data-theme="light"] .track-number { color: var(--text-muted); }
+
+/* --- Player bar --- */
+[data-theme="light"] .player-bar { background: rgba(255,255,255,0.98) !important; border-top: 1px solid #e0e0ec; box-shadow: 0 -2px 16px rgba(0,0,0,0.08); }
+[data-theme="light"] .track-title { color: #1a1a2e; }
+[data-theme="light"] .track-artist { color: #5a5a7a; }
+[data-theme="light"] .control-btn { color: #5a5a7a; }
+[data-theme="light"] .control-btn:hover { color: #1a1a2e; }
+[data-theme="light"] .control-btn.active { color: var(--accent); }
+[data-theme="light"] .progress-bar { background: #e0e0ec; }
+[data-theme="light"] .volume-bar { background: #e0e0ec; }
+[data-theme="light"] .time-current, [data-theme="light"] .time-total { color: var(--text-muted); }
+
+/* --- Dropdowns --- */
+[data-theme="light"] .dropdown { background: #ffffff; border-color: #e0e0ec; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+[data-theme="light"] .dropdown a { color: #3a3a5a; }
+[data-theme="light"] .dropdown a:hover { background: #f0f0fa; color: var(--accent); }
+[data-theme="light"] .dropdown-divider { background: #e8e8f0; }
+[data-theme="light"] .dropdown-section-label { color: var(--text-muted); }
+
+/* --- Modals --- */
+[data-theme="light"] .modal-content { background: #ffffff; border-color: #e0e0ec; }
+[data-theme="light"] .modal-header h2 { color: #1a1a2e; }
+[data-theme="light"] .modal-header h3 { color: #1a1a2e; }
+[data-theme="light"] .modal-overlay { background: rgba(0,0,0,0.4); }
+
+/* --- Forms --- */
+[data-theme="light"] .form-group label, [data-theme="light"] .form-label { color: #3a3a5a; }
+[data-theme="light"] input, [data-theme="light"] select, [data-theme="light"] textarea,
+[data-theme="light"] .form-control, [data-theme="light"] .settings-select {
+    background: #ffffff !important; border-color: #d0d0e0 !important; color: #1a1a2e !important;
+}
+[data-theme="light"] input::placeholder, [data-theme="light"] textarea::placeholder { color: #9a9ab0 !important; }
+
+/* --- Queue panel --- */
+[data-theme="light"] .queue-panel { background: #ffffff; border-color: #e0e0ec; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+[data-theme="light"] .queue-panel-header { border-color: #e8e8f0; color: #1a1a2e; }
+[data-theme="light"] .queue-section-title { color: #9a9ab0; }
+[data-theme="light"] .queue-item { border-color: #f0f0f8; }
+[data-theme="light"] .queue-item:hover { background: #f5f5fc; }
+[data-theme="light"] .queue-item-title { color: #1a1a2e; }
+[data-theme="light"] .queue-item-artist { color: #5a5a7a; }
+[data-theme="light"] .queue-item-current { background: rgba(136,51,255,0.07); }
+
+/* --- Lyrics modal --- */
+[data-theme="light"] .lyrics-modal { background: #ffffff; border-color: #e0e0ec; }
+[data-theme="light"] .lyrics-header { border-color: #e8e8f0; color: #1a1a2e; }
+[data-theme="light"] .lyrics-line { color: #5a5a7a; }
+[data-theme="light"] .lyrics-line.active { color: #1a1a2e; }
+
+/* --- Settings page --- */
+[data-theme="light"] .settings-group { background: #ffffff; border-color: #e0e0ec; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+[data-theme="light"] .settings-item { border-color: #f0f0f8; }
+[data-theme="light"] .settings-item-label { color: #1a1a2e; }
+[data-theme="light"] .settings-item-desc { color: #7a7a9a; }
+[data-theme="light"] .settings-tabs { background: #e8e8f0; border-color: #d8d8ea; }
+[data-theme="light"] .settings-tab { color: #5a5a7a; }
+[data-theme="light"] .settings-tab.active { background: #ffffff; color: var(--accent); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+
+/* --- Profile page --- */
+[data-theme="light"] .profile-container { background: transparent; }
+[data-theme="light"] .profile-header { background: #ffffff; border-color: #e0e0ec; }
+[data-theme="light"] .profile-username, [data-theme="light"] .profile-info h2 { color: #1a1a2e; }
+[data-theme="light"] .profile-info p { color: #5a5a7a; }
+
+/* --- News dropdown --- */
+[data-theme="light"] .news-dropdown { background: #ffffff; border-color: #e0e0ec; box-shadow: 0 8px 32px rgba(0,0,0,0.15); }
+[data-theme="light"] .news-dropdown-header h3 { color: #1a1a2e; }
+[data-theme="light"] .news-modal-header h3, [data-theme="light"] .news-detail-title { color: #1a1a2e; }
+[data-theme="light"] .news-detail-content { color: #3a3a5a; }
+[data-theme="light"] .news-detail-date { color: var(--text-muted); }
+
+/* --- Chart page --- */
+[data-theme="light"] .chart-item { background: #ffffff; border-color: #e8e8f0; }
+[data-theme="light"] .chart-item:hover { background: #f5f5fc; }
+
+/* --- Genre cards --- */
+[data-theme="light"] .genre-card { border-color: #e0e0ec; }
+[data-theme="light"] .genre-chip { background: #e8e8f8; color: #5a5a7a; }
+
+/* --- Artist page --- */
+[data-theme="light"] .artist-name { color: #1a1a2e; }
+[data-theme="light"] .artist-bio { color: #5a5a7a; }
+[data-theme="light"] .tab-button { color: #7a7a9a; }
+[data-theme="light"] .tab-button.active { color: var(--accent); border-color: var(--accent); }
+
+/* --- Events page --- */
+[data-theme="light"] .event-card { background: #ffffff; border-color: #e0e0ec; }
+[data-theme="light"] .event-title { color: #1a1a2e; }
+[data-theme="light"] .event-meta { color: #7a7a9a; }
+
+/* --- Stats page --- */
+[data-theme="light"] .stat-card { background: #ffffff; border-color: #e0e0ec; }
+[data-theme="light"] .stat-value { color: #1a1a2e; }
+[data-theme="light"] .stat-label { color: #7a7a9a; }
+[data-theme="light"] .stat-bar-bg { background: #e8e8f0; }
+
+/* --- Admin pages --- */
+[data-theme="light"] .admin-header { color: #1a1a2e; }
+[data-theme="light"] .admin-section { background: #ffffff; border-color: #e0e0ec; }
+[data-theme="light"] .submission-item { background: #ffffff; border-color: #e0e0ec; }
+[data-theme="light"] .submission-header { color: #1a1a2e; }
+
+/* --- Badges --- */
+[data-theme="light"] #role-badge { color: white; }
+
+/* --- Sections headings --- */
+[data-theme="light"] .section h2 { color: #1a1a2e; }
+[data-theme="light"] .section h3 { color: #2a2a4a; }
+
+/* --- Playlist page --- */
+[data-theme="light"] .playlist-info h2 { color: #1a1a2e; }
+[data-theme="light"] .playlist-header { background: linear-gradient(135deg, rgba(136,51,255,0.08), rgba(179,119,255,0.05)); }
+
+/* --- Alerts & banners --- */
+[data-theme="light"] .alert-info { background: rgba(136,51,255,0.08); border-color: rgba(136,51,255,0.2); color: #3a3a5a; }
+[data-theme="light"] .alert-success { background: rgba(40,167,69,0.08); color: #1a5a28; }
+[data-theme="light"] .alert-error { background: rgba(220,53,69,0.08); color: #7a1a1a; }
+
+/* --- Code blocks --- */
+[data-theme="light"] code { background: rgba(136,51,255,0.08); color: var(--accent); }
+
+/* ── Dark theme — restore gradient texts ───────────────────── */
+[data-theme="dark"] .news-modal-header h3,
+[data-theme="dark"] .news-detail-title,
+[data-theme="dark"] .modal-header h2 {
+    background: linear-gradient(135deg, #fff, var(--accent-light));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+[data-theme="dark"] .card-title { color: inherit; }
+[data-theme="dark"] .track-name { color: inherit; }

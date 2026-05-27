@@ -58,76 +58,164 @@ export default function TrackPage() {
 
   return (
     <Layout>
-      <div style={{maxWidth:900, margin:'0 auto', padding:'24px 0'}}>
-        {/* Шапка */}
-        <div style={{display:'flex', gap:32, alignItems:'flex-start', marginBottom:40, flexWrap:'wrap'}}>
-          <div style={{width:220, height:220, flexShrink:0, borderRadius:16, overflow:'hidden', boxShadow:'0 8px 32px rgba(0,0,0,0.4)', background:'var(--bg-elevated)'}}>
-            <img src={track.cover ? `${API}/${track.cover}` : '/default-cover.png'} style={{width:'100%',height:'100%',objectFit:'cover'}} onError={e=>e.target.src='/default-cover.png'} alt={track.title}/>
-          </div>
-          <div style={{flex:1, minWidth:0}}>
-            <div style={{fontSize:'0.78rem',color:'var(--text-muted)',marginBottom:6,textTransform:'uppercase',letterSpacing:'0.08em'}}>Трек</div>
-            <h1 style={{fontSize:'2rem',fontWeight:900,marginBottom:10,lineHeight:1.2}}>{track.title}</h1>
-            <Link href={`/artist/${track.artist_id}`} style={{display:'inline-flex',alignItems:'center',gap:8,color:'var(--text-secondary)',textDecoration:'none',marginBottom:16,fontSize:'0.95rem'}}>
-              <i className="fas fa-microphone-alt" style={{color:'var(--accent)'}}></i>{track.artist_name}
-            </Link>
-            <div style={{display:'flex',gap:16,flexWrap:'wrap',fontSize:'0.82rem',color:'var(--text-muted)',marginBottom:18}}>
-              <span><i className="fas fa-headphones" style={{marginRight:4}}></i>{(track.play_count||0).toLocaleString()}</span>
-              <span><i className="fas fa-clock" style={{marginRight:4}}></i>{formatDuration(track.duration)}</span>
-              {track.is_adult && <span style={{background:'rgba(220,53,69,0.15)',color:'#dc3545',padding:'2px 8px',borderRadius:8,fontWeight:600}}>18+</span>}
-            </div>
-            {/* Настроения */}
-            {track.moods?.length > 0 && (
-              <div style={{display:'flex',flexWrap:'wrap',gap:7,marginBottom:18}}>
-                {track.moods.map(m => (
-                  <span key={m.id} style={{display:'inline-flex',alignItems:'center',gap:5,padding:'4px 12px',borderRadius:20,background:`${MOOD_COLORS[m.slug]||'var(--accent)'}20`,color:MOOD_COLORS[m.slug]||'var(--accent)',fontSize:'0.8rem',fontWeight:600,border:`1px solid ${MOOD_COLORS[m.slug]||'var(--accent)'}40`}}>
-                    {m.emoji && <i className={`fas ${m.emoji}`} style={{fontSize:'0.7rem'}}></i>}{m.name}
-                  </span>
-                ))}
-              </div>
-            )}
-            {/* Действия */}
-            <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
-              <button className="btn" onClick={()=>playTrack(track,[track])} style={{display:'inline-flex',alignItems:'center',gap:8,padding:'10px 24px'}}>
-                <i className={`fas ${isPlaying?'fa-pause':'fa-play'}`}></i>{isPlaying?'Играет':'Слушать'}
-              </button>
-              <button className="btn-secondary" onClick={()=>addToQueue(track)} style={{padding:'10px 16px'}} title="В очередь"><i className="fas fa-list-ol"></i></button>
-              <LikeButton item={track} type="tracks" initialState={track.liked}/>
-              <DownloadButton trackId={track.id} trackTitle={track.title}/>
-              <AddToPlaylistButton trackId={track.id} trackTitle={track.title}/>
-            </div>
-          </div>
-        </div>
+      {/* Центрируем весь контент по вертикали */}
+      <div style={{
+        minHeight: 'calc(100vh - 150px)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center',
+        padding: '40px 24px',
+      }}>
+        <div style={{maxWidth: 960, margin: '0 auto', width: '100%'}}>
 
-        <div style={{display:'grid',gridTemplateColumns:track.lyrics && related.length>0?'1fr 1fr':related.length>0||track.lyrics?'1fr':'',gap:28}}>
-          {/* Текст */}
-          {track.lyrics && (
-            <div style={{background:'var(--bg-elevated)',borderRadius:16,padding:24,border:'1px solid var(--border)'}}>
-              <h3 style={{marginBottom:14,display:'flex',alignItems:'center',gap:8}}><i className="fas fa-align-left" style={{color:'var(--accent)'}}></i>Текст трека</h3>
-              <div style={{maxHeight:400,overflowY:'auto'}}>
-                {lyrics.map((line,i)=>(
-                  <div key={i} style={{marginBottom:3,fontSize:'0.9rem',lineHeight:1.7,color:line.text?'var(--text-primary)':'transparent'}}>{line.text||'\u00A0'}</div>
-                ))}
+          {/* Шапка трека */}
+          <div style={{
+            display: 'flex',
+            gap: 48,
+            alignItems: 'center',
+            marginBottom: 48,
+            flexWrap: 'wrap',
+          }}>
+            {/* Обложка — увеличена */}
+            <div style={{
+              width: 280,
+              height: 280,
+              flexShrink: 0,
+              borderRadius: 20,
+              overflow: 'hidden',
+              boxShadow: '0 16px 48px rgba(0,0,0,0.5)',
+              background: 'var(--bg-elevated)',
+            }}>
+              <img
+                src={track.cover ? `${API}/${track.cover}` : '/default-cover.png'}
+                style={{width:'100%',height:'100%',objectFit:'cover'}}
+                onError={e=>e.target.src='/default-cover.png'}
+                alt={track.title}
+              />
+            </div>
+
+            {/* Инфо */}
+            <div style={{flex:1, minWidth: 260}}>
+              <div style={{
+                fontSize: '0.72rem', color: 'var(--text-muted)',
+                marginBottom: 10, textTransform: 'uppercase', letterSpacing: '0.12em', fontWeight: 600,
+              }}>Трек</div>
+
+              <h1 style={{
+                fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+                fontWeight: 900,
+                marginBottom: 12,
+                lineHeight: 1.15,
+                color: 'var(--text-primary)',
+              }}>{track.title}</h1>
+
+              <Link href={`/artist/${track.artist_id}`} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                color: 'var(--accent)', textDecoration: 'none',
+                marginBottom: 20, fontSize: '1rem', fontWeight: 600,
+              }}>
+                <i className="fas fa-microphone-alt"></i>{track.artist_name}
+              </Link>
+
+              {/* Мета */}
+              <div style={{
+                display: 'flex', gap: 18, flexWrap: 'wrap',
+                fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: 20,
+              }}>
+                <span><i className="fas fa-headphones" style={{marginRight:5}}></i>{(track.play_count||0).toLocaleString()} прослушиваний</span>
+                <span><i className="fas fa-clock" style={{marginRight:5}}></i>{formatDuration(track.duration)}</span>
+                {track.is_adult && (
+                  <span style={{background:'rgba(220,53,69,0.15)',color:'#dc3545',padding:'3px 10px',borderRadius:10,fontWeight:700}}>18+</span>
+                )}
+              </div>
+
+              {/* Настроения */}
+              {track.moods?.length > 0 && (
+                <div style={{display:'flex',flexWrap:'wrap',gap:8,marginBottom:24}}>
+                  {track.moods.map(m => (
+                    <span key={m.id} style={{
+                      display:'inline-flex',alignItems:'center',gap:5,
+                      padding:'6px 14px',borderRadius:24,
+                      background:`${MOOD_COLORS[m.slug]||'var(--accent)'}18`,
+                      color:MOOD_COLORS[m.slug]||'var(--accent)',
+                      fontSize:'0.82rem',fontWeight:700,
+                      border:`1px solid ${MOOD_COLORS[m.slug]||'var(--accent)'}35`,
+                    }}>
+                      {m.emoji && <i className={`fas ${m.emoji}`} style={{fontSize:'0.72rem'}}></i>}
+                      {m.name}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Действия */}
+              <div style={{display:'flex',gap:10,flexWrap:'wrap',alignItems:'center'}}>
+                <button className="btn" onClick={()=>playTrack(track,[track])}
+                  style={{display:'inline-flex',alignItems:'center',gap:8,padding:'12px 28px',fontSize:'0.95rem'}}>
+                  <i className={`fas ${isPlaying?'fa-pause':'fa-play'}`}></i>
+                  {isPlaying ? 'Сейчас играет' : 'Слушать'}
+                </button>
+                <button className="btn-secondary" onClick={()=>addToQueue(track)}
+                  style={{padding:'12px 18px'}} title="Добавить в очередь">
+                  <i className="fas fa-list-ol"></i>
+                </button>
+                <LikeButton item={track} type="tracks" initialState={track.liked}/>
+                <DownloadButton trackId={track.id} trackTitle={track.title}/>
+                <AddToPlaylistButton trackId={track.id} trackTitle={track.title}/>
               </div>
             </div>
-          )}
-          {/* Похожие */}
-          {related.length>0 && (
-            <div style={{background:'var(--bg-elevated)',borderRadius:16,padding:24,border:'1px solid var(--border)'}}>
-              <h3 style={{marginBottom:14,display:'flex',alignItems:'center',gap:8}}><i className="fas fa-music" style={{color:'var(--accent)'}}></i>Похожие треки</h3>
-              <div style={{display:'flex',flexDirection:'column',gap:10}}>
-                {related.map(t=>(
-                  <div key={t.id} style={{display:'flex',gap:10,alignItems:'center',cursor:'pointer',padding:'5px 0'}} onClick={()=>playTrack(t,related)}>
-                    <img src={t.cover?`${API}/${t.cover}`:'/default-cover.png'} style={{width:42,height:42,borderRadius:8,objectFit:'cover',flexShrink:0}} onError={e=>e.target.src='/default-cover.png'} alt=""/>
-                    <div style={{flex:1,minWidth:0}}>
-                      <div style={{fontWeight:600,fontSize:'0.87rem',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis'}}>{t.title}</div>
-                      <div style={{fontSize:'0.77rem',color:'var(--text-muted)'}}>{t.artist_name}</div>
-                    </div>
-                    <span style={{fontSize:'0.75rem',color:'var(--text-muted)',flexShrink:0}}>{formatDuration(t.duration)}</span>
+          </div>
+
+          {/* Нижний блок: текст + похожие */}
+          {(track.lyrics || related.length > 0) && (
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: track.lyrics && related.length > 0 ? '1fr 1fr' : '1fr',
+              gap: 24,
+            }}>
+              {track.lyrics && (
+                <div style={{background:'var(--bg-elevated)',borderRadius:18,padding:28,border:'1px solid var(--border)'}}>
+                  <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8,fontSize:'1rem',fontWeight:700}}>
+                    <i className="fas fa-align-left" style={{color:'var(--accent)'}}></i>Текст трека
+                  </h3>
+                  <div style={{maxHeight:340,overflowY:'auto',paddingRight:4}}>
+                    {lyrics.map((line,i)=>(
+                      <div key={i} style={{marginBottom:3,fontSize:'0.9rem',lineHeight:1.8,color:line.text?'var(--text-primary)':'transparent'}}>
+                        {line.text||'\u00A0'}
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
+                </div>
+              )}
+              {related.length > 0 && (
+                <div style={{background:'var(--bg-elevated)',borderRadius:18,padding:28,border:'1px solid var(--border)'}}>
+                  <h3 style={{marginBottom:16,display:'flex',alignItems:'center',gap:8,fontSize:'1rem',fontWeight:700}}>
+                    <i className="fas fa-music" style={{color:'var(--accent)'}}></i>Похожие треки
+                  </h3>
+                  <div style={{display:'flex',flexDirection:'column',gap:8}}>
+                    {related.map(t=>(
+                      <div key={t.id}
+                        style={{display:'flex',gap:12,alignItems:'center',cursor:'pointer',padding:'8px',borderRadius:10,transition:'background 0.15s'}}
+                        onClick={()=>playTrack(t,related)}
+                        onMouseEnter={e=>e.currentTarget.style.background='var(--hover)'}
+                        onMouseLeave={e=>e.currentTarget.style.background='transparent'}
+                      >
+                        <img src={t.cover?`${API}/${t.cover}`:'/default-cover.png'}
+                          style={{width:46,height:46,borderRadius:10,objectFit:'cover',flexShrink:0}}
+                          onError={e=>e.target.src='/default-cover.png'} alt=""/>
+                        <div style={{flex:1,minWidth:0}}>
+                          <div style={{fontWeight:600,fontSize:'0.88rem',whiteSpace:'nowrap',overflow:'hidden',textOverflow:'ellipsis',color:'var(--text-primary)'}}>{t.title}</div>
+                          <div style={{fontSize:'0.78rem',color:'var(--text-muted)',marginTop:2}}>{t.artist_name}</div>
+                        </div>
+                        <span style={{fontSize:'0.76rem',color:'var(--text-muted)',flexShrink:0}}>{formatDuration(t.duration)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           )}
+
         </div>
       </div>
     </Layout>

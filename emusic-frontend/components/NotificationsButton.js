@@ -65,26 +65,21 @@ export default function NotificationsButton() {
 
   return (
     <>
-      <button ref={buttonRef} onClick={handleOpen} style={{
-        background: 'none', border: 'none', cursor: 'pointer',
-        position: 'relative', color: 'var(--text-secondary)',
+      <button ref={buttonRef} onClick={handleOpen} className="news-button" style={{
+        position: 'relative',
         display: 'flex', alignItems: 'center', gap: 6,
-        padding: '6px 10px', borderRadius: 20,
-        transition: 'color 0.2s',
-        fontSize: '0.9rem',
-      }}
-        onMouseEnter={e => e.currentTarget.style.color = 'var(--text-primary)'}
-        onMouseLeave={e => e.currentTarget.style.color = 'var(--text-secondary)'}
-      >
+        cursor: 'pointer',
+      }}>
         <i className="fas fa-bell"></i>
+        <span>Уведомления</span>
         {unread > 0 && (
-          <span style={{
-            position: 'absolute', top: 0, right: 0,
+          <span className="badge" style={{
+            position: 'absolute', top: -6, right: -6,
             background: '#dc3545', color: 'white',
-            borderRadius: '50%', minWidth: 17, height: 17,
+            borderRadius: '50%', minWidth: 18, height: 18,
             fontSize: '0.65rem', fontWeight: 700,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
-            padding: '0 3px',
+            padding: '0 4px',
           }}>
             {unread > 9 ? '9+' : unread}
           </span>
