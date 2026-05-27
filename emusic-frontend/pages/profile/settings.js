@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
+import useSettingsStore from '../../store/settingsStore';
 import useAuthStore from '../../store/authStore';
 import ProtectedRoute from '../../components/ProtectedRoute';
 
@@ -40,6 +41,7 @@ function Toggle({ checked, onChange }) {
 
 export default function SettingsPage() {
   const { user, fetchUser } = useAuthStore();
+  const { loadSettings } = useSettingsStore();
   const [settings, setSettings] = useState(DEFAULT);
   const [activeTab, setActiveTab] = useState('general');
   const [saved, setSaved] = useState(false);
@@ -57,6 +59,7 @@ export default function SettingsPage() {
   const save = async () => {
     try {
       await api.put('/users/me/settings', settings);
+      loadSettings(settings); // Применяем немедленно (тема, EQ, громкость)
       setSaved(true);
       setTimeout(() => setSaved(false), 2500);
       await fetchUser();

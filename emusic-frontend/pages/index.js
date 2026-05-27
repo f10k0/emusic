@@ -7,6 +7,8 @@ import DownloadButton from '../components/DownloadButton';
 import AddToPlaylistButton from '../components/AddToPlaylistButton';
 import Link from 'next/link';
 
+const MOOD_COLORS = { energetic:'#ff6b35', sad:'#6b8cff', romantic:'#ff6b8c', calm:'#35d4a0', aggressive:'#ff3535', dance:'#d435ff', nostalgic:'#ffa535', inspiring:'#35c4ff' };
+
 // Выбранные жанры для отображения на главной (можно изменить)
 const FEATURED_GENRES = ['Рэп', 'Рок', 'Поп', 'Электронная музыка'];
 
@@ -15,12 +17,16 @@ export default function Home() {
   const [genres, setGenres] = useState([]);
   const [featuredGenres, setFeaturedGenres] = useState([]);
   const [chartTracks, setChartTracks] = useState([]);
+  const [moods, setMoods] = useState([]);
+  const [moodTracks, setMoodTracks] = useState({});
+  const [selectedMood, setSelectedMood] = useState(null);
   const { setTrack, updateQueue, addToQueue, addNext } = usePlayerStore();
 
   useEffect(() => {
     fetchTopTracks();
     fetchGenres();
     fetchChart();
+    fetchMoods();
   }, []);
 
   const fetchTopTracks = async () => {
@@ -43,6 +49,33 @@ export default function Home() {
       setFeaturedGenres(featured);
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const fetchMoods = async () => {
+    try {
+      const res = await api.get('/moods/');
+      setMoods(res.data || []);
+    } catch {}
+  };
+
+  const loadMoodTracks = async (mood) => {
+    if (moodTracks[mood.slug]) {
+      setSelectedMood(mood.slug === selectedMood ? null : mood.slug);
+      return;
+    }
+    try {
+      const res = await api.get(`/moods/${mood.slug}/tracks?limit=6`);
+      setMoodTracks(prev => ({ ...prev, [mood.slug]: res.data || [] }));
+      setSelectedMood(mood.slug);
+    } catch {}
+  };
+
+  const playMoodPlaylist = (slug) => {
+    const tracks = moodTracks[slug] || [];
+    if (tracks.length > 0) {
+      setTrack(tracks[0], tracks);
+      updateQueue(tracks);
     }
   };
 
@@ -95,18 +128,18 @@ export default function Home() {
               <div className="card-play-count">
                 <i className="fas fa-headphones"></i> {track.play_count || 0}
               </div>
-              <div style={{ display: 'flex', gap: '10px', marginTop: '10px', justifyContent: 'space-between' }}>
+              <div style={{ display: 'flex', gap: '8px', marginTop: '10px', flexWrap: 'wrap', alignItems: 'center' }}>
                 <LikeButton item={track} type="tracks" initialState={track.liked} />
                 <DownloadButton trackId={track.id} trackTitle={track.title} />
-                                <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
-                <button
-                  className="btn-secondary"
-                  style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
-                  onClick={(e) => { e.stopPropagation(); addToQueue(track); }}
-                  title="Добавить в очередь"
-                >
+                <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
+                <button className="btn-secondary" style={{ padding: '4px 10px', fontSize: '0.75rem', borderRadius: '6px' }}
+                  onClick={(e) => { e.stopPropagation(); addToQueue(track); }} title="В очередь">
                   <i className="fas fa-list-ol"></i>
                 </button>
+                <Link href={`/track/${track.id}`} onClick={e => e.stopPropagation()}
+                  style={{ color: 'var(--text-muted)', padding: '4px 8px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center' }} title="Страница трека">
+                  <i className="fas fa-info-circle"></i>
+                </Link>
               </div>
             </div>
           ))}
@@ -166,6 +199,67 @@ export default function Home() {
           ))}
         </div>
       </div>
+
+      {/* Настроения */}
+      {moods.length > 0 && (
+        <div className="section">
+          <div style={{display:'flex',justifyContent:'space-between',alignItems:'center',flexWrap:'wrap',gap:10,marginBottom:20}}>
+            <h2>Треки по настроению</h2>
+            {selectedMood && moodTracks[selectedMood]?.length > 0 && (
+              <button className="btn" onClick={() => playMoodPlaylist(selectedMood)} style={{padding:'7px 18px',fontSize:'0.85rem',display:'flex',alignItems:'center',gap:7}}>
+                <i className="fas fa-play"></i> Слушать плейлист
+              </button>
+            )}
+          </div>
+          {/* Кнопки настроений */}
+          <div style={{display:'flex',flexWrap:'wrap',gap:10,marginBottom:20}}>
+            {moods.map(mood => (
+              <button key={mood.id} onClick={() => loadMoodTracks(mood)}
+                style={{
+                  padding:'8px 18px', borderRadius:24, border:`1px solid ${selectedMood===mood.slug ? MOOD_COLORS[mood.slug]||'var(--accent)' : 'var(--border)'}`,
+                  background: selectedMood===mood.slug ? `${MOOD_COLORS[mood.slug]||'var(--accent)'}20` : 'var(--bg-elevated)',
+                  color: selectedMood===mood.slug ? MOOD_COLORS[mood.slug]||'var(--accent)' : 'var(--text-secondary)',
+                  cursor:'pointer', fontSize:'0.88rem', fontWeight: selectedMood===mood.slug ? 700 : 400,
+                  display:'inline-flex',alignItems:'center',gap:6,transition:'all 0.2s',
+                }}>
+                {mood.emoji && <i className={`fas ${mood.emoji}`} style={{fontSize:'0.78rem'}}></i>}
+                {mood.name}
+              </button>
+            ))}
+          </div>
+          {/* Треки выбранного настроения */}
+          {selectedMood && moodTracks[selectedMood] && (
+            <div className="track-list">
+              {moodTracks[selectedMood].slice(0,6).map(track => (
+                <div key={track.id} className="track-item">
+                  <div className="track-info" onClick={() => setTrack(track, moodTracks[selectedMood])}>
+                    <span className="track-number"><i className="fas fa-play" style={{fontSize:'0.75rem'}}></i></span>
+                    <img src={track.cover ? `${process.env.NEXT_PUBLIC_API_URL}/${track.cover}` : '/default-cover.png'}
+                      className="track-thumb" alt={track.title} onError={e=>e.target.src='/default-cover.png'}/>
+                    <div>
+                      <div className="track-name">{track.title}</div>
+                      <div className="track-artist">
+                        {track.artist_name && track.artist_id
+                          ? <Link href={`/artist/${track.artist_id}`} onClick={e=>e.stopPropagation()}>{track.artist_name}</Link>
+                          : 'Неизвестный артист'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="track-actions">
+                    <LikeButton item={track} type="tracks" initialState={track.liked}/>
+                    <button className="btn-secondary" style={{padding:'4px 10px',fontSize:'0.75rem',borderRadius:6}} onClick={e=>{e.stopPropagation();addToQueue(track);}} title="В очередь">
+                      <i className="fas fa-list-ol"></i>
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+          {selectedMood && (!moodTracks[selectedMood] || moodTracks[selectedMood].length === 0) && (
+            <p style={{color:'var(--text-muted)',textAlign:'center',padding:'20px 0'}}>Треков с этим настроением пока нет</p>
+          )}
+        </div>
+      )}
 
       {/* Жанры (только выбранные) */}
       <div className="section">

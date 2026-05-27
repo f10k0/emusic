@@ -12,21 +12,34 @@ export default function ChartPage() {
   const router = useRouter();
   const [tracks, setTracks] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setTrack, addToQueue, addNext } = usePlayerStore();
+  const [hasMore, setHasMore] = useState(true);
+  const [page, setPage] = useState(1);
+  const PER_PAGE = 20;
+  const { setTrack, addToQueue, addNext, updateQueue } = usePlayerStore();
 
   useEffect(() => {
     fetchChart();
   }, []);
 
-  const fetchChart = async () => {
+  const fetchChart = async (pageNum = 1, append = false) => {
+    if (pageNum === 1) setLoading(true);
     try {
-      const res = await api.get('/music/chart');
-      setTracks(res.data?.tracks || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
-    }
+      const res = await api.get(`/music/chart?limit=${PER_PAGE}&skip=${(pageNum-1)*PER_PAGE}`);
+      const newTracks = res.data?.tracks || [];
+      if (append) {
+        setTracks(prev => { const updated = [...prev, ...newTracks]; updateQueue(updated); return updated; });
+      } else {
+        setTracks(newTracks);
+        updateQueue(newTracks);
+      }
+      setHasMore(newTracks.length === PER_PAGE);
+    } catch {} finally { setLoading(false); }
+  };
+
+  const loadMore = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchChart(nextPage, true);
   };
 
   const handlePlay = (track) => {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useToast } from '../../components/Toast';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
 import useAuthStore from '../../store/authStore';
@@ -6,6 +7,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import Modal from '../../components/Modal';
 
 export default function AdminNews() {
+  const toast = useToast();
   const { user } = useAuthStore();
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -85,7 +87,7 @@ export default function AdminNews() {
       fetchNews();
     } catch (err) {
       console.error(err);
-      alert('Ошибка сохранения');
+      toast('Ошибка сохранения', 'success');
     } finally {
       setSubmitting(false);
     }
@@ -114,7 +116,7 @@ export default function AdminNews() {
       }
     } catch (err) {
       console.error('Ошибка загрузки изображения:', err);
-      alert('Ошибка загрузки изображения');
+      toast('Ошибка загрузки изображения', 'error');
     } finally {
       setUploading(false);
     }
@@ -127,7 +129,7 @@ export default function AdminNews() {
       fetchNews();
     } catch (err) {
       console.error(err);
-      alert('Ошибка удаления');
+      toast('Ошибка удаления', 'error');
     }
   };
 

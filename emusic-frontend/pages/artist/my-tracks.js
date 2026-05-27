@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useToast } from '../../components/Toast';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
@@ -8,6 +9,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import Link from 'next/link';
 
 export default function MyTracks() {
+  const toast = useToast();
   const router = useRouter();
   const { user } = useAuthStore();
   const { setTrack } = usePlayerStore();
@@ -46,7 +48,7 @@ export default function MyTracks() {
       setTracks(tracks.filter(t => t.id !== trackId));
     } catch (err) {
       console.error('Ошибка удаления:', err);
-      alert('Не удалось удалить трек');
+      toast('Не удалось удалить трек', 'error');
     } finally {
       setDeletingId(null);
     }

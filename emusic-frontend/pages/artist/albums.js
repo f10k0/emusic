@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
+import { useToast } from '../../components/Toast';
 import useAuthStore from '../../store/authStore';
 import ProtectedRoute from '../../components/ProtectedRoute';
 import Link from 'next/link';
@@ -18,6 +19,7 @@ export default function ArtistAlbums() {
     release_date: '',
     cover_image: ''
   });
+  const toast = useToast();
   const [creating, setCreating] = useState(false);
   const [formError, setFormError] = useState('');
   const [coverFile, setCoverFile] = useState(null);
@@ -76,7 +78,7 @@ export default function ArtistAlbums() {
       fetchAlbums();
     } catch (err) {
       console.error('Ошибка создания альбома:', err);
-      setFormError('Не удалось создать альбом. Попробуйте ещё раз.');
+      toast('Не удалось создать альбом', 'error');
     } finally {
       setCreating(false);
     }

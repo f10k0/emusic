@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
+import { useRouter } from 'next/router';
 import Layout from '../components/Layout';
 import api from '../lib/api';
 import useAuthStore from '../store/authStore';
@@ -434,14 +435,29 @@ function ActionBtn({ icon, label, color = 'white', onClick }) {
 
 // ── Главная страница клипов ────────────────────────────────────────────────────
 export default function Clips() {
+  const router = useRouter ? useRouter() : { query: {} };
+  const { video: videoIdParam } = typeof router !== 'undefined' ? router.query : {};
   const [videos, setVideos] = useState([]);
   const [loading, setLoading] = useState(true);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [search, setSearch] = useState('');
+  const [searchOpen, setSearchOpen] = useState(false);
   const containerRef = useRef(null);
 
   useEffect(() => {
     api.get('/videos/feed?limit=30')
-      .then(r => setVideos(r.data || []))
+      .then(r => {
+        const all = r.data || [];
+        setVideos(all);
+        // Если открыт конкретный клип — перемещаем его в начало
+        if (videoIdParam) {
+          const idx = all.findIndex(v => String(v.id) === String(videoIdParam));
+          if (idx > 0) {
+            const reordered = [all[idx], ...all.slice(0, idx), ...all.slice(idx+1)];
+            setVideos(reordered);
+          }
+        }
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
@@ -469,6 +485,33 @@ export default function Clips() {
         flexDirection: 'column',
         minHeight: 0,
       }}>
+        {/* Поиск по клипам */}
+        <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', zIndex: 30, display: 'flex', alignItems: 'center', gap: 8 }}>
+          {searchOpen ? (
+            <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <input
+                autoFocus
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                placeholder="Поиск клипов..."
+                style={{ background: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.2)', borderRadius: 20, padding: '8px 16px', color: 'white', fontSize: '0.9rem', width: 220, outline: 'none' }}
+                onKeyDown={e => {
+                  if (e.key === 'Escape') { setSearchOpen(false); setSearch(''); }
+                }}
+              />
+              <button onClick={() => { setSearchOpen(false); setSearch(''); }}
+                style={{ background: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', borderRadius: '50%', width: 32, height: 32, cursor: 'pointer' }}>
+                <i className="fas fa-times"></i>
+              </button>
+            </div>
+          ) : (
+            <button onClick={() => setSearchOpen(true)}
+              style={{ background: 'rgba(0,0,0,0.55)', border: 'none', color: 'white', borderRadius: 20, padding: '8px 16px', cursor: 'pointer', fontSize: '0.88rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <i className="fas fa-search"></i> Поиск
+            </button>
+          )}
+        </div>
+
         {loading ? (
           <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#888' }}>
             <i className="fas fa-spinner fa-spin" style={{ fontSize: '2rem' }}></i>
@@ -483,7 +526,7 @@ export default function Clips() {
             ref={containerRef}
             style={{ flex: 1, overflowY: 'scroll', scrollSnapType: 'y mandatory', minHeight: 0 }}
           >
-            {videos.map((v, i) => (
+            {(search ? videos.filter(v => v.title?.toLowerCase().includes(search.toLowerCase()) || v.artist_name?.toLowerCase().includes(search.toLowerCase())) : videos).map((v, i) => (
               <div key={v.id} data-idx={i} style={{ height: '100%', scrollSnapAlign: 'start', flexShrink: 0 }}>
                 <ClipSlide video={v} isActive={i === activeIndex} />
               </div>

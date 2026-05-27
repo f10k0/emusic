@@ -2,21 +2,22 @@ import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import api from '../lib/api';
 
+const LS_KEY = 'news_last_seen_count';
+
 export default function NewsButton() {
   const [open, setOpen] = useState(false);
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [unread, setUnread] = useState(0);
   const [selectedNews, setSelectedNews] = useState(null);
   const [fullscreenImage, setFullscreenImage] = useState(null);
   const buttonRef = useRef(null);
   const dropdownRef = useRef(null);
-  const detailModalRef = useRef(null);
 
+  // Загружаем новости при старте чтобы показать badge
   useEffect(() => {
-    if (open) {
-      fetchNews();
-    }
-  }, [open]);
+    fetchNews();
+  }, []);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -29,230 +30,141 @@ export default function NewsButton() {
   }, [open]);
 
   useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape' && fullscreenImage) {
-        setFullscreenImage(null);
-      }
-      if (e.key === 'Escape' && selectedNews) {
-        closeNewsModal();
-      }
+    const handleKey = (e) => {
+      if (e.key === 'Escape') { setFullscreenImage(null); setSelectedNews(null); }
     };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [fullscreenImage, selectedNews]);
-
-  // Очистка класса при размонтировании
-  useEffect(() => {
-    return () => {
-      document.body.classList.remove('modal-open');
-    };
+    document.addEventListener('keydown', handleKey);
+    return () => document.removeEventListener('keydown', handleKey);
   }, []);
 
   const fetchNews = async () => {
     setLoading(true);
     try {
       const res = await api.get('/news');
-      setNews(res.data || []);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setLoading(false);
+      const allNews = res.data || [];
+      setNews(allNews);
+      // Считаем непрочитанные
+      const lastSeen = parseInt(localStorage.getItem(LS_KEY) || '0', 10);
+      setUnread(Math.max(0, allNews.length - lastSeen));
+    } catch {} finally { setLoading(false); }
+  };
+
+  const handleOpen = () => {
+    if (!open) {
+      fetchNews();
+      // Помечаем все как прочитанные при открытии
+      setTimeout(() => {
+        localStorage.setItem(LS_KEY, String(news.length || 0));
+        setUnread(0);
+      }, 300);
     }
+    setOpen(o => !o);
   };
 
-  const openNewsModal = (newsItem, e) => {
-    e.stopPropagation();
-    setSelectedNews(newsItem);
-    setOpen(false);
-    document.body.classList.add('modal-open'); // блокируем прокрутку
-  };
-
-  const closeNewsModal = () => {
-    setSelectedNews(null);
-    document.body.classList.remove('modal-open'); // возвращаем прокрутку
-  };
-
-  const openFullscreenImage = (imageUrl, e) => {
-    e.stopPropagation();
-    setFullscreenImage(imageUrl);
-  };
-
-  const closeFullscreenImage = () => {
-    setFullscreenImage(null);
-  };
-
-  const shareNews = () => {
-    if (selectedNews) {
-      const url = `${window.location.origin}/news/${selectedNews.id}`;
-      navigator.clipboard.writeText(url);
-      alert('Ссылка скопирована в буфер обмена');
-    }
-  };
+  const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
   return (
     <>
-      <div
-        ref={buttonRef}
-        className="news-button"
-        onClick={() => setOpen(!open)}
-      >
+      <div ref={buttonRef} className="news-button" onClick={handleOpen} style={{ position: 'relative' }}>
         <i className="fas fa-newspaper"></i>
         <span>Новости</span>
-        {news.length > 0 && (
-          <span className="badge">
-            {news.length}
+        {unread > 0 && (
+          <span className="badge" style={{
+            position: 'absolute', top: -6, right: -6,
+            background: 'var(--accent)', color: 'white',
+            borderRadius: '50%', minWidth: 18, height: 18,
+            fontSize: '0.7rem', fontWeight: 700,
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            padding: '0 4px',
+          }}>
+            {unread > 9 ? '9+' : unread}
           </span>
         )}
       </div>
 
       {open && createPortal(
-        <div
-          ref={dropdownRef}
-          className="news-dropdown"
-          style={{
-            position: 'fixed',
-            top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + 8 : 0,
-            right: buttonRef.current ? window.innerWidth - buttonRef.current.getBoundingClientRect().right : 0,
-            width: '320px',
-            maxHeight: '400px',
-            backgroundColor: 'var(--bg-elevated)',
-            borderRadius: '16px',
-            border: '1px solid var(--border)',
-            boxShadow: 'var(--shadow)',
-            zIndex: 2000,
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-            animation: 'dropdownFade 0.2s ease'
-          }}
-        >
-          <div className="news-dropdown-header">
-            <h3>Новости</h3>
-            <i
-              className="fas fa-times"
-              onClick={() => setOpen(false)}
-            ></i>
+        <div ref={dropdownRef} className="news-dropdown" style={{
+          position: 'fixed',
+          top: buttonRef.current ? buttonRef.current.getBoundingClientRect().bottom + 8 : 0,
+          right: buttonRef.current ? window.innerWidth - buttonRef.current.getBoundingClientRect().right : 0,
+          zIndex: 10000,
+          width: 360,
+          background: 'var(--bg-elevated)',
+          border: '1px solid var(--border)',
+          borderRadius: 16,
+          boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+          overflow: 'hidden',
+          maxHeight: '70vh',
+          display: 'flex',
+          flexDirection: 'column',
+        }}>
+          <div style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <h3 style={{ margin: 0, fontSize: '1rem', fontWeight: 700 }}>Новости</h3>
+            <button onClick={() => setOpen(false)} style={{ background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer', fontSize: '1rem' }}>
+              <i className="fas fa-times"></i>
+            </button>
           </div>
-          <div className="news-dropdown-list">
+          <div style={{ overflowY: 'auto', flex: 1 }}>
             {loading ? (
-              <div style={{ textAlign: 'center', padding: '20px' }}>
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>
                 <i className="fas fa-spinner fa-spin"></i>
-                <p>Загрузка...</p>
               </div>
             ) : news.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-muted)' }}>
-                <i className="fas fa-newspaper" style={{ fontSize: '2rem', marginBottom: '10px' }}></i>
-                <p>Новостей пока нет</p>
-              </div>
-            ) : (
-              news.map(item => (
-                <div
-                  key={item.id}
-                  className="news-dropdown-item"
-                  onClick={(e) => openNewsModal(item, e)}
-                >
-                  {item.image && (
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}/${item.image}`}
-                      alt=""
-                      className="news-dropdown-image"
-                      onError={(e) => { e.target.style.display = 'none'; }}
-                    />
-                  )}
-                  <div className="news-dropdown-info">
-                    <div className="news-dropdown-title">{item.title}</div>
-                    <div className="news-dropdown-date">
-                      {new Date(item.created_at).toLocaleDateString('ru-RU', {
-                        day: 'numeric',
-                        month: 'short'
-                      })}
-                    </div>
-                  </div>
+              <div style={{ padding: 40, textAlign: 'center', color: 'var(--text-muted)' }}>Новостей пока нет</div>
+            ) : news.map(item => (
+              <div key={item.id} onClick={() => setSelectedNews(item)}
+                style={{ padding: '14px 18px', borderBottom: '1px solid var(--border)', cursor: 'pointer', transition: 'background 0.15s' }}
+                onMouseEnter={e => e.currentTarget.style.background = 'var(--hover)'}
+                onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+              >
+                {item.image && (
+                  <img src={`${API}/${item.image}`} style={{ width: '100%', height: 120, objectFit: 'cover', borderRadius: 8, marginBottom: 10, display: 'block' }}
+                    onError={e => e.target.style.display = 'none'} alt="" />
+                )}
+                <div style={{ fontWeight: 700, fontSize: '0.9rem', marginBottom: 4 }}>{item.title}</div>
+                <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                  {item.content}
                 </div>
-              ))
-            )}
+                <div style={{ fontSize: '0.75rem', color: 'var(--text-muted)', marginTop: 6 }}>
+                  {new Date(item.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' })}
+                </div>
+              </div>
+            ))}
           </div>
-        </div>,
-        document.body
+        </div>, document.body
       )}
 
+      {/* Детальный просмотр новости */}
       {selectedNews && createPortal(
-        <div
-          className="news-detail-overlay"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div
-            ref={detailModalRef}
-            className="news-detail-modal-large"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <i
-              className="fas fa-times news-detail-close"
-              onClick={closeNewsModal}
-            ></i>
-            <div className="news-detail-scroll">
-              <div className="news-detail-inner">
-                {selectedNews.image && (
-                  <div className="news-detail-image-wrapper">
-                    <img
-                      src={`${process.env.NEXT_PUBLIC_API_URL}/${selectedNews.image}`}
-                      alt={selectedNews.title}
-                      className="news-detail-image"
-                      onClick={(e) => openFullscreenImage(`${process.env.NEXT_PUBLIC_API_URL}/${selectedNews.image}`, e)}
-                      style={{ cursor: 'pointer' }}
-                      title="Нажмите для увеличения"
-                    />
-                  </div>
-                )}
-                <div className="news-detail-content-wrapper">
-                  <h1 className="news-detail-title">{selectedNews.title}</h1>
-                  <div className="news-detail-date">
-                    <i className="far fa-calendar-alt"></i>
-                    {new Date(selectedNews.created_at).toLocaleDateString('ru-RU', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </div>
-                  <div className="news-detail-content">
-                    {selectedNews.content.split('\n').map((para, i) => (
-                      <p key={i}>{para}</p>
-                    ))}
-                  </div>
-                  <div className="news-share-button">
-                    <button onClick={shareNews}>
-                      <i className="fas fa-share-alt"></i> Поделиться
-                    </button>
-                  </div>
-                </div>
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.75)', zIndex: 10001, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}
+          onClick={() => setSelectedNews(null)}>
+          <div style={{ background: 'var(--bg-elevated)', borderRadius: 20, maxWidth: 580, width: '100%', maxHeight: '85vh', overflowY: 'auto', border: '1px solid var(--border)' }}
+            onClick={e => e.stopPropagation()}>
+            {selectedNews.image && (
+              <img src={`${API}/${selectedNews.image}`} style={{ width: '100%', maxHeight: 280, objectFit: 'cover', borderRadius: '20px 20px 0 0', cursor: 'zoom-in' }}
+                onClick={() => setFullscreenImage(`${API}/${selectedNews.image}`)}
+                onError={e => e.target.style.display = 'none'} alt="" />
+            )}
+            <div style={{ padding: '24px 28px' }}>
+              <h2 style={{ marginBottom: 12, fontSize: '1.3rem' }}>{selectedNews.title}</h2>
+              <p style={{ color: 'var(--text-secondary)', lineHeight: 1.7, fontSize: '0.92rem', whiteSpace: 'pre-wrap' }}>{selectedNews.content}</p>
+              <div style={{ marginTop: 16, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                {new Date(selectedNews.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}
               </div>
+              <button onClick={() => setSelectedNews(null)} className="btn-secondary" style={{ marginTop: 20, width: '100%' }}>
+                Закрыть
+              </button>
             </div>
           </div>
-        </div>,
-        document.body
+        </div>, document.body
       )}
 
+      {/* Fullscreen image */}
       {fullscreenImage && createPortal(
-        <div
-          className="fullscreen-overlay"
-          onClick={closeFullscreenImage}
-        >
-          <div
-            className="fullscreen-container"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <i
-              className="fas fa-times fullscreen-close"
-              onClick={closeFullscreenImage}
-            ></i>
-            <img
-              src={fullscreenImage}
-              alt="Полноэкранное изображение"
-              className="fullscreen-image"
-            />
-          </div>
-        </div>,
-        document.body
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.95)', zIndex: 10002, display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'zoom-out' }}
+          onClick={() => setFullscreenImage(null)}>
+          <img src={fullscreenImage} style={{ maxWidth: '90vw', maxHeight: '90vh', objectFit: 'contain', borderRadius: 8 }} alt="" />
+        </div>, document.body
       )}
     </>
   );

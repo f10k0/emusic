@@ -6271,3 +6271,27 @@ body.modal-open {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+
+/* ── Track page ─────────────────────────────────────────────── */
+.track-page-cover {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+}
+
+/* ── Mood filter pills ──────────────────────────────────────── */
+.mood-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--border);
+  background: var(--bg-elevated);
+  color: var(--text-secondary);
+}
+.mood-pill:hover { opacity: 0.85; }

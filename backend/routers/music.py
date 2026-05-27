@@ -167,3 +167,27 @@ def get_chart(
         )
         result.append(track_data)
     return {"tracks": result, "total": len(result)}
+
+
+@router.get("/track/{track_id}")
+def get_track_detail(
+    track_id: int,
+    db: Session = Depends(get_db),
+    current_user: Optional[models.User] = Depends(dependencies.optional_current_user)
+):
+    track = db.query(models.Track).filter(models.Track.id == track_id, models.Track.is_published == True).first()
+    if not track:
+        raise HTTPException(404, "Трек не найден")
+    liked = False
+    if current_user:
+        liked = track in current_user.favorite_tracks
+    return {
+        "id": track.id, "title": track.title, "duration": track.duration,
+        "artist_id": track.artist_id, "artist_name": track.artist_name,
+        "cover": track.cover, "play_count": track.play_count,
+        "is_adult": track.is_adult, "lyrics": track.lyrics,
+        "album_id": track.album_id,
+        "liked": liked,
+        "moods": [{"id": m.id, "name": m.name, "slug": m.slug, "emoji": m.emoji} for m in track.moods],
+        "genres": [{"id": g.id, "name": g.name} for g in track.genres],
+    }

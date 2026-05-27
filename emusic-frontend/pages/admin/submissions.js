@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { useToast } from '../../components/Toast';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
@@ -7,6 +8,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import Modal from '../../components/Modal';
 
 export default function AdminSubmissions() {
+  const toast = useToast();
   const router = useRouter();
   const { user } = useAuthStore();
   const [submissions, setSubmissions] = useState([]);
@@ -42,7 +44,7 @@ export default function AdminSubmissions() {
       fetchSubmissions();
     } catch (err) {
       console.error('Ошибка одобрения:', err);
-      alert('Не удалось одобрить заявку');
+      toast('Не удалось одобрить заявку', 'error');
     } finally {
       setProcessingId(null);
       setSelectedSubmission(null);
@@ -60,7 +62,7 @@ export default function AdminSubmissions() {
       fetchSubmissions();
     } catch (err) {
       console.error('Ошибка отклонения:', err);
-      alert('Не удалось отклонить заявку');
+      toast('Не удалось отклонить заявку', 'error');
     } finally {
       setProcessingId(null);
       setSelectedSubmission(null);

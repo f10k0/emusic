@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useToast } from '../../components/Toast';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
@@ -6,6 +7,7 @@ import useAuthStore from '../../store/authStore';
 import ProtectedRoute from '../../components/ProtectedRoute';
 
 export default function AdminConsole() {
+  const toast = useToast();
   const router = useRouter();
   const { user } = useAuthStore();
   const [activeTab, setActiveTab] = useState('stats');
@@ -73,12 +75,12 @@ export default function AdminConsole() {
         command: 'toggle-ban', 
         args: userId.toString() 
       });
-      alert(res.data.message);
+      toast(res.data.message, 'success');
       fetchUsers(); // Обновляем список
       fetchData(); // Обновляем статистику
     } catch (err) {
       console.error('Ошибка:', err);
-      alert('Не удалось изменить статус пользователя');
+      toast('Не удалось изменить статус', 'error');
     } finally {
       setBanningUserId(null);
     }

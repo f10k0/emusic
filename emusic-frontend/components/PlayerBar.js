@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState, useCallback } from 'react';
+import useSettingsStore from '../store/settingsStore';
 import usePlayerStore from '../store/playerStore';
 import { formatTime } from '../lib/utils';
 import Link from 'next/link';
@@ -7,6 +8,7 @@ import QueuePanel from './QueuePanel';
 
 export default function PlayerBar() {
   const audioRef = useRef(null);
+  const { connectAudio, settings } = useSettingsStore();
   const prevTrackIdRef = useRef(null);
   const [isDragging, setIsDragging] = useState(false);
   const [isDraggingVolume, setIsDraggingVolume] = useState(false);
@@ -26,6 +28,13 @@ export default function PlayerBar() {
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
+
+  // Подключаем Web Audio API для EQ и dB-громкости
+  useEffect(() => {
+    if (audioRef.current) {
+      connectAudio(audioRef.current);
+    }
+  }, [audioRef.current]);
 
   useEffect(() => {
     const audio = audioRef.current;

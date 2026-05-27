@@ -199,3 +199,67 @@ def get_stats(
         "genres": genres_stats,
         "period_days": days,
     }
+
+
+# ── Уведомления ──────────────────────────────────────────────────────────────
+# Простая реализация: генерируем уведомления из данных БД
+@router.get("/me/notifications")
+def get_notifications(
+    current_user: models.User = Depends(dependencies.get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """Возвращает уведомления: новые треки и мероприятия от подписок."""
+    settings = current_user.settings or {}
+    notify_tracks = settings.get("notifications_new_tracks", True)
+    notify_events = settings.get("notifications_events", True)
+
+    notifications = []
+    fav_artists = current_user.favorite_artists or []
+
+    for artist in fav_artists:
+        # Новые треки (за последние 30 дней)
+        if notify_tracks:
+            from datetime import datetime, timedelta
+            since = datetime.utcnow() - timedelta(days=30)
+            new_tracks = db.query(models.Track).filter(
+                models.Track.artist_id == artist.id,
+                models.Track.is_published == True,
+            ).order_by(models.Track.id.desc()).limit(3).all()
+            for t in new_tracks:
+                notifications.append({
+                    "id": f"track_{t.id}",
+                    "type": "new_track",
+                    "title": f"Новый трек от {artist.name}",
+                    "body": t.title,
+                    "artist_id": artist.id,
+                    "artist_name": artist.name,
+                    "artist_avatar": artist.avatar,
+                    "track_id": t.id,
+                    "cover": t.cover,
+                })
+
+        # Новые мероприятия (предстоящие)
+        if notify_events:
+            from datetime import datetime
+            now = datetime.utcnow()
+            events = db.query(models.Event).filter(
+                models.Event.artist_id == artist.id,
+                models.Event.is_published == True,
+                models.Event.date >= now,
+            ).order_by(models.Event.date.asc()).limit(2).all()
+            for e in events:
+                notifications.append({
+                    "id": f"event_{e.id}",
+                    "type": "new_event",
+                    "title": f"Мероприятие от {artist.name}",
+                    "body": e.title,
+                    "artist_id": artist.id,
+                    "artist_name": artist.name,
+                    "artist_avatar": artist.avatar,
+                    "event_id": e.id,
+                    "date": e.date,
+                })
+
+    # Сортируем — события сначала, потом треки
+    notifications = notifications[:20]
+    return {"notifications": notifications, "total": len(notifications)}

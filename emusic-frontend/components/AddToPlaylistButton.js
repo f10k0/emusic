@@ -1,9 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useToast } from './Toast';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/router';
 import api from '../lib/api';
 
 export default function AddToPlaylistButton({ trackId }) {
+  const toast = useToast();
   const [playlists, setPlaylists] = useState([]);
   const [show, setShow] = useState(false);
   const [position, setPosition] = useState({ top: 0, left: 0, right: 'auto', bottom: 'auto' });
@@ -85,11 +87,11 @@ export default function AddToPlaylistButton({ trackId }) {
   const addToPlaylist = async (playlistId) => {
     try {
       await api.post(`/playlists/${playlistId}/tracks/${trackId}`);
-      alert('Трек добавлен в плейлист');
+      toast('Трек добавлен в плейлист', 'success');
       setShow(false);
     } catch (err) {
       console.error('Ошибка добавления:', err);
-      alert('Не удалось добавить трек');
+      toast('Не удалось добавить трек', 'error');
     }
   };
 

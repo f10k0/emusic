@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useToast } from '../../components/Toast';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
@@ -7,6 +8,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import Modal from '../../components/Modal';
 
 export default function AdminTracks() {
+  const toast = useToast();
   const router = useRouter();
   const { user } = useAuthStore();
   const [tracks, setTracks] = useState([]);
@@ -79,7 +81,7 @@ export default function AdminTracks() {
       setTracks(tracks.filter(t => t.id !== trackId));
     } catch (err) {
       console.error('Ошибка удаления:', err);
-      alert('Не удалось удалить трек');
+      toast('Не удалось удалить трек', 'error');
     } finally {
       setDeletingId(null);
     }
@@ -136,12 +138,12 @@ export default function AdminTracks() {
       };
       
       await api.put(`/admin/tracks/${editingTrack.id}`, dataToSend);
-      alert('Трек успешно обновлён');
+      toast('Трек успешно обновлён', 'success');
       closeEditModal();
       fetchTracks();
     } catch (err) {
       console.error('Ошибка обновления:', err);
-      alert('Не удалось обновить трек');
+      toast('Не удалось обновить трек', 'error');
     } finally {
       setSaving(false);
     }

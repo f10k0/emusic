@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useToast } from '../../components/Toast';
 import { useRouter } from 'next/router';
 import Layout from '../../components/Layout';
 import useAuthStore from '../../store/authStore';
@@ -7,6 +8,7 @@ import ProtectedRoute from '../../components/ProtectedRoute';
 import Link from 'next/link';
 
 export default function Profile() {
+  const toast = useToast();
   const router = useRouter();
   const { userId } = router.query; // для просмотра чужого профиля (если нужно)
   const { user: currentUser, fetchUser } = useAuthStore();
@@ -16,6 +18,7 @@ export default function Profile() {
   const [editMode, setEditMode] = useState(false);
   const [form, setForm] = useState({ username: '', email: '', password: '' });
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [artistProfile, setArtistProfile] = useState(null);
 
   // Определяем, чей профиль смотрим
   const isOwnProfile = !userId || (currentUser && currentUser.id === parseInt(userId));
@@ -80,7 +83,7 @@ export default function Profile() {
       await fetchUser();
     } catch (err) {
       console.error(err);
-      alert('Ошибка загрузки аватарки');
+      toast('Ошибка загрузки аватарки', 'error');
     } finally {
       setUploadingAvatar(false);
     }
@@ -129,6 +132,13 @@ export default function Profile() {
               <h2 className="profile-username">{user.username}</h2>
               <p>{user.email}</p>
               <span id="role-badge">{user.role}</span>
+              {/* Ссылка на публичный профиль артиста */}
+              {user.role === 'artist' && artistProfile && (
+                <Link href={`/artist/${artistProfile.id}`}
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 6, marginTop: 8, color: 'var(--accent)', textDecoration: 'none', fontSize: '0.88rem', fontWeight: 600 }}>
+                  <i className="fas fa-microphone-alt"></i> Открыть профиль артиста
+                </Link>
+              )}
               {isOwnProfile && (
                 <button className="btn-secondary" onClick={() => setEditMode(!editMode)}>
                   Редактировать

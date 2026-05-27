@@ -1,7 +1,9 @@
 import React, { useState, useRef } from 'react';
+import { useToast } from './Toast';
 import api from '../lib/api';
 
 export default function CreatePlaylistForm({ onClose, onSuccess }) {
+  const toast = useToast();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(true);
@@ -15,11 +17,11 @@ export default function CreatePlaylistForm({ onClose, onSuccess }) {
     if (!file) return;
 
     if (file.size > 5 * 1024 * 1024) {
-      alert('Файл слишком большой (макс. 5MB)');
+      toast('Файл слишком большой (макс. 5MB)', 'info');
       return;
     }
     if (!file.type.startsWith('image/')) {
-      alert('Пожалуйста, выберите изображение');
+      toast('Пожалуйста, выберите изображение', 'info');
       return;
     }
 
@@ -37,7 +39,7 @@ export default function CreatePlaylistForm({ onClose, onSuccess }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!name.trim()) {
-      alert('Введите название плейлиста');
+      toast('Введите название плейлиста', 'info');
       return;
     }
 
@@ -60,9 +62,9 @@ export default function CreatePlaylistForm({ onClose, onSuccess }) {
     } catch (err) {
       console.error('Ошибка:', err);
       if (err.response?.status === 401) {
-        alert('Сессия истекла. Пожалуйста, войдите заново.');
+        toast('Сессия истекла. Пожалуйста, войдите заново.', 'info');
       } else {
-        alert('Не удалось создать плейлист. Проверьте подключение к серверу.');
+        toast('Не удалось создать плейлист. Проверьте подключение к серверу.', 'error');
       }
     } finally {
       setLoading(false);

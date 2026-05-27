@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useToast } from './Toast';
 import api from '../lib/api';
 import { useRouter } from 'next/router';
 
 export default function DownloadButton({ trackId, trackTitle }) {
+  const toast = useToast();
   const [downloading, setDownloading] = useState(false);
   const router = useRouter();
 
@@ -34,7 +36,7 @@ export default function DownloadButton({ trackId, trackTitle }) {
       if (err.response?.status === 401) {
         router.push('/login');
       } else {
-        alert('Не удалось скачать трек');
+        toast('Не удалось скачать трек', 'error');
       }
     } finally {
       setDownloading(false);

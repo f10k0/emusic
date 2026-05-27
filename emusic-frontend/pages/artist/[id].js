@@ -162,6 +162,11 @@ export default function ArtistPage() {
                   </div>
                 </div>
                 <div className="track-actions">
+                  <Link href={`/track/${track.id}`} onClick={e => e.stopPropagation()}
+                    style={{ color: 'var(--text-muted)', padding: '4px 8px', fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center' }}
+                    title="Страница трека">
+                    <i className="fas fa-info-circle"></i>
+                  </Link>
                   <LikeButton item={track} type="tracks" initialState={track.liked} />
                   <DownloadButton trackId={track.id} trackTitle={track.title} />
                   <AddToPlaylistButton trackId={track.id} trackTitle={track.title} />
@@ -182,7 +187,7 @@ export default function ArtistPage() {
               ) : (
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 12 }}>
                   {videos.map(v => (
-                    <a key={v.id} href="/clips" style={{ textDecoration: 'none', display: 'block' }}>
+                    <a key={v.id} href={`/clips?video=${v.id}`} style={{ textDecoration: 'none', display: 'block' }}>
                       <div style={{ background: 'var(--bg-elevated)', borderRadius: 12, overflow: 'hidden', border: '1px solid var(--border)', transition: 'transform 0.2s, box-shadow 0.2s' }}
                         onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = 'var(--card-hover)'; }}
                         onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.boxShadow = ''; }}
