@@ -435,87 +435,121 @@ export default function AdminConsole() {
                   Доступные команды
                 </h3>
                 
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-                  gap: '12px'
-                }}>
-                  {[
-                    { cmd: 'help',                    desc: 'Показать список команд' },
-                    { cmd: 'stats',                   desc: 'Полная статистика платформы' },
-                    { cmd: '',                         desc: '── Просмотр ──' },
-                    { cmd: 'users [limit]',           desc: 'Список пользователей' },
-                    { cmd: 'artists [limit]',         desc: 'Список артистов' },
-                    { cmd: 'tracks [limit]',          desc: 'Список треков' },
-                    { cmd: 'videos [limit]',          desc: 'Список видеоклипов' },
-                    { cmd: 'events [limit]',          desc: 'Список мероприятий' },
-                    { cmd: 'top [N]',                 desc: 'Топ N треков по прослушиваниям' },
-                    { cmd: 'user [id/name]',          desc: 'Подробная инфо о пользователе' },
-                    { cmd: 'track [id]',              desc: 'Подробная инфо о треке' },
-                    { cmd: 'video [id]',              desc: 'Подробная инфо о видео' },
-                    { cmd: '',                         desc: '── Модерация треков ──' },
-                    { cmd: 'toggle-ban [id]',         desc: 'Забанить / разбанить пользователя' },
-                    { cmd: 'publish-track [id]',      desc: 'Опубликовать трек' },
-                    { cmd: 'unpublish-track [id]',    desc: 'Снять трек с публикации' },
-                    { cmd: 'delete-track [id]',       desc: 'Удалить трек (необратимо)' },
-                    { cmd: '',                         desc: '── Модерация видео ──' },
-                    { cmd: 'hide-video [id]',         desc: 'Скрыть видеоклип' },
-                    { cmd: 'show-video [id]',         desc: 'Опубликовать видеоклип' },
-                    { cmd: 'delete-video [id]',       desc: 'Удалить видеоклип (необратимо)' },
-                    { cmd: '',                         desc: '── Модерация мероприятий ──' },
-                    { cmd: 'hide-event [id]',         desc: 'Скрыть мероприятие' },
-                    { cmd: 'show-event [id]',         desc: 'Опубликовать мероприятие' },
-                    { cmd: 'delete-event [id]',       desc: 'Удалить мероприятие' },
-                    { cmd: '',                         desc: '── Системные ──' },
-                    { cmd: 'delete-user [id]',        desc: 'Удалить пользователя (осторожно!)' },
-                    { cmd: 'clear-history [user_id]', desc: 'Очистить историю прослушиваний' },
-                    { cmd: 'clear-logs',              desc: 'Очистить логи консоли' },
-                  ].filter(item => item.cmd !== '' || true).map((item, index) => (
-                    <div
-                      key={index}
-                      style={{
-                        background: 'var(--bg-secondary)',
-                        padding: '15px',
-                        borderRadius: '12px',
-                        border: '1px solid var(--border)',
-                        transition: 'transform 0.2s, border-color 0.2s',
-                        cursor: 'pointer',
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'translateY(-2px)';
-                        e.currentTarget.style.borderColor = 'var(--accent)';
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'translateY(0)';
-                        e.currentTarget.style.borderColor = 'var(--border)';
-                      }}
-                      onClick={() => setCommand(item.cmd.split(' ')[0])}
-                    >
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <i className="fas fa-chevron-right" style={{ color: 'var(--accent)', fontSize: '0.8rem' }}></i>
-                        <code style={{ 
-                          background: 'rgba(136, 51, 255, 0.1)', 
-                          padding: '3px 8px', 
-                          borderRadius: '6px', 
-                          color: 'var(--accent-light)',
-                          fontFamily: 'monospace',
-                          fontSize: '0.9rem'
-                        }}>
-                          {item.cmd}
-                        </code>
-                      </div>
-                      <p style={{ 
-                        marginTop: '8px', 
-                        marginLeft: '18px', 
-                        color: 'var(--text-secondary)', 
-                        fontSize: '0.9rem',
-                        lineHeight: '1.4'
+                {[
+                  {
+                    title: null,
+                    commands: [
+                      { cmd: 'help',  desc: 'Показать список всех команд' },
+                      { cmd: 'stats', desc: 'Полная статистика платформы' },
+                    ]
+                  },
+                  {
+                    title: 'Просмотр',
+                    icon: 'fa-search',
+                    commands: [
+                      { cmd: 'users [limit]',  desc: 'Список пользователей' },
+                      { cmd: 'artists [limit]', desc: 'Список артистов' },
+                      { cmd: 'tracks [limit]',  desc: 'Список треков' },
+                      { cmd: 'videos [limit]',  desc: 'Список видеоклипов' },
+                      { cmd: 'events [limit]',  desc: 'Список мероприятий' },
+                      { cmd: 'top [N]',         desc: 'Топ N треков по прослушиваниям' },
+                      { cmd: 'user [id/name]',  desc: 'Подробная инфо о пользователе' },
+                      { cmd: 'track [id]',      desc: 'Подробная инфо о треке' },
+                      { cmd: 'video [id]',      desc: 'Подробная инфо о видео' },
+                    ]
+                  },
+                  {
+                    title: 'Модерация треков',
+                    icon: 'fa-music',
+                    commands: [
+                      { cmd: 'toggle-ban [id]',      desc: 'Забанить / разбанить пользователя' },
+                      { cmd: 'publish-track [id]',   desc: 'Опубликовать трек' },
+                      { cmd: 'unpublish-track [id]', desc: 'Снять трек с публикации' },
+                      { cmd: 'delete-track [id]',    desc: 'Удалить трек (необратимо)' },
+                    ]
+                  },
+                  {
+                    title: 'Модерация видео',
+                    icon: 'fa-film',
+                    commands: [
+                      { cmd: 'hide-video [id]',   desc: 'Скрыть видеоклип' },
+                      { cmd: 'show-video [id]',   desc: 'Опубликовать видеоклип' },
+                      { cmd: 'delete-video [id]', desc: 'Удалить видеоклип (необратимо)' },
+                    ]
+                  },
+                  {
+                    title: 'Модерация мероприятий',
+                    icon: 'fa-calendar-alt',
+                    commands: [
+                      { cmd: 'hide-event [id]',   desc: 'Скрыть мероприятие' },
+                      { cmd: 'show-event [id]',   desc: 'Опубликовать мероприятие' },
+                      { cmd: 'delete-event [id]', desc: 'Удалить мероприятие' },
+                    ]
+                  },
+                  {
+                    title: 'Системные',
+                    icon: 'fa-cog',
+                    commands: [
+                      { cmd: 'delete-user [id]',        desc: 'Удалить пользователя (осторожно!)' },
+                      { cmd: 'clear-history [user_id]', desc: 'Очистить историю прослушиваний' },
+                      { cmd: 'clear-logs',              desc: 'Очистить логи консоли' },
+                    ]
+                  },
+                ].map((section, si) => (
+                  <div key={si} style={{ marginBottom: 20 }}>
+                    {section.title && (
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 8,
+                        marginBottom: 10,
+                        paddingBottom: 6,
+                        borderBottom: '1px solid var(--border)',
                       }}>
-                        {item.desc}
-                      </p>
+                        <i className={`fas ${section.icon}`} style={{ color: 'var(--accent)', fontSize: '0.8rem' }}></i>
+                        <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+                          {section.title}
+                        </span>
+                      </div>
+                    )}
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(230px, 1fr))', gap: 10 }}>
+                      {section.commands.map((item, idx) => (
+                        <div
+                          key={idx}
+                          style={{
+                            background: 'var(--bg-secondary)',
+                            padding: '12px 14px',
+                            borderRadius: '10px',
+                            border: '1px solid var(--border)',
+                            cursor: 'pointer',
+                            transition: 'transform 0.15s, border-color 0.15s',
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.borderColor = 'var(--accent)'; }}
+                          onMouseLeave={e => { e.currentTarget.style.transform = ''; e.currentTarget.style.borderColor = 'var(--border)'; }}
+                          onClick={() => setCommand(item.cmd.split(' ')[0])}
+                        >
+                          <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 5 }}>
+                            <i className="fas fa-chevron-right" style={{ color: 'var(--accent)', fontSize: '0.72rem', flexShrink: 0 }}></i>
+                            <code style={{
+                              background: 'rgba(136,51,255,0.1)',
+                              padding: '2px 7px',
+                              borderRadius: 5,
+                              color: 'var(--accent-light)',
+                              fontFamily: 'monospace',
+                              fontSize: '0.82rem',
+                              whiteSpace: 'nowrap',
+                            }}>
+                              {item.cmd}
+                            </code>
+                          </div>
+                          <p style={{ marginLeft: 16, color: 'var(--text-secondary)', fontSize: '0.83rem', lineHeight: 1.35 }}>
+                            {item.desc}
+                          </p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
                 
                 <div style={{ 
                   marginTop: '15px', 
