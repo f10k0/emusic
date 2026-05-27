@@ -13,19 +13,25 @@ function MyApp({ Component, pageProps }) {
   const isClipsPage = router.pathname === '/clips';
 
   useEffect(() => {
+    // Apply cached theme instantly (before API responds) to avoid flash
+    const cachedTheme = localStorage.getItem('emusic_theme') || 'dark';
+    useSettingsStore.getState().applyTheme(cachedTheme);
+
     const token = localStorage.getItem('access_token');
     if (token) {
       useAuthStore.getState().fetchUser()
         .then(user => {
           if (user) {
             api.get('/users/me/settings')
-              .then(r => useSettingsStore.getState().loadSettings(r.data))
-              .catch(() => useSettingsStore.getState().applyTheme('dark'));
+              .then(r => {
+                // Cache theme for next load
+                if (r.data?.theme) localStorage.setItem('emusic_theme', r.data.theme);
+                useSettingsStore.getState().loadSettings(r.data);
+              })
+              .catch(() => {});
           }
         })
-        .catch(() => useSettingsStore.getState().applyTheme('dark'));
-    } else {
-      useSettingsStore.getState().applyTheme('dark');
+        .catch(() => {});
     }
   }, []);
 

@@ -64,35 +64,13 @@ const useSettingsStore = create((set, get) => ({
     }
   },
 
-  // Тема
+  // Тема — устанавливаем data-theme на <html>, CSS делает остальное
   applyTheme: (theme) => {
     if (typeof document === 'undefined') return;
-    const root = document.documentElement;
     const effective = theme === 'system'
       ? (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light')
       : theme;
-
-    if (effective === 'light') {
-      root.style.setProperty('--bg-primary',    '#f5f5f7');
-      root.style.setProperty('--bg-secondary',  '#ffffff');
-      root.style.setProperty('--bg-elevated',   '#ebebed');
-      root.style.setProperty('--text-primary',  '#1a1a2e');
-      root.style.setProperty('--text-secondary','#4a4a5a');
-      root.style.setProperty('--text-muted',    '#8a8a9a');
-      root.style.setProperty('--border',        '#d0d0da');
-      root.style.setProperty('--hover',         '#e0e0e8');
-      root.style.setProperty('--player-bg',     'rgba(255,255,255,0.95)');
-    } else {
-      root.style.setProperty('--bg-primary',    '#0a0a0f');
-      root.style.setProperty('--bg-secondary',  '#12121a');
-      root.style.setProperty('--bg-elevated',   '#1c1c28');
-      root.style.setProperty('--text-primary',  '#ffffff');
-      root.style.setProperty('--text-secondary','#b0b0c0');
-      root.style.setProperty('--text-muted',    '#70707e');
-      root.style.setProperty('--border',        '#2a2a3a');
-      root.style.setProperty('--hover',         '#252533');
-      root.style.setProperty('--player-bg',     'rgba(18,18,26,0.95)');
-    }
+    document.documentElement.setAttribute('data-theme', effective);
   },
 
   // dB → linear gain: gain = 10^(dB/20)

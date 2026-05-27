@@ -1,22 +1,23 @@
 import { useState, useEffect } from 'react';
 import Layout from '../../components/Layout';
 import api from '../../lib/api';
-import useSettingsStore from '../../store/settingsStore';
+import useSettingsStore, { default as settingsStore } from '../../store/settingsStore';
 import useAuthStore from '../../store/authStore';
 import ProtectedRoute from '../../components/ProtectedRoute';
 
 const TABS = [
-  { id: 'general', label: 'Общие' },
-  { id: 'playback', label: 'Воспроизведение' },
-  { id: 'privacy', label: 'Приватность' },
-  { id: 'advanced', label: 'Дополнительно' },
+  { id: 'general', label: 'Общие', icon: 'fa-sliders-h' },
+  { id: 'playback', label: 'Воспроизведение', icon: 'fa-headphones' },
+  { id: 'notifications', label: 'Уведомления', icon: 'fa-bell' },
+  { id: 'privacy', label: 'Приватность', icon: 'fa-lock' },
+  { id: 'advanced', label: 'Дополнительно', icon: 'fa-cog' },
 ];
 
 const EQ_PRESETS = ['normal', 'bass', 'treble', 'classical', 'rock', 'pop'];
 const EQ_LABELS = { normal: 'Нормальный', bass: 'Басы', treble: 'Высокие', classical: 'Классика', rock: 'Рок', pop: 'Поп' };
 
 const DEFAULT = {
-  hide_adult: true,
+  hide_adult: false,
   autoplay: true,
   audio_quality: 'medium',
   theme: 'dark',
@@ -50,11 +51,21 @@ export default function SettingsPage() {
   useEffect(() => {
     if (!user) return;
     api.get('/users/me/settings').then(r => {
-      setSettings({ ...DEFAULT, ...r.data });
+      const s = { ...DEFAULT, ...r.data };
+      setSettings(s);
+      // Apply theme immediately when loading
+      useSettingsStore.getState().applyTheme(s.theme);
     }).catch(() => {}).finally(() => setLoading(false));
   }, [user]);
 
-  const set = (key, val) => setSettings(s => ({ ...s, [key]: val }));
+  const set = (key, val) => {
+    setSettings(s => ({ ...s, [key]: val }));
+    // Применяем тему мгновенно при изменении
+    if (key === 'theme') {
+      useSettingsStore.getState().applyTheme(val);
+      localStorage.setItem('emusic_theme', val);
+    }
+  };
 
   const save = async () => {
     try {
@@ -90,6 +101,7 @@ export default function SettingsPage() {
             <div className="settings-tabs">
               {TABS.map(t => (
                 <button key={t.id} className={`settings-tab ${activeTab === t.id ? 'active' : ''}`} onClick={() => setActiveTab(t.id)}>
+                  <i className={`fas ${t.icon}`} style={{ marginRight: 6, fontSize: '0.8rem' }}></i>
                   {t.label}
                 </button>
               ))}
@@ -114,22 +126,6 @@ export default function SettingsPage() {
                       <option value="light">Светлая</option>
                       <option value="system">Системная</option>
                     </select>
-                  </div>
-                </div>
-                <div className="settings-group">
-                  <div className="settings-item">
-                    <div>
-                      <div className="settings-item-label"><i className="fas fa-bell" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Уведомления о новых треках</div>
-                      <div className="settings-item-desc">Когда артист из ваших подписок выпускает новый трек</div>
-                    </div>
-                    <Toggle checked={settings.notifications_new_tracks} onChange={v => set('notifications_new_tracks', v)} />
-                  </div>
-                  <div className="settings-item">
-                    <div>
-                      <div className="settings-item-label"><i className="fas fa-calendar-alt" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Уведомления о мероприятиях</div>
-                      <div className="settings-item-desc">Когда артист добавляет новое мероприятие</div>
-                    </div>
-                    <Toggle checked={settings.notifications_events} onChange={v => set('notifications_events', v)} />
                   </div>
                 </div>
               </>
@@ -187,6 +183,29 @@ export default function SettingsPage() {
                   </div>
                 </div>
               </>
+            )}
+
+            {activeTab === 'notifications' && (
+              <div className="settings-group">
+                <div style={{ marginBottom: 16, padding: '12px 16px', background: 'rgba(136,51,255,0.08)', borderRadius: 12, border: '1px solid rgba(136,51,255,0.2)', fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+                  <i className="fas fa-info-circle" style={{ color: 'var(--accent)', marginRight: 7 }}></i>
+                  Уведомления приходят от артистов, на которых вы подписаны. Управляйте подписками в разделе «Любимые артисты».
+                </div>
+                <div className="settings-item">
+                  <div>
+                    <div className="settings-item-label"><i className="fas fa-music" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Новые треки</div>
+                    <div className="settings-item-desc">Когда артист из ваших подписок выпускает новый трек</div>
+                  </div>
+                  <Toggle checked={settings.notifications_new_tracks} onChange={v => set('notifications_new_tracks', v)} />
+                </div>
+                <div className="settings-item">
+                  <div>
+                    <div className="settings-item-label"><i className="fas fa-calendar-alt" style={{color:"var(--accent)",marginRight:7,fontSize:"0.85rem"}}></i>Мероприятия</div>
+                    <div className="settings-item-desc">Когда артист добавляет новое мероприятие или концерт</div>
+                  </div>
+                  <Toggle checked={settings.notifications_events} onChange={v => set('notifications_events', v)} />
+                </div>
+              </div>
             )}
 
             {activeTab === 'privacy' && (
