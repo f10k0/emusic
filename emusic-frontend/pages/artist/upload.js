@@ -24,6 +24,8 @@ export default function UploadTrack() {
     album_id: '',
   });
   const [file, setFile] = useState(null);
+  const [coverFile, setCoverFile] = useState(null);
+  const [coverPreview, setCoverPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -106,9 +108,19 @@ export default function UploadTrack() {
     formData.append('file', file);
 
     try {
-      await api.post('/submissions/', formData, {
+      const submissionRes = await api.post('/submissions/', formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       });
+
+      // Если выбрана обложка — загружаем её отдельным запросом
+      if (coverFile && submissionRes.data?.track_id) {
+        const coverForm = new FormData();
+        coverForm.append('file', coverFile);
+        await api.post(`/submissions/tracks/${submissionRes.data.track_id}/cover`, coverForm, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        }).catch(() => {}); // Не блокируем если обложка не загрузилась
+      }
+
       router.push('/artist/submissions?success=true');
     } catch (err) {
       console.error('Ошибка загрузки:', err);
@@ -317,6 +329,63 @@ export default function UploadTrack() {
             </div>
 
                         <div className="form-group">
+              <label>Обложка трека</label>
+              <div style={{ display: 'flex', alignItems: 'flex-start', gap: 16, marginTop: 8 }}>
+                {/* Превью */}
+                <div style={{
+                  width: 100, height: 100, flexShrink: 0,
+                  borderRadius: 12, overflow: 'hidden',
+                  background: 'var(--bg-elevated)',
+                  border: '2px dashed var(--border)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  position: 'relative',
+                }}>
+                  {coverPreview ? (
+                    <>
+                      <img src={coverPreview} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} alt="" />
+                      <button
+                        type="button"
+                        onClick={() => { setCoverFile(null); setCoverPreview(null); }}
+                        style={{ position: 'absolute', top: 4, right: 4, background: 'rgba(0,0,0,0.6)', border: 'none', color: 'white', borderRadius: '50%', width: 20, height: 20, cursor: 'pointer', fontSize: '0.65rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                      >
+                        <i className="fas fa-times"></i>
+                      </button>
+                    </>
+                  ) : (
+                    <i className="fas fa-image" style={{ fontSize: '2rem', color: 'var(--text-muted)', opacity: 0.4 }}></i>
+                  )}
+                </div>
+                <div style={{ flex: 1 }}>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    style={{ display: 'none' }}
+                    id="cover-upload"
+                    onChange={e => {
+                      const f = e.target.files[0];
+                      if (!f) return;
+                      setCoverFile(f);
+                      setCoverPreview(URL.createObjectURL(f));
+                    }}
+                  />
+                  <label htmlFor="cover-upload" className="btn-secondary" style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '8px 16px', cursor: 'pointer', fontSize: '0.85rem', borderRadius: 20 }}>
+                    <i className="fas fa-upload"></i>
+                    {coverFile ? 'Сменить обложку' : 'Выбрать обложку'}
+                  </label>
+                  <p style={{ marginTop: 8, fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    Рекомендуемый размер: 500×500 px. Форматы: JPG, PNG, WebP.
+                  </p>
+                  {coverFile && (
+                    <p style={{ marginTop: 4, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      <i className="fas fa-check-circle" style={{ color: '#28a745', marginRight: 4 }}></i>
+                      {coverFile.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            <div className="form-group">
               <label htmlFor="file">Аудиофайл (MP3) <span style={{ color: 'var(--accent)' }}>*</span></label>
               <input
                 type="file"
