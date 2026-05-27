@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import '../styles/globals.css';
 import useAuthStore from '../store/authStore';
@@ -11,6 +11,24 @@ import api from '../lib/api';
 function MyApp({ Component, pageProps }) {
   const router = useRouter();
   const isClipsPage = router.pathname === '/clips';
+  const [pageKey, setPageKey] = useState(router.pathname);
+  const [transitioning, setTransitioning] = useState(false);
+
+  useEffect(() => {
+    const handleStart = () => { setTransitioning(true); };
+    const handleComplete = (url) => {
+      setPageKey(url);
+      setTransitioning(false);
+    };
+    router.events.on('routeChangeStart', handleStart);
+    router.events.on('routeChangeComplete', handleComplete);
+    router.events.on('routeChangeError', handleComplete);
+    return () => {
+      router.events.off('routeChangeStart', handleStart);
+      router.events.off('routeChangeComplete', handleComplete);
+      router.events.off('routeChangeError', handleComplete);
+    };
+  }, [router]);
 
   useEffect(() => {
     // Apply cached theme instantly (before API responds) to avoid flash
@@ -59,7 +77,9 @@ function MyApp({ Component, pageProps }) {
 
   return (
     <ToastProvider>
-      <Component {...pageProps} />
+      <div key={pageKey} style={{ animation: 'pageEnter 0.25s ease forwards' }}>
+        <Component {...pageProps} />
+      </div>
       {!isClipsPage && <PlayerBar />}
     </ToastProvider>
   );

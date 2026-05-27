@@ -6402,3 +6402,15 @@ body, .sidebar, .main-content, .player-bar,
 
 /* ── Player z-index (above everything) ───────────────────────────── */
 .player-bar { z-index: 20 !important; }
+
+/* ── Page transition animation ───────────────────────────────────────── */
+@keyframes pageEnter {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

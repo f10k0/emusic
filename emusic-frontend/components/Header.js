@@ -26,8 +26,13 @@ export default function Header() {
         setDropdownOpen(false);
       }
     };
+    const handleScroll = () => { if (dropdownOpen) setDropdownOpen(false); };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
   }, [dropdownOpen]);
 
   // При открытии вычисляем позицию

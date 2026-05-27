@@ -226,14 +226,18 @@ export default function PlayerBar() {
               )}
               {repeat === 'all' && (
                 <span style={{
-                  position: 'absolute', top: -4, right: -4,
-                  background: 'var(--accent)', color: 'white',
-                  borderRadius: '50%', width: 14, height: 14,
-                  fontSize: '0.55rem', fontWeight: 800,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                }}>
-                  <i className="fas fa-infinity" style={{ fontSize: '0.5rem' }}></i>
-                </span>
+                  position: 'absolute', top: -6, right: -8,
+                  background: 'var(--accent-gradient)',
+                  color: 'white',
+                  borderRadius: 10,
+                  padding: '1px 5px',
+                  fontSize: '0.7rem',
+                  fontWeight: 900,
+                  lineHeight: '14px',
+                  letterSpacing: '-0.5px',
+                  boxShadow: '0 2px 6px rgba(136,51,255,0.5)',
+                  fontFamily: 'monospace',
+                }}>∞</span>
               )}
             </button>
           </div>

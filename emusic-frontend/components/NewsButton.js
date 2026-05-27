@@ -25,8 +25,13 @@ export default function NewsButton() {
         setOpen(false);
       }
     };
+    const handleScroll = () => { if (open) setOpen(false); };
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('scroll', handleScroll, true);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
   }, [open]);
 
   useEffect(() => {
