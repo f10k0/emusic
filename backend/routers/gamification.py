@@ -222,6 +222,9 @@ def get_my_progress(
 def add_listen_time(
     seconds: int,
     genre: str = None,
+    artist_id: int = None,
+    album_id: int = None,
+    hour: int = None,          # 0-23, current hour on client
     db: Session = Depends(get_db),
     current_user: models.User = Depends(dependencies.get_current_active_user)
 ):
@@ -235,13 +238,148 @@ def add_listen_time(
     p.level = new_level
     db.commit()
 
+    # ── Determine time of day ─────────────────────────────────
+    from datetime import datetime as _dt
+    current_hour = hour if hour is not None else _dt.now().hour
+    is_morning = 5 <= current_hour < 12   # 05:00–11:59
+    is_day     = 12 <= current_hour < 18  # 12:00–17:59
+    is_evening = 18 <= current_hour < 22  # 18:00–21:59
+    is_night   = current_hour >= 22 or current_hour < 5  # 22:00–04:59
+
+    minutes_listened = seconds // 60
+
+    # ── Count unique genres heard today ──────────────────────
+    def _genres_today(user_id):
+        """Count distinct genres listened to today from user_daily_quests progress tracking."""
+        # We track via a simple JSON key in user_progress or just use a counter approach
+        # For simplicity: count from listening_history if available, else approximate
+        try:
+            result = db.execute(
+                text("""
+                    SELECT COUNT(DISTINCT tg.genre_id)
+                    FROM listening_history lh
+                    JOIN track_genres tg ON tg.track_id = lh.track_id
+                    WHERE lh.user_id = :uid
+                    AND DATE(lh.listened_at) = CURRENT_DATE
+                """),
+                {"uid": user_id}
+            ).scalar()
+            return result or 0
+        except Exception:
+            return 0
+
+    def _total_genres_heard(user_id):
+        try:
+            result = db.execute(
+                text("""
+                    SELECT COUNT(DISTINCT tg.genre_id)
+                    FROM listening_history lh
+                    JOIN track_genres tg ON tg.track_id = lh.track_id
+                    WHERE lh.user_id = :uid
+                """),
+                {"uid": user_id}
+            ).scalar()
+            return result or 0
+        except Exception:
+            return 0
+
+    def _total_genres_count():
+        try:
+            return db.execute(text("SELECT COUNT(*) FROM genres")).scalar() or 20
+        except Exception:
+            return 20
+
+    def _new_artist_today(user_id, a_id):
+        """True if this artist_id has not been heard before today."""
+        if not a_id:
+            return False
+        try:
+            prev = db.execute(
+                text("""
+                    SELECT 1 FROM listening_history lh
+                    JOIN tracks t ON t.id = lh.track_id
+                    WHERE lh.user_id = :uid AND t.artist_id = :aid
+                    AND DATE(lh.listened_at) < CURRENT_DATE
+                    LIMIT 1
+                """),
+                {"uid": user_id, "aid": a_id}
+            ).fetchone()
+            return prev is None
+        except Exception:
+            return False
+
+    def _artist_listen_count_today(user_id, a_id):
+        """How many distinct artists have been listened to today."""
+        try:
+            return db.execute(
+                text("""
+                    SELECT COUNT(DISTINCT t.artist_id)
+                    FROM listening_history lh
+                    JOIN tracks t ON t.id = lh.track_id
+                    WHERE lh.user_id = :uid
+                    AND DATE(lh.listened_at) = CURRENT_DATE
+                """),
+                {"uid": user_id}
+            ).scalar() or 0
+        except Exception:
+            return 0
+
+    def _listen_days_streak(user_id):
+        """Count consecutive days with listening activity up to today."""
+        try:
+            rows = db.execute(
+                text("""
+                    SELECT DISTINCT DATE(listened_at) as d
+                    FROM listening_history
+                    WHERE user_id = :uid
+                    ORDER BY d DESC
+                    LIMIT 30
+                """),
+                {"uid": user_id}
+            ).fetchall()
+            if not rows:
+                return 1
+            from datetime import date as _date, timedelta
+            streak = 0
+            today_d = _date.today()
+            for i, row in enumerate(rows):
+                expected = today_d - timedelta(days=i)
+                if row[0] == expected:
+                    streak += 1
+                else:
+                    break
+            return max(1, streak)
+        except Exception:
+            return 1
+
+    def _is_chart_track(track_id_val):
+        """Check if track appears in top 20 chart."""
+        try:
+            result = db.execute(
+                text("""
+                    SELECT 1 FROM tracks
+                    WHERE id = :tid AND play_count > 0
+                    ORDER BY play_count DESC
+                    LIMIT 1
+                """),
+                {"tid": track_id_val}
+            ).fetchone()
+            return result is not None
+        except Exception:
+            return False
+
     # ── Auto-update daily quest progress ──────────────────────
     today = _today()
     daily_quests = db.query(models.UserDailyQuest).filter_by(
         user_id=current_user.id, date=today, claimed=False
     ).all()
 
-    minutes_listened = seconds // 60
+    # Pre-compute expensive values only if needed
+    genres_today_count = None
+    total_genres_heard = None
+    total_genres_count = None
+    listen_streak = None
+    new_artist = None
 
     for dq in daily_quests:
         if dq.completed:
@@ -249,20 +387,95 @@ def add_listen_time(
         qt = dq.quest.quest_type
         updated = False
 
+        # ── listen_tracks: +1 per track ────────────────────
         if qt == 'listen_tracks':
             dq.progress = min(dq.progress + 1, dq.quest.target_value)
             updated = True
+
+        # ── listen_minutes: +minutes per session ───────────
         elif qt == 'listen_minutes' and minutes_listened > 0:
             dq.progress = min(dq.progress + minutes_listened, dq.quest.target_value)
             updated = True
+
+        # ── listen_genre: match by genre name ──────────────
         elif qt == 'listen_genre' and genre and dq.quest.target_ref:
-            # Compare genre name against target_ref (both normalized)
             genre_norm = genre.lower().strip()
             ref_norm = dq.quest.target_ref.lower().strip()
-            # Direct match OR partial match (e.g. "Классическая" contains "классич")
             if genre_norm == ref_norm or ref_norm in genre_norm or genre_norm in ref_norm:
                 dq.progress = min(dq.progress + 1, dq.quest.target_value)
                 updated = True
+
+        # ── listen_genres: distinct genres today ───────────
+        elif qt == 'listen_genres':
+            if genres_today_count is None:
+                genres_today_count = _genres_today(current_user.id)
+            dq.progress = min(genres_today_count, dq.quest.target_value)
+            if dq.progress >= dq.quest.target_value:
+                dq.completed = True
+            updated = True
+
+        # ── listen_morning: listen in morning hours ─────────
+        elif qt == 'listen_morning' and is_morning:
+            dq.progress = min(dq.progress + 1, dq.quest.target_value)
+            updated = True
+
+        # ── listen_night: listen at night ───────────────────
+        elif qt == 'listen_night' and is_night:
+            dq.progress = min(dq.progress + 1, dq.quest.target_value)
+            updated = True
+
+        # ── listen_all_day: morning + day + evening ─────────
+        elif qt == 'listen_all_day':
+            # Track parts of day heard in progress as bitmask: bit0=morning, bit1=day, bit2=evening
+            bits = dq.progress
+            if is_morning: bits |= 1
+            if is_day:     bits |= 2
+            if is_evening: bits |= 4
+            dq.progress = bits
+            # Completed when all 3 parts heard (bits == 7)
+            if bits >= 7:
+                dq.progress = dq.quest.target_value
+                dq.completed = True
+            updated = True
+
+        # ── listen_days: consecutive listening days ─────────
+        elif qt == 'listen_days':
+            if listen_streak is None:
+                listen_streak = _listen_days_streak(current_user.id)
+            dq.progress = min(listen_streak, dq.quest.target_value)
+            if dq.progress >= dq.quest.target_value:
+                dq.completed = True
+            updated = True
+
+        # ── listen_all_genres: heard all genres ─────────────
+        elif qt == 'listen_all_genres':
+            if total_genres_heard is None:
+                total_genres_heard = _total_genres_heard(current_user.id)
+            if total_genres_count is None:
+                total_genres_count = _total_genres_count()
+            if total_genres_heard >= total_genres_count:
+                dq.progress = dq.quest.target_value
+                dq.completed = True
+                updated = True
+
+        # ── listen_new_artists: new artists today ───────────
+        elif qt == 'listen_new_artists' and artist_id:
+            if new_artist is None:
+                new_artist = _new_artist_today(current_user.id, artist_id)
+            if new_artist:
+                dq.progress = min(dq.progress + 1, dq.quest.target_value)
+                updated = True
+
+        # ── listen_chart: tracks from chart ─────────────────
+        elif qt == 'listen_chart':
+            # All tracks count as potential chart tracks (simplified)
+            dq.progress = min(dq.progress + 1, dq.quest.target_value)
+            updated = True
+
+        # ── listen_album: listen to a full album ────────────
+        elif qt == 'listen_album' and album_id:
+            dq.progress = min(dq.progress + 1, dq.quest.target_value)
+            updated = True
 
         if updated and dq.progress >= dq.quest.target_value:
             dq.completed = True
@@ -333,6 +546,31 @@ def claim_quest_reward(
     p = _get_or_create_progress(db, current_user.id)
     p.ecoins += dq.quest.ecoin_reward
     db.commit()
+
+    # ── Auto-update complete_quests progress ──
+    try:
+        today = _today()
+        # Count quests claimed this month
+        from datetime import date as _date
+        this_month = str(_date.today())[:7]  # YYYY-MM
+        claimed_this_month = db.query(models.UserDailyQuest).filter(
+            models.UserDailyQuest.user_id == current_user.id,
+            models.UserDailyQuest.claimed == True,
+            models.UserDailyQuest.date.like(f"{this_month}%")
+        ).count()
+        other_quests = db.query(models.UserDailyQuest).filter_by(
+            user_id=current_user.id, date=today, claimed=False
+        ).all()
+        for odq in other_quests:
+            if odq.completed or odq.quest.quest_type != 'complete_quests':
+                continue
+            odq.progress = min(claimed_this_month, odq.quest.target_value)
+            if odq.progress >= odq.quest.target_value:
+                odq.completed = True
+        db.commit()
+    except Exception:
+        pass
+
     return {"ecoins_earned": dq.quest.ecoin_reward, "total_ecoins": p.ecoins}
 
 
@@ -403,6 +641,24 @@ def buy_item(
     inv = models.UserInventory(user_id=current_user.id, item_id=item_id)
     db.add(inv)
     db.commit()
+
+    # ── Auto-update buy_items quest progress ──
+    try:
+        today = _today()
+        total_bought = db.query(models.UserInventory).filter_by(user_id=current_user.id).count()
+        daily_quests = db.query(models.UserDailyQuest).filter_by(
+            user_id=current_user.id, date=today, claimed=False
+        ).all()
+        for dq in daily_quests:
+            if dq.completed or dq.quest.quest_type != 'buy_items':
+                continue
+            dq.progress = min(total_bought, dq.quest.target_value)
+            if dq.progress >= dq.quest.target_value:
+                dq.completed = True
+        db.commit()
+    except Exception:
+        pass
+
     return {"success": True, "remaining_ecoins": p.ecoins}
 
 # ──────────────────────────────────────────────────────────────

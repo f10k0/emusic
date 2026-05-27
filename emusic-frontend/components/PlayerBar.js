@@ -52,24 +52,28 @@ export default function PlayerBar() {
 
   useEffect(() => {
     const audio = audioRef.current;
-    if (!audio || !currentTrack) return;
-    const trackId = currentTrack.id;
+    // Get fresh currentTrack from store (not stale closure)
+    const { currentTrack: track } = usePlayerStore.getState();
+    if (!audio || !track) return;
+    const trackId = track.id;
     if (prevTrackIdRef.current === trackId) {
+      // Same track — just sync play/pause state
       if (isPlaying) { if (audio.paused) audio.play().catch(console.error); }
       else { if (!audio.paused) audio.pause(); }
       return;
     }
+    // New track — load and play
     prevTrackIdRef.current = trackId;
     audio.src = `${process.env.NEXT_PUBLIC_API_URL}/music/listen/${trackId}`;
     audio.load();
     audio.playbackRate = playbackRate;
     if (isPlaying) {
       const p = audio.play();
-      if (p !== undefined) p.catch(err => {
+      if (p !== undefined) p.catch(() => {
         audio.addEventListener('canplay', () => audio.play().catch(console.error), { once: true });
       });
     }
-  }, [currentTrack, isPlaying]);
+  }, [currentTrack?.id, isPlaying]);
 
   const handleTimeUpdate = () => {
     if (audioRef.current && !isDragging) {
@@ -136,26 +140,28 @@ export default function PlayerBar() {
 
   const listenStartRef = useRef(null);
 
-  // Track when playback starts
+  // Track when playback starts/stops
   useEffect(() => {
-    if (isPlaying && currentTrack) {
+    if (isPlaying) {
       if (!listenStartRef.current) listenStartRef.current = Date.now();
     } else {
-      if (listenStartRef.current && currentTrack) {
+      if (listenStartRef.current) {
+        const { currentTrack: track } = usePlayerStore.getState();
         const seconds = Math.floor((Date.now() - listenStartRef.current) / 1000);
         listenStartRef.current = null;
-        if (seconds >= 3) reportListenTime(seconds, currentTrack);
+        if (seconds >= 3 && track) reportListenTime(seconds, track);
       }
     }
   }, [isPlaying, currentTrack?.id]);
 
-  // Report listen time on track change
+  // Report listen time when track changes
   useEffect(() => {
     return () => {
-      if (listenStartRef.current && currentTrack) {
+      if (listenStartRef.current) {
+        const { currentTrack: track } = usePlayerStore.getState();
         const seconds = Math.floor((Date.now() - listenStartRef.current) / 1000);
         listenStartRef.current = null;
-        if (seconds >= 3) reportListenTime(seconds, currentTrack);
+        if (seconds >= 3 && track) reportListenTime(seconds, track);
       }
     };
   }, [currentTrack?.id]);
@@ -169,9 +175,16 @@ export default function PlayerBar() {
         || track?.genre_name
         || track?.genre
         || null;
-      await api.post('/gamification/progress/add-listen-time', null, {
-        params: { seconds: Math.min(seconds, 3600), ...(genre ? { genre } : {}) }
-      });
+      const now = new Date();
+      const hour = now.getHours();
+      const params = {
+        seconds: Math.min(seconds, 3600),
+        ...(genre ? { genre } : {}),
+        ...(track?.artist_id ? { artist_id: track.artist_id } : {}),
+        ...(track?.album_id ? { album_id: track.album_id } : {}),
+        hour,  // for morning/night/all_day quests
+      };
+      await api.post('/gamification/progress/add-listen-time', null, { params });
     } catch {}
   };
 

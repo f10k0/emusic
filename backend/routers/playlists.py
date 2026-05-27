@@ -202,6 +202,29 @@ def add_track_to_playlist(
     
     playlist.tracks.append(track)
     db.commit()
+
+    # ── Auto-update playlist_tracks quest progress ──
+    try:
+        from datetime import date as _date
+        today = str(_date.today())
+        # Count total tracks across all user playlists
+        total = sum(
+            len(pl.tracks)
+            for pl in db.query(models.Playlist).filter_by(user_id=current_user.id).all()
+        )
+        daily_quests = db.query(models.UserDailyQuest).filter_by(
+            user_id=current_user.id, date=today, claimed=False
+        ).all()
+        for dq in daily_quests:
+            if dq.completed or dq.quest.quest_type != 'playlist_tracks':
+                continue
+            dq.progress = min(total, dq.quest.target_value)
+            if dq.progress >= dq.quest.target_value:
+                dq.completed = True
+        db.commit()
+    except Exception:
+        pass
+
     return {"message": "Track added to playlist"}
 
 
