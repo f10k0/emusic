@@ -19,7 +19,7 @@ export default function PlayerBar() {
   const [showLyrics, setShowLyrics] = useState(false);
 
   const {
-    currentTrack, isPlaying, volume, currentTime, duration,
+    currentTrack, isPlaying, volume, currentTime, duration, seekTo, clearSeekTo,
     shuffle, repeat, setCurrentTime, setDuration, togglePlay,
     playNext, playPrev, setVolume, toggleShuffle, toggleRepeat,
     showQueue, toggleShowQueue, addToQueue, addNext,

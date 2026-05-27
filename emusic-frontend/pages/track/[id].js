@@ -36,7 +36,7 @@ export default function TrackPage() {
   const [track, setTrack] = useState(null);
   const [related, setRelated] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { setTrack: playTrack, currentTrack, isPlaying: storeIsPlaying, addToQueue, dynamicQueue, currentTime } = usePlayerStore();
+  const { setTrack: playTrack, currentTrack, isPlaying: storeIsPlaying, addToQueue, dynamicQueue, currentTime, setSeekTo } = usePlayerStore();
 
   useEffect(() => {
     if (!id) return;
@@ -60,15 +60,6 @@ export default function TrackPage() {
   const activeLine = _isCurrentTrack
     ? _lyrics.reduce((acc, line, i) => (line.time <= currentTime ? i : acc), -1)
     : -1;
-
-  // Auto-scroll active lyric line into view — must be before any early returns
-  useEffect(() => {
-    if (activeLine < 0) return;
-    const el = document.getElementById(`lyric-line-${activeLine}`);
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-  }, [activeLine]);
 
   if (loading) {
     return (
@@ -258,13 +249,10 @@ export default function TrackPage() {
                     <i className="fas fa-align-left" style={{ color: 'var(--accent)' }}></i>
                     Текст трека
                     {isCurrentTrackPlaying && (
-                      <span style={{ marginLeft: 'auto', fontSize: '0.72rem', color: 'var(--accent)', fontWeight: 600, display: 'flex', alignItems: 'center', gap: 5 }}>
-                        <i className="fas fa-volume-up playing-indicator" style={{ fontSize: '0.7rem' }}></i>
-                        синхронизировано
-                      </span>
+                      <i className="fas fa-volume-up playing-indicator" style={{ marginLeft: 'auto', fontSize: '0.75rem', color: 'var(--accent)' }}></i>
                     )}
                   </h3>
-                  <div style={{ maxHeight: 380, overflowY: 'auto', paddingRight: 8 }} className="lyrics-scroll">
+                  <div>
                     {lyrics.map((line, i) => {
                       const isActive = i === activeLine;
                       const isPast = i < activeLine;
@@ -273,9 +261,11 @@ export default function TrackPage() {
                         <div
                           key={i}
                           id={`lyric-line-${i}`}
-                          onClick={() => line.time != null && isCurrentTrackPlaying
-                            ? null
-                            : undefined}
+                          onClick={() => {
+                            if (line.time != null && isCurrentTrackPlaying && setSeekTo) {
+                              setSeekTo(line.time);
+                            }
+                          }}
                           style={{
                             marginBottom: 2,
                             padding: '6px 10px',
@@ -292,7 +282,7 @@ export default function TrackPage() {
                             borderLeft: isActive ? '3px solid var(--accent)' : '3px solid transparent',
                             transform: isActive ? 'scale(1.01)' : 'scale(1)',
                             transition: 'all 0.3s ease',
-                            cursor: line.time != null ? 'default' : 'default',
+                            cursor: line.time != null && isCurrentTrackPlaying ? 'pointer' : 'default',
                           }}
                         >
                           {line.text || ' '}

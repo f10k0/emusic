@@ -116,6 +116,9 @@ const usePlayerStore = create((set, get) => ({
   },
 
   setCurrentTime: (time) => set({ currentTime: time }),
+  seekTo: null,
+  setSeekTo: (time) => set({ seekTo: time }),
+  clearSeekTo: () => set({ seekTo: null }),
   setDuration: (dur) => set({ duration: dur }),
   toggleShuffle: () => set((state) => ({ shuffle: !state.shuffle })),
 
